@@ -1,0 +1,35 @@
+/* Swiper specific styles */
+@import 'swiper/css';
+@import 'swiper/css/pagination';
+
+.swiper-pagination-bullet {
+  background-color: #30d9fe !important;
+}
+
+.swiper-pagination-bullet-active {
+  background-color: #03325a !important;
+}
+
+@keyframes heroBgScaleOnly {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.04);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  75% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animated-hero-bg {
+  animation: heroBgScaleOnly 10s ease-in-out infinite;
+  will-change: transform;
+  -webkit-animation: heroBgScaleOnly 10s ease-in-out infinite;
+}

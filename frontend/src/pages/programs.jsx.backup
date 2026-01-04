@@ -1,0 +1,377 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import Layout from '../components/layout';
+import authService from '../services/authService';
+
+const Programs = () => {
+const [activeTab, setActiveTab] = useState('programs');
+const [isMenuOpen, setIsMenuOpen] = useState(false);
+const [searchTerm, setSearchTerm] = useState('');
+const [filters, setFilters] = useState({
+duration: '',
+difficulty: '',
+technology: ''
+});
+const [programs, setPrograms] = useState([]);
+const [filteredPrograms, setFilteredPrograms] = useState([]);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState(null);
+const [selectedProgram, setSelectedProgram] = useState(null);
+const [showModal, setShowModal] = useState(false);
+const [enrolling, setEnrolling] = useState(false);
+const [enrollmentSuccess, setEnrollmentSuccess] = useState(false);
+
+const toggleMenu = () => {
+setIsMenuOpen(!isMenuOpen);
+};
+
+const clearFilters = () => {
+setSearchTerm('');
+setFilters({
+duration: '',
+difficulty: '',
+technology: ''
+});
+};
+
+// Fetch programs from backend
+useEffect(() => {
+fetchPrograms();
+}, []);
+
+const fetchPrograms = async () => {
+try {
+setLoading(true);
+const response = await fetch('http://127.0.0.1:8000/api/programs/', {
+headers: {
+'Content-Type': 'application/json'
+}
+});
+
+if (response.ok) {
+const data = await response.json();
+setPrograms(data.results || data);
+setError(null);
+} else {
+setError('Failed to load programs');
+}
+} catch (err) {
+console.error('Error fetching programs:', err);
+setError('Failed to connect to server');
+} finally {
+setLoading(false);
+}
+};
+
+const openModal = (program) => {
+setSelectedProgram(program);
+setShowModal(true);
+setEnrollmentSuccess(false);
+};
+
+const closeModal = () => {
+setShowModal(false);
+setSelectedProgram(null);
+setEnrollmentSuccess(false);
+};
+
+const handleEnroll = async () => {
+const user = authService.getCurrentUser();
+if (!user) {
+alert('Please login to enroll in this program');
+window.location.href = '/login';
+return;
+}
+
+try {
+setEnrolling(true);
+const response = await fetch('http://127.0.0.1:8000/api/programs/enroll/', {
+method: 'POST',
+headers: {
+'Authorization': `Bearer ${authService.getToken()}`,
+'Content-Type': 'application/json'
+},
+body: JSON.stringify({
+program_id: selectedProgram.id
+})
+});
+
+if (response.ok) {
+setEnrollmentSuccess(true);
+setTimeout(() => {
+closeModal();
+}, 2000);
+} else {
+const data = await response.json();
+alert(data.detail || 'Failed to enroll. You may already be enrolled.');
+}
+} catch (err) {
+console.error('Error enrolling:', err);
+alert('Failed to enroll in program');
+} finally {
+setEnrolling(false);
+}
+};
+// Program data
+const programs = [
+{
+id: 1,
+title: "Full-Stack Web Development",
+description: "Learn HTML, CSS, JavaScript, React, Node.js, and MongoDB to build complete web applications.",
+image: "https://readdy.ai/api/search-image?query=Modern%2520web%2520development%2520workspace%2520with%2520code%2520on%2520screen%252C%2520showing%2520HTML%252C%2520CSS%252C%2520and%2520JavaScript.%2520Clean%252C%2520professional%2520setup%2520with%2520a%2520minimalist%2520design.%2520The%2520image%2520has%2520a%2520blue-tinted%2520tech%2520aesthetic%2520that%2520matches%2520the%2520websites%2520color%2520scheme%252C%2520with%2520clean%2520lines%2520and%2520a%2520professional%2520look&width=400&height=225&seq=101&orientation=landscape",
+duration: "12 Weeks",
+difficulty: "Beginner",
+technologies: ["HTML/CSS", "JavaScript", "React", "Node.js"]
+},
+{
+id: 2,
+title: "Data Science & Analytics",
+description: "Master data analysis, visualization, and machine learning with Python and its powerful libraries.",
+image: "https://readdy.ai/api/search-image?query=Data%2520science%2520visualization%2520with%2520charts%252C%2520graphs%252C%2520and%2520Python%2520code%2520on%2520screen.%2520The%2520image%2520shows%2520data%2520analysis%2520in%2520progress%2520with%2520colorful%2520data%2520visualizations.%2520Modern%252C%2520clean%2520workspace%2520with%2520a%2520professional%2520look.%2520The%2520color%2520scheme%2520includes%2520blues%2520that%2520match%2520the%2520websites%2520color%2520palette&width=400&height=225&seq=102&orientation=landscape",
+duration: "16 Weeks",
+difficulty: "Intermediate",
+technologies: ["Python", "Pandas", "NumPy", "Scikit-learn"]
+},
+{
+id: 3,
+title: "Mobile App Development",
+description: "Build cross-platform mobile applications using React Native for iOS and Android devices.",
+image: "https://readdy.ai/api/search-image?query=Mobile%2520app%2520development%2520workspace%2520with%2520smartphone%2520mockups%2520and%2520React%2520Native%2520code%2520on%2520screen.%2520The%2520image%2520shows%2520a%2520professional%2520development%2520environment%2520with%2520mobile%2520UI%2520designs%2520visible.%2520Clean%252C%2520modern%2520aesthetic%2520with%2520blue%2520tones%2520that%2520match%2520the%2520websites%2520color%2520scheme&width=400&height=225&seq=103&orientation=landscape",
+duration: "14 Weeks",
+difficulty: "Intermediate",
+technologies: ["JavaScript", "React Native", "Redux", "Firebase"]
+},
+{
+id: 4,
+title: "AI & Machine Learning",
+description: "Dive deep into artificial intelligence, neural networks, and advanced machine learning algorithms.",
+image: "https://readdy.ai/api/search-image?query=Artificial%2520intelligence%2520and%2520machine%2520learning%2520workspace%2520with%2520neural%2520network%2520visualizations%2520and%2520Python%2520code.%2520The%2520image%2520shows%2520AI%2520models%2520being%2520trained%2520with%2520data%2520flowing%2520through%2520network%2520nodes.%2520Professional%252C%2520clean%2520aesthetic%2520with%2520blue%2520tones&width=400&height=225&seq=104&orientation=landscape",
+duration: "20 Weeks",
+difficulty: "Advanced",
+technologies: ["Python", "TensorFlow", "PyTorch", "Keras"]
+},
+{
+id: 5,
+title: "Cloud Computing & DevOps",
+description: "Learn to deploy, scale, and manage applications in the cloud using AWS, Azure, and Google Cloud.",
+image: "https://readdy.ai/api/search-image?query=Cloud%2520computing%2520and%2520DevOps%2520workspace%2520showing%2520cloud%2520architecture%2520diagrams%2520and%2520terminal%2520with%2520deployment%2520scripts.%2520Professional%2520development%2520environment%2520with%2520multiple%2520screens%2520displaying%2520cloud%2520services.%2520Clean%252C%2520modern%2520aesthetic%2520with%2520blue%2520tones&width=400&height=225&seq=105&orientation=landscape",
+duration: "16 Weeks",
+difficulty: "Intermediate",
+technologies: ["AWS", "Docker", "Kubernetes", "CI/CD"]
+},
+{
+id: 6,
+title: "Blockchain Development",
+description: "Develop decentralized applications and smart contracts on blockchain platforms like Ethereum.",
+image: "https://readdy.ai/api/search-image?query=Blockchain%2520development%2520workspace%2520with%2520code%2520editor%2520showing%2520smart%2520contract%2520development%2520and%2520blockchain%2520architecture%2520diagrams.%2520Modern%2520tech%2520environment%2520with%2520visualizations%2520of%2520blockchain%2520nodes%2520and%2520connections.%2520Professional%252C%2520clean%2520aesthetic%2520with%2520blue%2520tones&width=400&height=225&seq=106&orientation=landscape",
+duration: "14 Weeks",
+difficulty: "Advanced",
+technologies: ["Solidity", "Web3.js", "Ethereum", "Smart Contracts"]
+},
+{
+id: 7,
+title: "UI/UX Design",
+description: "Master the principles of user interface and experience design to create beautiful, functional applications.",
+image: "https://readdy.ai/api/search-image?query=UI%2520UX%2520design%2520workspace%2520with%2520design%2520software%2520open%2520showing%2520wireframes%2520and%2520prototypes.%2520The%2520scene%2520includes%2520color%2520palettes%252C%2520user%2520flow%2520diagrams%252C%2520and%2520mobile%2520app%2520interface%2520designs.%2520Clean%252C%2520modern%2520aesthetic%2520with%2520blue%2520tones%2520that%2520match%2520the%2520websites%2520color%2520scheme&width=400&height=225&seq=107&orientation=landscape",
+duration: "10 Weeks",
+difficulty: "Beginner",
+technologies: ["Figma", "Adobe XD", "Sketch", "Prototyping"]
+},
+{
+id: 8,
+title: "Cybersecurity Fundamentals",
+description: "Learn to identify vulnerabilities, protect systems, and respond to security incidents.",
+image: "https://readdy.ai/api/search-image?query=Cybersecurity%2520workspace%2520with%2520multiple%2520screens%2520showing%2520security%2520monitoring%252C%2520code%2520analysis%252C%2520and%2520network%2520traffic.%2520Professional%2520security%2520operations%2520center%2520environment%2520with%2520data%2520visualizations%2520and%2520security%2520tools.%2520Clean%252C%2520modern%2520aesthetic%2520with%2520blue%2520tones&width=400&height=225&seq=108&orientation=landscape",
+duration: "12 Weeks",
+difficulty: "Intermediate",
+technologies: ["Network Security", "Ethical Hacking", "Cryptography", "Security Analysis"]
+},
+{
+id: 9,
+title: "Game Development",
+description: "Create interactive games using modern game engines and programming techniques.",
+image: "https://readdy.ai/api/search-image?query=Game%2520development%2520workspace%2520with%2520game%2520engine%2520interface%2520open%2520showing%25203D%2520models%252C%2520level%2520design%252C%2520and%2520game%2520code.%2520Professional%2520development%2520environment%2520with%2520game%2520assets%2520and%2520testing%2520screens.%2520Clean%252C%2520modern%2520aesthetic%2520with%2520blue%2520tones&width=400&height=225&seq=109&orientation=landscape",
+duration: "16 Weeks",
+difficulty: "Intermediate",
+technologies: ["Unity", "C#", "3D Modeling", "Game Design"]
+}
+];
+// Filter programs based on search term and filters
+useEffect(() => {
+let results = [...programs];
+if (searchTerm) {
+results = results.filter(program =>
+program.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+program.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+program.technologies.some(tech => tech.toLowerCase().includes(searchTerm.toLowerCase()))
+);
+}
+if (filters.duration) {
+results = results.filter(program => program.duration === filters.duration);
+}
+if (filters.difficulty) {
+results = results.filter(program => program.difficulty === filters.difficulty);
+}
+if (filters.technology) {
+results = results.filter(program =>
+program.technologies.some(tech => tech.toLowerCase() === filters.technology.toLowerCase())
+);
+}
+setFilteredPrograms(results);
+}, [searchTerm, filters]);
+return (
+<Layout>
+{/* Page Header */}
+      <div className="bg-[#03325a] text-white py-8 sm:py-12">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+<div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">All Programs</h1>
+              <p className="text-base sm:text-lg text-gray-300">Explore our comprehensive range of tech training programs</p>
+</div>
+<div className="mt-8 text-center">
+                <Link to="/">
+                  <button className="px-6 py-3 sm:px-8 sm:py-4 bg-[#03325a] text-white text-base sm:text-lg font-bold rounded-lg hover:bg-opacity-90 transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap w-full sm:w-auto">
+                    Back to Home
+                  </button>
+                </Link>
+              </div>
+</div>
+</div>
+</div>
+{/* Filter Section */}
+      <section className="py-6 sm:py-8 bg-gray-50 border-b border-gray-200">
+        <div className="container mx-auto px-4 sm:px-6">
+<div className="flex flex-col md:flex-row items-center justify-between gap-4">
+{/* Search Bar */}
+<div className="w-full md:w-1/3 relative">
+<input
+type="text"
+placeholder="Search programs..."
+value={searchTerm}
+onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full py-2 sm:py-3 pl-10 pr-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] focus:border-transparent text-sm"
+/>
+<i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+</div>
+{/* Filter Dropdowns */}
+            <div className="flex flex-wrap gap-2 sm:gap-4 w-full md:w-auto">
+{/* Duration Filter */}
+<div className="relative w-full sm:w-auto">
+<select
+value={filters.duration}
+onChange={(e) => setFilters({...filters, duration: e.target.value})}
+                  className="appearance-none w-full py-2 sm:py-3 px-4 pr-8 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] focus:border-transparent bg-white text-sm cursor-pointer"
+>
+<option value="">Duration (All)</option>
+<option value="10 Weeks">10 Weeks</option>
+<option value="12 Weeks">12 Weeks</option>
+<option value="14 Weeks">14 Weeks</option>
+<option value="16 Weeks">16 Weeks</option>
+<option value="20 Weeks">20 Weeks</option>
+</select>
+<div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+<i className="fas fa-chevron-down text-xs"></i>
+</div>
+</div>
+{/* Difficulty Filter */}
+<div className="relative w-full sm:w-auto">
+<select
+value={filters.difficulty}
+onChange={(e) => setFilters({...filters, difficulty: e.target.value})}
+                  className="appearance-none w-full py-2 sm:py-3 px-4 pr-8 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] focus:border-transparent bg-white text-sm cursor-pointer"
+>
+<option value="">Difficulty (All)</option>
+<option value="Beginner">Beginner</option>
+<option value="Intermediate">Intermediate</option>
+<option value="Advanced">Advanced</option>
+</select>
+<div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+<i className="fas fa-chevron-down text-xs"></i>
+</div>
+</div>
+{/* Technology Filter */}
+<div className="relative w-full sm:w-auto">
+<select
+value={filters.technology}
+onChange={(e) => setFilters({...filters, technology: e.target.value})}
+                  className="appearance-none w-full py-2 sm:py-3 px-4 pr-8 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] focus:border-transparent bg-white text-sm cursor-pointer"
+>
+<option value="">Technology (All)</option>
+<option value="JavaScript">JavaScript</option>
+<option value="Python">Python</option>
+<option value="React">React</option>
+<option value="Node.js">Node.js</option>
+<option value="AWS">AWS</option>
+<option value="TensorFlow">TensorFlow</option>
+</select>
+<div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+<i className="fas fa-chevron-down text-xs"></i>
+</div>
+</div>
+{/* Clear Filters Button */}
+<button
+onClick={clearFilters}
+                className="px-4 py-2 sm:py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-300 text-sm font-medium !rounded-button cursor-pointer whitespace-nowrap"
+>
+<i className="fas fa-times mr-2"></i>
+Clear Filters
+</button>
+</div>
+</div>
+</div>
+</section>
+{/* Programs Grid */}
+      <section className="py-8 sm:py-12 min-h-[600px]">
+        <div className="container mx-auto px-4 sm:px-6">
+{filteredPrograms.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+{filteredPrograms.map(program => (
+                <div key={program.id} className="bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] flex flex-col">
+                  <div className="h-40 sm:h-48 overflow-hidden relative">
+<img
+src={program.image}
+alt={program.title}
+className="w-full h-full object-cover object-top"
+/>
+                    <div className="absolute top-0 left-0 m-2 sm:m-3">
+                      <span className="bg-[#03325a] text-[#30d9fe] text-xs font-bold px-2 sm:px-3 py-1 rounded-full">{program.duration}</span>
+</div>
+                    <div className="absolute top-0 right-0 m-2 sm:m-3">
+                      <span className="bg-[#eec262] text-[#03325a] text-xs font-bold px-2 sm:px-3 py-1 rounded-full">{program.difficulty}</span>
+</div>
+</div>
+                  <div className="p-4 sm:p-6 flex-1 flex flex-col">
+                    <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2 text-[#03325a]">{program.title}</h3>
+                    <p className="text-gray-600 mb-2 sm:mb-4 line-clamp-2 text-xs sm:text-sm">{program.description}</p>
+                    <div className="flex flex-wrap gap-2 mb-2 sm:mb-6">
+{program.technologies.map((tech, index) => (
+<span key={index} className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">{tech}</span>
+))}
+</div>
+                    <button className="w-full py-2 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap mt-auto text-xs sm:text-base">View Details</button>
+</div>
+</div>
+))}
+</div>
+) : (
+            <div className="flex flex-col items-center justify-center py-12 sm:py-16">
+<div className="text-center mb-6">
+                <i className="fas fa-search text-5xl sm:text-6xl text-gray-300 mb-4"></i>
+                <h3 className="text-xl sm:text-2xl font-bold text-[#03325a] mb-2">No Programs Found</h3>
+                <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">We couldn't find any programs matching your search criteria.</p>
+<button
+onClick={clearFilters}
+className="px-6 py-2 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap"
+>
+Clear Filters
+</button>
+</div>
+</div>
+)}
+</div>
+</section>
+</Layout>
+);
+};
+export default Programs;

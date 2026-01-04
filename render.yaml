@@ -1,0 +1,91 @@
+# Render Blueprint for Code2Deploy Full-Stack Application
+# This file defines all services needed to deploy the app
+
+services:
+  # Backend - Django REST API
+  - type: web
+    name: code2deploy-api
+    runtime: python
+    region: frankfurt  # Choose: oregon, frankfurt, ohio, singapore
+    plan: free  # Can upgrade to: starter, standard, pro
+    rootDir: backend
+    buildCommand: chmod +x build.sh && ./build.sh
+    startCommand: gunicorn backend.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.6"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com,localhost"
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false  # Set this manually after frontend deploys
+      # Database - Supabase PostgreSQL (set these manually in Render dashboard)
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "5432"
+      # JWT Settings
+      - key: JWT_ACCESS_TOKEN_LIFETIME
+        value: "5"
+      - key: JWT_REFRESH_TOKEN_LIFETIME
+        value: "1"
+      # Email Configuration (set manually)
+      - key: EMAIL_BACKEND
+        value: "django.core.mail.backends.smtp.EmailBackend"
+      - key: EMAIL_HOST
+        value: "smtp.gmail.com"
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: EMAIL_USE_TLS
+        value: "True"
+      - key: DEFAULT_FROM_EMAIL
+        value: "Code2Deploy <noreply@code2deploy.tech>"
+      # Cloudinary (set manually)
+      - key: CLOUDINARY_URL
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+  # Frontend - React + Vite Static Site
+  - type: web
+    name: code2deploy-frontend
+    runtime: static
+    region: frankfurt
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: VITE_API_URL
+        sync: false  # Set to: https://code2deploy-api.onrender.com/api
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false

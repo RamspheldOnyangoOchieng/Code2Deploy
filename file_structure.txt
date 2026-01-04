@@ -1,0 +1,337 @@
+.
+├── AUTHENTICATION_SETUP.md
+├── backend
+│   ├── applications
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── __init__.py
+│   │   ├── migrations
+│   │   │   ├── 0001_initial.py
+│   │   │   ├── __init__.py
+│   │   │   └── __pycache__
+│   │   │       ├── 0001_initial.cpython-312.pyc
+│   │   │       ├── 0001_initial.cpython-313.pyc
+│   │   │       ├── __init__.cpython-312.pyc
+│   │   │       └── __init__.cpython-313.pyc
+│   │   ├── models.py
+│   │   ├── __pycache__
+│   │   │   ├── admin.cpython-312.pyc
+│   │   │   ├── admin.cpython-313.pyc
+│   │   │   ├── apps.cpython-312.pyc
+│   │   │   ├── apps.cpython-313.pyc
+│   │   │   ├── __init__.cpython-312.pyc
+│   │   │   ├── __init__.cpython-313.pyc
+│   │   │   ├── models.cpython-312.pyc
+│   │   │   ├── models.cpython-313.pyc
+│   │   │   ├── serializers.cpython-312.pyc
+│   │   │   ├── serializers.cpython-313.pyc
+│   │   │   ├── urls.cpython-312.pyc
+│   │   │   ├── urls.cpython-313.pyc
+│   │   │   ├── views.cpython-312.pyc
+│   │   │   └── views.cpython-313.pyc
+│   │   ├── serializers.py
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── backend
+│   │   ├── asgi.py
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-312.pyc
+│   │   │   ├── __init__.cpython-313.pyc
+│   │   │   ├── settings.cpython-312.pyc
+│   │   │   ├── settings.cpython-313.pyc
+│   │   │   ├── urls.cpython-312.pyc
+│   │   │   ├── urls.cpython-313.pyc
+│   │   │   ├── wsgi.cpython-312.pyc
+│   │   │   └── wsgi.cpython-313.pyc
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   └── wsgi.py
+│   ├── certificates
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── __init__.py
+│   │   ├── migrations
+│   │   │   ├── 0001_initial.py
+│   │   │   ├── __init__.py
+│   │   │   └── __pycache__
+│   │   │       ├── 0001_initial.cpython-313.pyc
+│   │   │       └── __init__.cpython-313.pyc
+│   │   ├── models.py
+│   │   ├── __pycache__
+│   │   │   ├── admin.cpython-313.pyc
+│   │   │   ├── apps.cpython-313.pyc
+│   │   │   ├── __init__.cpython-313.pyc
+│   │   │   ├── models.cpython-313.pyc
+│   │   │   ├── serializers.cpython-313.pyc
+│   │   │   ├── urls.cpython-313.pyc
+│   │   │   └── views.cpython-313.pyc
+│   │   ├── serializers.py
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── custom_admin
+│   │   ├── apps.py
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── apps.cpython-313.pyc
+│   │   │   ├── __init__.cpython-313.pyc
+│   │   │   ├── urls.cpython-313.pyc
+│   │   │   └── views.cpython-313.pyc
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── .env
+│   ├── env.example
+│   ├── events
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── __init__.py
+│   │   ├── migrations
+│   │   │   ├── 0001_initial.py
+│   │   │   ├── 0002_eventregistration.py
+│   │   │   ├── __init__.py
+│   │   │   └── __pycache__
+│   │   │       ├── 0001_initial.cpython-312.pyc
+│   │   │       ├── 0001_initial.cpython-313.pyc
+│   │   │       ├── 0002_eventregistration.cpython-313.pyc
+│   │   │       ├── __init__.cpython-312.pyc
+│   │   │       └── __init__.cpython-313.pyc
+│   │   ├── models.py
+│   │   ├── __pycache__
+│   │   │   ├── admin.cpython-312.pyc
+│   │   │   ├── admin.cpython-313.pyc
+│   │   │   ├── apps.cpython-312.pyc
+│   │   │   ├── apps.cpython-313.pyc
+│   │   │   ├── __init__.cpython-312.pyc
+│   │   │   ├── __init__.cpython-313.pyc
+│   │   │   ├── models.cpython-312.pyc
+│   │   │   ├── models.cpython-313.pyc
+│   │   │   ├── serializers.cpython-312.pyc
+│   │   │   ├── serializers.cpython-313.pyc
+│   │   │   ├── urls.cpython-312.pyc
+│   │   │   ├── urls.cpython-313.pyc
+│   │   │   ├── views.cpython-312.pyc
+│   │   │   └── views.cpython-313.pyc
+│   │   ├── serializers.py
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── .gitignore
+│   ├── logs
+│   │   └── django.log
+│   ├── manage.py
+│   ├── mentors
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── __init__.py
+│   │   ├── migrations
+│   │   │   ├── 0001_initial.py
+│   │   │   ├── __init__.py
+│   │   │   └── __pycache__
+│   │   │       ├── 0001_initial.cpython-312.pyc
+│   │   │       ├── 0001_initial.cpython-313.pyc
+│   │   │       ├── __init__.cpython-312.pyc
+│   │   │       └── __init__.cpython-313.pyc
+│   │   ├── models.py
+│   │   ├── __pycache__
+│   │   │   ├── admin.cpython-312.pyc
+│   │   │   ├── admin.cpython-313.pyc
+│   │   │   ├── apps.cpython-312.pyc
+│   │   │   ├── apps.cpython-313.pyc
+│   │   │   ├── __init__.cpython-312.pyc
+│   │   │   ├── __init__.cpython-313.pyc
+│   │   │   ├── models.cpython-312.pyc
+│   │   │   ├── models.cpython-313.pyc
+│   │   │   ├── serializers.cpython-312.pyc
+│   │   │   ├── serializers.cpython-313.pyc
+│   │   │   ├── urls.cpython-312.pyc
+│   │   │   ├── urls.cpython-313.pyc
+│   │   │   ├── views.cpython-312.pyc
+│   │   │   └── views.cpython-313.pyc
+│   │   ├── serializers.py
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── notifications
+│   │   ├── apps.py
+│   │   ├── __init__.py
+│   │   ├── migrations
+│   │   │   ├── 0001_initial.py
+│   │   │   ├── __init__.py
+│   │   │   └── __pycache__
+│   │   │       ├── 0001_initial.cpython-313.pyc
+│   │   │       └── __init__.cpython-313.pyc
+│   │   ├── models.py
+│   │   ├── __pycache__
+│   │   │   ├── apps.cpython-313.pyc
+│   │   │   ├── __init__.cpython-313.pyc
+│   │   │   ├── models.cpython-313.pyc
+│   │   │   ├── serializers.cpython-313.pyc
+│   │   │   ├── urls.cpython-313.pyc
+│   │   │   └── views.cpython-313.pyc
+│   │   ├── serializers.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── programs
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── __init__.py
+│   │   ├── migrations
+│   │   │   ├── 0001_initial.py
+│   │   │   ├── 0002_enrollment.py
+│   │   │   ├── __init__.py
+│   │   │   └── __pycache__
+│   │   │       ├── 0001_initial.cpython-312.pyc
+│   │   │       ├── 0001_initial.cpython-313.pyc
+│   │   │       ├── 0002_enrollment.cpython-313.pyc
+│   │   │       ├── __init__.cpython-312.pyc
+│   │   │       └── __init__.cpython-313.pyc
+│   │   ├── models.py
+│   │   ├── __pycache__
+│   │   │   ├── admin.cpython-312.pyc
+│   │   │   ├── admin.cpython-313.pyc
+│   │   │   ├── apps.cpython-312.pyc
+│   │   │   ├── apps.cpython-313.pyc
+│   │   │   ├── __init__.cpython-312.pyc
+│   │   │   ├── __init__.cpython-313.pyc
+│   │   │   ├── models.cpython-312.pyc
+│   │   │   ├── models.cpython-313.pyc
+│   │   │   ├── serializers.cpython-312.pyc
+│   │   │   ├── serializers.cpython-313.pyc
+│   │   │   ├── urls.cpython-312.pyc
+│   │   │   ├── urls.cpython-313.pyc
+│   │   │   ├── views.cpython-312.pyc
+│   │   │   └── views.cpython-313.pyc
+│   │   ├── serializers.py
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── requirements.txt
+│   ├── security
+│   │   ├── apps.py
+│   │   ├── __init__.py
+│   │   ├── migrations
+│   │   │   ├── 0001_initial.py
+│   │   │   ├── __init__.py
+│   │   │   └── __pycache__
+│   │   │       ├── 0001_initial.cpython-313.pyc
+│   │   │       └── __init__.cpython-313.pyc
+│   │   ├── models.py
+│   │   ├── __pycache__
+│   │   │   ├── apps.cpython-313.pyc
+│   │   │   ├── __init__.cpython-313.pyc
+│   │   │   ├── models.cpython-313.pyc
+│   │   │   ├── urls.cpython-313.pyc
+│   │   │   └── views.cpython-313.pyc
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── setup.py
+│   └── users
+│       ├── apps.py
+│       ├── auth_backend.py
+│       ├── __init__.py
+│       ├── migrations
+│       │   ├── 0001_initial.py
+│       │   ├── 0002_user_avatar_user_unique_id.py
+│       │   ├── __init__.py
+│       │   └── __pycache__
+│       │       ├── 0001_initial.cpython-312.pyc
+│       │       ├── 0001_initial.cpython-313.pyc
+│       │       ├── 0002_user_avatar_user_unique_id.cpython-313.pyc
+│       │       ├── __init__.cpython-312.pyc
+│       │       └── __init__.cpython-313.pyc
+│       ├── models.py
+│       ├── __pycache__
+│       │   ├── apps.cpython-312.pyc
+│       │   ├── apps.cpython-313.pyc
+│       │   ├── auth_backend.cpython-313.pyc
+│       │   ├── __init__.cpython-312.pyc
+│       │   ├── __init__.cpython-313.pyc
+│       │   ├── models.cpython-312.pyc
+│       │   ├── models.cpython-313.pyc
+│       │   ├── serializers.cpython-313.pyc
+│       │   ├── urls.cpython-313.pyc
+│       │   └── views.cpython-313.pyc
+│       ├── serializers.py
+│       ├── urls.py
+│       └── views.py
+├── .claude
+│   ├── agents
+│   │   └── kfc
+│   │       ├── spec-design.md
+│   │       ├── spec-impl.md
+│   │       ├── spec-judge.md
+│   │       ├── spec-requirements.md
+│   │       ├── spec-system-prompt-loader.md
+│   │       ├── spec-tasks.md
+│   │       └── spec-test.md
+│   ├── settings
+│   │   └── kfc-settings.json
+│   └── system-prompts
+│       └── spec-workflow-starter.md
+├── file_structure.txt
+├── frontend
+│   ├── eslint.config.js
+│   ├── .gitignore
+│   ├── index.html
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── postcss.config.cjs
+│   ├── postcss.config.js
+│   ├── public
+│   │   └── vite.svg
+│   ├── README.md
+│   ├── src
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── assets
+│   │   │   ├── c8a54fd323c0c10549e20dfd36d745d5.jpg
+│   │   │   ├── logo2-clear.png
+│   │   │   ├── logo2.png
+│   │   │   ├── logo.jpg
+│   │   │   ├── react.svg
+│   │   │   └── tabfavicon.png
+│   │   ├── components
+│   │   │   ├── admin
+│   │   │   │   ├── AdminBadges.jsx
+│   │   │   │   ├── AdminCertificates.jsx
+│   │   │   │   ├── AdminEvents.jsx
+│   │   │   │   ├── AdminMentors.jsx
+│   │   │   │   ├── AdminNotifications.jsx
+│   │   │   │   ├── AdminPages.jsx
+│   │   │   │   ├── AdminPrograms.jsx
+│   │   │   │   ├── AdminSecurity.jsx
+│   │   │   │   └── AdminUsers.jsx
+│   │   │   ├── ApiTest.jsx
+│   │   │   ├── AvatarUploader.jsx
+│   │   │   ├── layout.jsx
+│   │   │   ├── LoginModal.jsx
+│   │   │   ├── SignupModal.jsx
+│   │   │   └── UserProfile.jsx
+│   │   ├── index.css
+│   │   ├── main.jsx
+│   │   ├── pages
+│   │   │   ├── about.jsx
+│   │   │   ├── admin.jsx
+│   │   │   ├── contact.jsx
+│   │   │   ├── events.jsx
+│   │   │   ├── home.jsx
+│   │   │   ├── login.jsx
+│   │   │   ├── profile.jsx
+│   │   │   ├── programs.jsx
+│   │   │   └── signup.jsx
+│   │   ├── services
+│   │   │   ├── apiService.js
+│   │   │   ├── authService.js
+│   │   │   ├── avatarService.js
+│   │   │   └── supabaseClient.js
+│   │   └── styles
+│   │       ├── swiper.css
+│   │       └── swiper-custom.css
+│   ├── tailwind.config.cjs
+│   └── vite.config.js
+├── package.json
+└── package-lock.json
+
+53 directories, 282 files
