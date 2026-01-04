@@ -59,8 +59,9 @@ services:
         sync: false
 
   # Frontend - React + Vite Static Site
-  - type: static_site
+  - type: web
     name: code2deploy-frontend
+    env: static
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
