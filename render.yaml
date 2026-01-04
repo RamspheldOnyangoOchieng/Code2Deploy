@@ -67,7 +67,6 @@ services:
   - type: web
     name: code2deploy-frontend
     runtime: static
-    region: frankfurt
     plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
