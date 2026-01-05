@@ -38,6 +38,16 @@ class AuthService {
       
       if (!response.ok) {
         const errorData = await response.json();
+        // Handle field-specific validation errors from DRF
+        if (typeof errorData === 'object' && !errorData.detail) {
+          const errorMessages = Object.entries(errorData)
+            .map(([field, messages]) => {
+              const msgArray = Array.isArray(messages) ? messages : [messages];
+              return `${field}: ${msgArray.join(', ')}`;
+            })
+            .join('; ');
+          throw new Error(errorMessages || 'Registration failed');
+        }
         throw new Error(errorData.detail || 'Registration failed');
       }
       
