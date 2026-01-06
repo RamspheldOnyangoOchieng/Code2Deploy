@@ -73,7 +73,7 @@ const AdminBadges = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/users/', {
+      const response = await fetch(`${API_BASE_URL}/admin/users/`, {
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
           'Content-Type': 'application/json'
@@ -91,7 +91,7 @@ const AdminBadges = () => {
 
   const handleCreateBadge = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/certificates/admin/badges/', {
+      const response = await fetch(`${API_BASE_URL}/certificates/admin/badges/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
@@ -179,7 +179,7 @@ const AdminBadges = () => {
 
   const handleAwardBadge = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/certificates/admin/badges/award/', {
+      const response = await fetch(`${API_BASE_URL}/certificates/admin/badges/award/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,

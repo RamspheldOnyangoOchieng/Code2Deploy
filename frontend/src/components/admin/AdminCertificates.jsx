@@ -75,7 +75,7 @@ const AdminCertificates = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/users/', {
+      const response = await fetch(`${API_BASE_URL}/admin/users/`, {
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
           'Content-Type': 'application/json'
@@ -93,7 +93,7 @@ const AdminCertificates = () => {
 
   const handleCreateCertificate = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/certificates/', {
+      const response = await fetch(`${API_BASE_URL}/admin/certificates/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
@@ -183,7 +183,7 @@ const AdminCertificates = () => {
 
   const handleAwardCertificate = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/certificates/award/', {
+      const response = await fetch(`${API_BASE_URL}/admin/certificates/award/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,

@@ -77,7 +77,7 @@ const AdminEvents = () => {
 
   const handleCreateEvent = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/events/', {
+      const response = await fetch(`${API_BASE_URL}/admin/events/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,

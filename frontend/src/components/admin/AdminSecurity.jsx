@@ -35,7 +35,7 @@ const AdminSecurity = () => {
   const fetchSecurityStats = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/security/dashboard/', {
+      const response = await fetch(`${API_BASE_URL}/security/dashboard/`, {
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
           'Content-Type': 'application/json'

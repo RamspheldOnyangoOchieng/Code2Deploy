@@ -104,7 +104,7 @@ const AdminPrograms = () => {
         formData.append('image', editForm.image);
       }
 
-      const response = await fetch(`${API_BASE_URL}/programs/', {
+      const response = await fetch(`${API_BASE_URL}/programs/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,

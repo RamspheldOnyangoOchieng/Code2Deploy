@@ -62,7 +62,7 @@ const AdminNotifications = () => {
 
   const handleCreateNotification = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/notifications/admin/send/', {
+      const response = await fetch(`${API_BASE_URL}/notifications/admin/send/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,

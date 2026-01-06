@@ -66,7 +66,7 @@ const AdminMentors = () => {
 
   const handleCreateMentor = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/mentors/', {
+      const response = await fetch(`${API_BASE_URL}/mentors/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
