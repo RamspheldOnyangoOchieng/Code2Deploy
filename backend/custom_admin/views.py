@@ -662,4 +662,219 @@ class SiteSettingsView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Import additional models and serializers for page settings
+from .models import HomePageSettings, AboutPageSettings, ProgramsPageSettings, EventsPageSettings
+from .serializers import (
+    HomePageSettingsSerializer, AboutPageSettingsSerializer,
+    ProgramsPageSettingsSerializer, EventsPageSettingsSerializer
+)
+
+
+class HomePageSettingsView(APIView):
+    """Get or update home page settings"""
+    
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAdminUser()]
+    
+    def get(self, request):
+        """Get home page settings"""
+        settings = HomePageSettings.objects.first()
+        if not settings:
+            # Return defaults
+            return Response({
+                'hero_title_line1': 'From',
+                'hero_title_highlight1': 'Hello World',
+                'hero_title_line2': 'to',
+                'hero_title_highlight2': 'Hello AI',
+                'hero_description': 'Empowering African youth with cutting-edge tech skills to build solutions that matter. Join our community of innovators today.',
+                'hero_button1_text': 'Join a Program',
+                'hero_button1_link': '/programs',
+                'hero_button2_text': 'Upcoming Events',
+                'hero_button2_link': '/events',
+                'hero_image_url': None,
+                'approach_title': 'Our Approach',
+                'approach_description': "Most courses stop at code. We take you further. By the end of our program, you'll have:",
+                'what_we_do_title': 'What We Do',
+                'is_active': True
+            })
+        serializer = HomePageSettingsSerializer(settings)
+        return Response(serializer.data)
+    
+    def put(self, request):
+        """Update home page settings"""
+        settings = HomePageSettings.objects.first()
+        if not settings:
+            settings = HomePageSettings.objects.create(**request.data)
+            serializer = HomePageSettingsSerializer(settings)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer = HomePageSettingsSerializer(settings, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AboutPageSettingsView(APIView):
+    """Get or update about page settings"""
+    
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAdminUser()]
+    
+    def get(self, request):
+        """Get about page settings"""
+        settings = AboutPageSettings.objects.first()
+        if not settings:
+            return Response({
+                'hero_title': 'About Code2Deploy',
+                'hero_subtitle': 'Empowering African youth with cutting-edge tech skills',
+                'hero_image_url': None,
+                'mission_title': 'Our Mission',
+                'mission_description': 'To bridge the digital skills gap in Africa by providing world-class technology education and creating pathways to successful careers in the global tech industry.',
+                'vision_title': 'Our Vision',
+                'vision_description': "To be Africa's leading technology education platform, empowering the next generation of tech leaders and innovators who will drive the continent's digital transformation.",
+                'journey_title': 'Our Journey',
+                'team_title': 'Our Leadership Team',
+                'is_active': True
+            })
+        serializer = AboutPageSettingsSerializer(settings)
+        return Response(serializer.data)
+    
+    def put(self, request):
+        """Update about page settings"""
+        settings = AboutPageSettings.objects.first()
+        if not settings:
+            settings = AboutPageSettings.objects.create(**request.data)
+            serializer = AboutPageSettingsSerializer(settings)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer = AboutPageSettingsSerializer(settings, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProgramsPageSettingsView(APIView):
+    """Get or update programs page settings"""
+    
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAdminUser()]
+    
+    def get(self, request):
+        """Get programs page settings"""
+        settings = ProgramsPageSettings.objects.first()
+        if not settings:
+            return Response({
+                'hero_title': 'Our Programs',
+                'hero_subtitle': 'Discover world-class technology programs designed for African youth',
+                'hero_description': 'From beginner to advanced, our programs are designed to take you from where you are to where you want to be in tech.',
+                'programs_section_title': 'Available Programs',
+                'no_programs_message': 'No programs available at the moment. Check back soon!',
+                'cta_title': 'Ready to Start Your Journey?',
+                'cta_description': 'Join thousands of students who have transformed their careers through our programs.',
+                'cta_button_text': 'Apply Now',
+                'is_active': True
+            })
+        serializer = ProgramsPageSettingsSerializer(settings)
+        return Response(serializer.data)
+    
+    def put(self, request):
+        """Update programs page settings"""
+        settings = ProgramsPageSettings.objects.first()
+        if not settings:
+            settings = ProgramsPageSettings.objects.create(**request.data)
+            serializer = ProgramsPageSettingsSerializer(settings)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer = ProgramsPageSettingsSerializer(settings, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class EventsPageSettingsView(APIView):
+    """Get or update events page settings"""
+    
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAdminUser()]
+    
+    def get(self, request):
+        """Get events page settings"""
+        settings = EventsPageSettings.objects.first()
+        if not settings:
+            return Response({
+                'hero_title': 'Upcoming Events',
+                'hero_subtitle': 'Join us for exciting tech events, workshops, and networking opportunities',
+                'hero_description': 'Stay connected with the Code2Deploy community through our events.',
+                'events_section_title': 'All Events',
+                'no_events_message': 'No upcoming events at the moment. Check back soon!',
+                'cta_title': 'Want to Host an Event?',
+                'cta_description': 'Partner with us to bring tech events to your community.',
+                'cta_button_text': 'Contact Us',
+                'cta_button_link': '/contact',
+                'is_active': True
+            })
+        serializer = EventsPageSettingsSerializer(settings)
+        return Response(serializer.data)
+    
+    def put(self, request):
+        """Update events page settings"""
+        settings = EventsPageSettings.objects.first()
+        if not settings:
+            settings = EventsPageSettings.objects.create(**request.data)
+            serializer = EventsPageSettingsSerializer(settings)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer = EventsPageSettingsSerializer(settings, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class InitializeAllPageSettingsView(APIView):
+    """Initialize all page settings at once (admin only)"""
+    permission_classes = [IsAdminUser]
+    
+    def post(self, request):
+        """Create default settings for all pages if they don't exist"""
+        created = []
+        
+        # Home Page
+        if not HomePageSettings.objects.exists():
+            HomePageSettings.objects.create()
+            created.append('home')
+        
+        # About Page
+        if not AboutPageSettings.objects.exists():
+            AboutPageSettings.objects.create()
+            created.append('about')
+        
+        # Programs Page
+        if not ProgramsPageSettings.objects.exists():
+            ProgramsPageSettings.objects.create()
+            created.append('programs')
+        
+        # Events Page
+        if not EventsPageSettings.objects.exists():
+            EventsPageSettings.objects.create()
+            created.append('events')
+        
+        if created:
+            return Response({
+                'message': f'Created settings for: {", ".join(created)}',
+                'created': created
+            }, status=status.HTTP_201_CREATED)
+        return Response({
+            'message': 'All page settings already exist',
+            'created': []
+        }) 

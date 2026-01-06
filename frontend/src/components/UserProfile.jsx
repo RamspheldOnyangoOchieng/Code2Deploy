@@ -1,17 +1,22 @@
 import { useState } from 'react';
 import AuthService from '../services/authService';
+import LogoutModal from './LogoutModal';
 
 const UserProfile = ({ user, onLogout }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
-  const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
-      AuthService.logout();
-      onLogout();
-      setIsDropdownOpen(false);
-    }
+  const handleLogoutClick = () => {
+    setIsDropdownOpen(false);
+    setIsLogoutModalOpen(true);
+  };
+
+  const handleLogoutConfirm = () => {
+    AuthService.logout();
+    onLogout();
+    setIsLogoutModalOpen(false);
   };
 
   return (
@@ -38,13 +43,20 @@ const UserProfile = ({ user, onLogout }) => {
             <div className="text-gray-500">{user.email}</div>
           </div>
           <button
-            onClick={handleLogout}
+            onClick={handleLogoutClick}
             className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
           >
             Logout
           </button>
         </div>
       )}
+
+      {/* Logout Confirmation Modal */}
+      <LogoutModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={handleLogoutConfirm}
+      />
     </div>
   );
 };

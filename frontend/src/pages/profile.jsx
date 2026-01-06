@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import authService from '../services/authService';
 import { API_BASE_URL } from '../config/api';
+import LogoutModal from '../components/LogoutModal';
 import {
   UserCircleIcon,
   AcademicCapIcon,
@@ -34,6 +35,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
@@ -136,11 +138,14 @@ const Profile = () => {
     }
   };
 
-  const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
-      authService.logout();
-      navigate('/');
-    }
+  const handleLogoutClick = () => {
+    setIsLogoutModalOpen(true);
+  };
+
+  const handleLogoutConfirm = () => {
+    authService.logout();
+    setIsLogoutModalOpen(false);
+    navigate('/');
   };
 
   const handleAvatarClick = () => {
@@ -358,7 +363,7 @@ const Profile = () => {
                 </Link>
               )}
               <button
-                onClick={handleLogout}
+                onClick={handleLogoutClick}
                 className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-red-500/90 hover:bg-red-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg"
               >
                 <ArrowLeftOnRectangleIcon className="w-5 h-5" />
@@ -939,6 +944,13 @@ const Profile = () => {
           </div>
         </main>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      <LogoutModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={handleLogoutConfirm}
+      />
     </div>
   );
 };

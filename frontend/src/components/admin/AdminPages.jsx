@@ -87,6 +87,63 @@ const AdminPages = () => {
   const [loadingContact, setLoadingContact] = useState(false);
   const [savingContact, setSavingContact] = useState(false);
 
+  // Page Settings State for Home, About, Programs, Events
+  const [pageSettings, setPageSettings] = useState({
+    home: {
+      hero_title_line1: 'From',
+      hero_title_highlight1: 'Hello World',
+      hero_title_line2: 'to',
+      hero_title_highlight2: 'Hello AI',
+      hero_description: 'Empowering African youth with cutting-edge tech skills to build solutions that matter. Join our community of innovators today.',
+      hero_button1_text: 'Join a Program',
+      hero_button1_link: '/programs',
+      hero_button2_text: 'Upcoming Events',
+      hero_button2_link: '/events',
+      hero_image_url: '',
+      approach_title: 'Our Approach',
+      approach_description: "Most courses stop at code. We take you further. By the end of our program, you'll have:",
+      what_we_do_title: 'What We Do',
+      is_active: true
+    },
+    about: {
+      hero_title: 'About Code2Deploy',
+      hero_subtitle: 'Empowering African youth with cutting-edge tech skills',
+      hero_image_url: '',
+      mission_title: 'Our Mission',
+      mission_description: 'To bridge the digital skills gap in Africa by providing world-class technology education and creating pathways to successful careers in the global tech industry.',
+      vision_title: 'Our Vision',
+      vision_description: "To be Africa's leading technology education platform, empowering the next generation of tech leaders and innovators who will drive the continent's digital transformation.",
+      journey_title: 'Our Journey',
+      team_title: 'Our Leadership Team',
+      is_active: true
+    },
+    programs: {
+      hero_title: 'Our Programs',
+      hero_subtitle: 'Discover world-class technology programs designed for African youth',
+      hero_description: 'From beginner to advanced, our programs are designed to take you from where you are to where you want to be in tech.',
+      programs_section_title: 'Available Programs',
+      no_programs_message: 'No programs available at the moment. Check back soon!',
+      cta_title: 'Ready to Start Your Journey?',
+      cta_description: 'Join thousands of students who have transformed their careers through our programs.',
+      cta_button_text: 'Apply Now',
+      is_active: true
+    },
+    events: {
+      hero_title: 'Upcoming Events',
+      hero_subtitle: 'Join us for exciting tech events, workshops, and networking opportunities',
+      hero_description: 'Stay connected with the Code2Deploy community through our events.',
+      events_section_title: 'All Events',
+      no_events_message: 'No upcoming events at the moment. Check back soon!',
+      cta_title: 'Want to Host an Event?',
+      cta_description: 'Partner with us to bring tech events to your community.',
+      cta_button_text: 'Contact Us',
+      cta_button_link: '/contact',
+      is_active: true
+    }
+  });
+  const [loadingPageSettings, setLoadingPageSettings] = useState(false);
+  const [savingPageSettings, setSavingPageSettings] = useState(false);
+
   const contactTypes = [
     { 
       id: 'general', 
@@ -277,11 +334,100 @@ const AdminPages = () => {
     }));
   };
 
+  // Fetch Page Settings (Home, About, Programs, Events)
+  const fetchPageSettings = async (pageType) => {
+    try {
+      setLoadingPageSettings(true);
+      const response = await fetch(`${API_BASE_URL}/admin/page-settings/${pageType}/`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setPageSettings(prev => ({
+          ...prev,
+          [pageType]: { ...prev[pageType], ...data }
+        }));
+      }
+    } catch (error) {
+      console.error(`Error fetching ${pageType} page settings:`, error);
+    } finally {
+      setLoadingPageSettings(false);
+    }
+  };
+
+  const handleSavePageSettings = async (pageType) => {
+    try {
+      setSavingPageSettings(true);
+      const token = AuthService.getToken();
+      const response = await fetch(`${API_BASE_URL}/admin/page-settings/${pageType}/`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(pageSettings[pageType])
+      });
+
+      if (response.ok) {
+        alert(`✅ ${pageType.charAt(0).toUpperCase() + pageType.slice(1)} page settings saved successfully!`);
+      } else {
+        const error = await response.json();
+        alert(`❌ Error: ${JSON.stringify(error)}`);
+      }
+    } catch (error) {
+      console.error(`Error saving ${pageType} page settings:`, error);
+      alert('❌ Error saving page settings');
+    } finally {
+      setSavingPageSettings(false);
+    }
+  };
+
+  const handlePageSettingsChange = (pageType, field, value) => {
+    setPageSettings(prev => ({
+      ...prev,
+      [pageType]: {
+        ...prev[pageType],
+        [field]: value
+      }
+    }));
+  };
+
+  const initializeAllPageSettings = async () => {
+    try {
+      setSavingPageSettings(true);
+      const token = AuthService.getToken();
+      const response = await fetch(`${API_BASE_URL}/admin/page-settings/initialize/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(`✅ ${data.message}`);
+        // Refresh the current page settings
+        if (selectedPage && ['home', 'about', 'programs', 'events'].includes(selectedPage.id)) {
+          fetchPageSettings(selectedPage.id);
+        }
+      } else {
+        alert('❌ Failed to initialize page settings');
+      }
+    } catch (error) {
+      console.error('Error initializing page settings:', error);
+      alert('❌ Error initializing page settings');
+    } finally {
+      setSavingPageSettings(false);
+    }
+  };
+
   const handleEditPage = (page) => {
     setSelectedPage(page);
     
     if (page.id === 'contact') {
       fetchContactSettings();
+    } else if (['home', 'about', 'programs', 'events'].includes(page.id)) {
+      fetchPageSettings(page.id);
     } else {
       const saved = localStorage.getItem(`page_${page.id}_sections`);
       setEditForm({
@@ -715,6 +861,683 @@ const AdminPages = () => {
     );
   };
 
+  // Render Home Page Editor
+  const renderHomePageEditor = () => {
+    const settings = pageSettings.home;
+    return (
+      <div className="space-y-8">
+        {/* Hero Section */}
+        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 border-2 border-blue-200">
+          <h4 className="text-lg font-bold text-[#03325a] mb-4 flex items-center gap-2">
+            <span>🎯</span> Hero Section
+          </h4>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Title Line 1</label>
+              <input
+                type="text"
+                value={settings.hero_title_line1}
+                onChange={(e) => handlePageSettingsChange('home', 'hero_title_line1', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Highlighted Text 1 (Cyan)</label>
+              <input
+                type="text"
+                value={settings.hero_title_highlight1}
+                onChange={(e) => handlePageSettingsChange('home', 'hero_title_highlight1', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Title Line 2</label>
+              <input
+                type="text"
+                value={settings.hero_title_line2}
+                onChange={(e) => handlePageSettingsChange('home', 'hero_title_line2', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Highlighted Text 2 (Gold)</label>
+              <input
+                type="text"
+                value={settings.hero_title_highlight2}
+                onChange={(e) => handlePageSettingsChange('home', 'hero_title_highlight2', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Hero Description</label>
+              <textarea
+                value={settings.hero_description}
+                onChange={(e) => handlePageSettingsChange('home', 'hero_description', e.target.value)}
+                rows={3}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Button 1 Text</label>
+              <input
+                type="text"
+                value={settings.hero_button1_text}
+                onChange={(e) => handlePageSettingsChange('home', 'hero_button1_text', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Button 1 Link</label>
+              <input
+                type="text"
+                value={settings.hero_button1_link}
+                onChange={(e) => handlePageSettingsChange('home', 'hero_button1_link', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Button 2 Text</label>
+              <input
+                type="text"
+                value={settings.hero_button2_text}
+                onChange={(e) => handlePageSettingsChange('home', 'hero_button2_text', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Button 2 Link</label>
+              <input
+                type="text"
+                value={settings.hero_button2_link}
+                onChange={(e) => handlePageSettingsChange('home', 'hero_button2_link', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+          </div>
+
+          {/* Live Preview */}
+          <div className="mt-6 bg-[#0A0F2C] rounded-xl p-6 text-white">
+            <h5 className="text-sm font-medium text-[#30d9fe] mb-3">📺 Live Preview</h5>
+            <h1 className="text-2xl font-bold">
+              <span className="block">{settings.hero_title_line1}</span>
+              <span className="text-[#30d9fe]">{settings.hero_title_highlight1}</span>
+              <span className="block">{settings.hero_title_line2}</span>
+              <span className="text-[#eec262]">{settings.hero_title_highlight2}</span>
+            </h1>
+            <p className="mt-3 text-gray-300 text-sm">{settings.hero_description}</p>
+            <div className="mt-4 flex gap-3">
+              <button className="px-4 py-2 bg-[#30d9fe] text-[#03325a] font-bold rounded-lg text-sm">{settings.hero_button1_text}</button>
+              <button className="px-4 py-2 bg-[#eec262] text-[#03325a] font-bold rounded-lg text-sm">{settings.hero_button2_text}</button>
+            </div>
+          </div>
+        </div>
+
+        {/* Our Approach Section */}
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
+          <h4 className="text-lg font-bold text-[#03325a] mb-4 flex items-center gap-2">
+            <span>💡</span> Our Approach Section
+          </h4>
+          <div className="grid grid-cols-1 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Section Title</label>
+              <input
+                type="text"
+                value={settings.approach_title}
+                onChange={(e) => handlePageSettingsChange('home', 'approach_title', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Section Description</label>
+              <textarea
+                value={settings.approach_description}
+                onChange={(e) => handlePageSettingsChange('home', 'approach_description', e.target.value)}
+                rows={2}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* What We Do Section */}
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200">
+          <h4 className="text-lg font-bold text-[#03325a] mb-4 flex items-center gap-2">
+            <span>🚀</span> What We Do Section
+          </h4>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Section Title</label>
+            <input
+              type="text"
+              value={settings.what_we_do_title}
+              onChange={(e) => handlePageSettingsChange('home', 'what_we_do_title', e.target.value)}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+              style={{ color: '#111827', backgroundColor: '#ffffff' }}
+            />
+          </div>
+        </div>
+
+        {/* Programs Section */}
+        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 border-2 border-yellow-200">
+          <h4 className="text-lg font-bold text-[#03325a] mb-4 flex items-center gap-2">
+            <span>📚</span> Programs Section
+          </h4>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Section Title</label>
+            <input
+              type="text"
+              value={settings.programs_section_title}
+              onChange={(e) => handlePageSettingsChange('home', 'programs_section_title', e.target.value)}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+              style={{ color: '#111827', backgroundColor: '#ffffff' }}
+            />
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-6 border-2 border-indigo-200">
+          <h4 className="text-lg font-bold text-[#03325a] mb-4 flex items-center gap-2">
+            <span>📢</span> Call to Action Section
+          </h4>
+          <div className="grid grid-cols-1 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">CTA Title</label>
+              <input
+                type="text"
+                value={settings.cta_title}
+                onChange={(e) => handlePageSettingsChange('home', 'cta_title', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">CTA Description</label>
+              <textarea
+                value={settings.cta_description}
+                onChange={(e) => handlePageSettingsChange('home', 'cta_description', e.target.value)}
+                rows={2}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Button 1 Text</label>
+                <input
+                  type="text"
+                  value={settings.cta_button1_text}
+                  onChange={(e) => handlePageSettingsChange('home', 'cta_button1_text', e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                  style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Button 1 Link</label>
+                <input
+                  type="text"
+                  value={settings.cta_button1_link}
+                  onChange={(e) => handlePageSettingsChange('home', 'cta_button1_link', e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                  style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Button 2 Text</label>
+                <input
+                  type="text"
+                  value={settings.cta_button2_text}
+                  onChange={(e) => handlePageSettingsChange('home', 'cta_button2_text', e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                  style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Button 2 Link</label>
+                <input
+                  type="text"
+                  value={settings.cta_button2_link}
+                  onChange={(e) => handlePageSettingsChange('home', 'cta_button2_link', e.target.value)}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                  style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* CTA Live Preview */}
+          <div className="mt-6 bg-[#03325a] rounded-xl p-6 text-white text-center">
+            <h5 className="text-sm font-medium text-[#30d9fe] mb-3">📺 CTA Preview</h5>
+            <h2 className="text-xl font-bold mb-3">{settings.cta_title}</h2>
+            <p className="text-gray-300 text-sm mb-4">{settings.cta_description}</p>
+            <div className="flex justify-center gap-3">
+              <button className="px-4 py-2 bg-[#30d9fe] text-[#03325a] font-bold rounded-lg text-sm">{settings.cta_button1_text}</button>
+              <button className="px-4 py-2 bg-[#eec262] text-[#03325a] font-bold rounded-lg text-sm">{settings.cta_button2_text}</button>
+            </div>
+          </div>
+        </div>
+
+        {/* Save Button */}
+        <div className="flex justify-end pt-4 border-t border-gray-200">
+          <button
+            onClick={() => handleSavePageSettings('home')}
+            disabled={savingPageSettings}
+            className="px-8 py-3 bg-[#30d9fe] text-[#03325a] font-bold rounded-lg hover:bg-[#eec262] transition-all shadow-lg disabled:opacity-50"
+          >
+            {savingPageSettings ? '⏳ Saving...' : '💾 Save Home Page Settings'}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // Render About Page Editor
+  const renderAboutPageEditor = () => {
+    const settings = pageSettings.about;
+    return (
+      <div className="space-y-8">
+        {/* Hero Section */}
+        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 border-2 border-blue-200">
+          <h4 className="text-lg font-bold text-[#03325a] mb-4 flex items-center gap-2">
+            <span>🎯</span> Hero Section
+          </h4>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Page Title</label>
+              <input
+                type="text"
+                value={settings.hero_title}
+                onChange={(e) => handlePageSettingsChange('about', 'hero_title', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Subtitle</label>
+              <input
+                type="text"
+                value={settings.hero_subtitle}
+                onChange={(e) => handlePageSettingsChange('about', 'hero_subtitle', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Mission Section */}
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
+          <h4 className="text-lg font-bold text-[#03325a] mb-4 flex items-center gap-2">
+            <span>🚀</span> Mission Section
+          </h4>
+          <div className="grid grid-cols-1 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Mission Title</label>
+              <input
+                type="text"
+                value={settings.mission_title}
+                onChange={(e) => handlePageSettingsChange('about', 'mission_title', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Mission Description</label>
+              <textarea
+                value={settings.mission_description}
+                onChange={(e) => handlePageSettingsChange('about', 'mission_description', e.target.value)}
+                rows={3}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Vision Section */}
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200">
+          <h4 className="text-lg font-bold text-[#03325a] mb-4 flex items-center gap-2">
+            <span>👁️</span> Vision Section
+          </h4>
+          <div className="grid grid-cols-1 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Vision Title</label>
+              <input
+                type="text"
+                value={settings.vision_title}
+                onChange={(e) => handlePageSettingsChange('about', 'vision_title', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Vision Description</label>
+              <textarea
+                value={settings.vision_description}
+                onChange={(e) => handlePageSettingsChange('about', 'vision_description', e.target.value)}
+                rows={3}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Other Sections */}
+        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 border-2 border-yellow-200">
+          <h4 className="text-lg font-bold text-[#03325a] mb-4 flex items-center gap-2">
+            <span>📋</span> Other Section Titles
+          </h4>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Journey Section Title</label>
+              <input
+                type="text"
+                value={settings.journey_title}
+                onChange={(e) => handlePageSettingsChange('about', 'journey_title', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Team Section Title</label>
+              <input
+                type="text"
+                value={settings.team_title}
+                onChange={(e) => handlePageSettingsChange('about', 'team_title', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Save Button */}
+        <div className="flex justify-end pt-4 border-t border-gray-200">
+          <button
+            onClick={() => handleSavePageSettings('about')}
+            disabled={savingPageSettings}
+            className="px-8 py-3 bg-[#30d9fe] text-[#03325a] font-bold rounded-lg hover:bg-[#eec262] transition-all shadow-lg disabled:opacity-50"
+          >
+            {savingPageSettings ? '⏳ Saving...' : '💾 Save About Page Settings'}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // Render Programs Page Editor
+  const renderProgramsPageEditor = () => {
+    const settings = pageSettings.programs;
+    return (
+      <div className="space-y-8">
+        {/* Hero Section */}
+        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 border-2 border-blue-200">
+          <h4 className="text-lg font-bold text-[#03325a] mb-4 flex items-center gap-2">
+            <span>🎯</span> Hero Section
+          </h4>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Page Title</label>
+              <input
+                type="text"
+                value={settings.hero_title}
+                onChange={(e) => handlePageSettingsChange('programs', 'hero_title', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Subtitle</label>
+              <input
+                type="text"
+                value={settings.hero_subtitle}
+                onChange={(e) => handlePageSettingsChange('programs', 'hero_subtitle', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+              <textarea
+                value={settings.hero_description}
+                onChange={(e) => handlePageSettingsChange('programs', 'hero_description', e.target.value)}
+                rows={2}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Programs Section */}
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
+          <h4 className="text-lg font-bold text-[#03325a] mb-4 flex items-center gap-2">
+            <span>📚</span> Programs Section
+          </h4>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Section Title</label>
+              <input
+                type="text"
+                value={settings.programs_section_title}
+                onChange={(e) => handlePageSettingsChange('programs', 'programs_section_title', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">No Programs Message</label>
+              <input
+                type="text"
+                value={settings.no_programs_message}
+                onChange={(e) => handlePageSettingsChange('programs', 'no_programs_message', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200">
+          <h4 className="text-lg font-bold text-[#03325a] mb-4 flex items-center gap-2">
+            <span>📢</span> Call to Action Section
+          </h4>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">CTA Title</label>
+              <input
+                type="text"
+                value={settings.cta_title}
+                onChange={(e) => handlePageSettingsChange('programs', 'cta_title', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">CTA Button Text</label>
+              <input
+                type="text"
+                value={settings.cta_button_text}
+                onChange={(e) => handlePageSettingsChange('programs', 'cta_button_text', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">CTA Description</label>
+              <textarea
+                value={settings.cta_description}
+                onChange={(e) => handlePageSettingsChange('programs', 'cta_description', e.target.value)}
+                rows={2}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Save Button */}
+        <div className="flex justify-end pt-4 border-t border-gray-200">
+          <button
+            onClick={() => handleSavePageSettings('programs')}
+            disabled={savingPageSettings}
+            className="px-8 py-3 bg-[#30d9fe] text-[#03325a] font-bold rounded-lg hover:bg-[#eec262] transition-all shadow-lg disabled:opacity-50"
+          >
+            {savingPageSettings ? '⏳ Saving...' : '💾 Save Programs Page Settings'}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // Render Events Page Editor
+  const renderEventsPageEditor = () => {
+    const settings = pageSettings.events;
+    return (
+      <div className="space-y-8">
+        {/* Hero Section */}
+        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 border-2 border-blue-200">
+          <h4 className="text-lg font-bold text-[#03325a] mb-4 flex items-center gap-2">
+            <span>🎯</span> Hero Section
+          </h4>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Page Title</label>
+              <input
+                type="text"
+                value={settings.hero_title}
+                onChange={(e) => handlePageSettingsChange('events', 'hero_title', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Subtitle</label>
+              <input
+                type="text"
+                value={settings.hero_subtitle}
+                onChange={(e) => handlePageSettingsChange('events', 'hero_subtitle', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+              <textarea
+                value={settings.hero_description}
+                onChange={(e) => handlePageSettingsChange('events', 'hero_description', e.target.value)}
+                rows={2}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Events Section */}
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
+          <h4 className="text-lg font-bold text-[#03325a] mb-4 flex items-center gap-2">
+            <span>🎫</span> Events Section
+          </h4>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Section Title</label>
+              <input
+                type="text"
+                value={settings.events_section_title}
+                onChange={(e) => handlePageSettingsChange('events', 'events_section_title', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">No Events Message</label>
+              <input
+                type="text"
+                value={settings.no_events_message}
+                onChange={(e) => handlePageSettingsChange('events', 'no_events_message', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200">
+          <h4 className="text-lg font-bold text-[#03325a] mb-4 flex items-center gap-2">
+            <span>📢</span> Call to Action Section
+          </h4>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">CTA Title</label>
+              <input
+                type="text"
+                value={settings.cta_title}
+                onChange={(e) => handlePageSettingsChange('events', 'cta_title', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">CTA Button Text</label>
+              <input
+                type="text"
+                value={settings.cta_button_text}
+                onChange={(e) => handlePageSettingsChange('events', 'cta_button_text', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">CTA Button Link</label>
+              <input
+                type="text"
+                value={settings.cta_button_link}
+                onChange={(e) => handlePageSettingsChange('events', 'cta_button_link', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">CTA Description</label>
+              <textarea
+                value={settings.cta_description}
+                onChange={(e) => handlePageSettingsChange('events', 'cta_description', e.target.value)}
+                rows={2}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Save Button */}
+        <div className="flex justify-end pt-4 border-t border-gray-200">
+          <button
+            onClick={() => handleSavePageSettings('events')}
+            disabled={savingPageSettings}
+            className="px-8 py-3 bg-[#30d9fe] text-[#03325a] font-bold rounded-lg hover:bg-[#eec262] transition-all shadow-lg disabled:opacity-50"
+          >
+            {savingPageSettings ? '⏳ Saving...' : '💾 Save Events Page Settings'}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -768,6 +1591,14 @@ const AdminPages = () => {
                       >
                         🔄 Initialize Defaults
                       </button>
+                    ) : ['home', 'about', 'programs', 'events'].includes(selectedPage?.id) ? (
+                      <button
+                        onClick={initializeAllPageSettings}
+                        disabled={savingPageSettings}
+                        className="bg-white/20 text-white px-4 py-2.5 rounded-lg hover:bg-white/30 transition-all font-semibold"
+                      >
+                        🔄 Initialize Defaults
+                      </button>
                     ) : (
                       <button
                         onClick={handleSavePage}
@@ -796,6 +1627,42 @@ const AdminPages = () => {
                     </div>
                   ) : (
                     renderContactPageEditor()
+                  )
+                ) : selectedPage?.id === 'home' ? (
+                  loadingPageSettings ? (
+                    <div className="flex items-center justify-center py-12">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#30d9fe]"></div>
+                      <span className="ml-3 text-gray-600">Loading home page settings...</span>
+                    </div>
+                  ) : (
+                    renderHomePageEditor()
+                  )
+                ) : selectedPage?.id === 'about' ? (
+                  loadingPageSettings ? (
+                    <div className="flex items-center justify-center py-12">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#30d9fe]"></div>
+                      <span className="ml-3 text-gray-600">Loading about page settings...</span>
+                    </div>
+                  ) : (
+                    renderAboutPageEditor()
+                  )
+                ) : selectedPage?.id === 'programs' ? (
+                  loadingPageSettings ? (
+                    <div className="flex items-center justify-center py-12">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#30d9fe]"></div>
+                      <span className="ml-3 text-gray-600">Loading programs page settings...</span>
+                    </div>
+                  ) : (
+                    renderProgramsPageEditor()
+                  )
+                ) : selectedPage?.id === 'events' ? (
+                  loadingPageSettings ? (
+                    <div className="flex items-center justify-center py-12">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#30d9fe]"></div>
+                      <span className="ml-3 text-gray-600">Loading events page settings...</span>
+                    </div>
+                  ) : (
+                    renderEventsPageEditor()
                   )
                 ) : (
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

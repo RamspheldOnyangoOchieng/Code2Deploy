@@ -6,7 +6,10 @@ from .views import (
     AdminMentorManagementView, AdminApplicationManagementView,
     ContactPageSettingsListView, ContactPageSettingsDetailView,
     ContactPageSettingsByTypeView, InitializeContactSettingsView,
-    SiteSettingsView
+    SiteSettingsView,
+    HomePageSettingsView, AboutPageSettingsView,
+    ProgramsPageSettingsView, EventsPageSettingsView,
+    InitializeAllPageSettingsView
 )
 
 app_name = 'custom_admin'
@@ -27,6 +30,13 @@ urlpatterns = [
     path('contact-settings/initialize/', InitializeContactSettingsView.as_view(), name='contact-settings-init'),
     path('contact-settings/<int:pk>/', ContactPageSettingsDetailView.as_view(), name='contact-settings-detail'),
     path('contact-settings/type/<str:contact_type>/', ContactPageSettingsByTypeView.as_view(), name='contact-settings-by-type'),
+    
+    # Page Settings
+    path('page-settings/home/', HomePageSettingsView.as_view(), name='home-page-settings'),
+    path('page-settings/about/', AboutPageSettingsView.as_view(), name='about-page-settings'),
+    path('page-settings/programs/', ProgramsPageSettingsView.as_view(), name='programs-page-settings'),
+    path('page-settings/events/', EventsPageSettingsView.as_view(), name='events-page-settings'),
+    path('page-settings/initialize/', InitializeAllPageSettingsView.as_view(), name='page-settings-init'),
     
     # Site Settings
     path('site-settings/', SiteSettingsView.as_view(), name='site-settings'),

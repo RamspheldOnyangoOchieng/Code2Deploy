@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/layout';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+
 const Events = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('events');
@@ -17,6 +19,27 @@ const Events = () => {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredEvents, setFilteredEvents] = useState([]);
+  const [pageSettings, setPageSettings] = useState(null);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  useEffect(() => {
+    fetchPageSettings();
+  }, []);
+
+  const fetchPageSettings = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/page-settings/events/`);
+      if (response.ok) {
+        const data = await response.json();
+        setPageSettings(data);
+      }
+    } catch (error) {
+      console.error('Error fetching events page settings:', error);
+    }
+  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -267,8 +290,11 @@ const Events = () => {
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Upcoming Events</h1>
-              <p className="text-base sm:text-lg text-gray-300">Discover workshops, webinars, and tech meetups to enhance your skills</p>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">{pageSettings?.hero_title || 'Upcoming Events'}</h1>
+              <p className="text-base sm:text-lg text-gray-300">{pageSettings?.hero_subtitle || 'Discover workshops, webinars, and tech meetups to enhance your skills'}</p>
+              {pageSettings?.hero_description && (
+                <p className="text-sm text-gray-400 mt-2">{pageSettings.hero_description}</p>
+              )}
             </div>
             <div className="mt-8 text-center">
               <Link to="/">
@@ -500,7 +526,7 @@ const Events = () => {
               <div className="text-center mb-6">
                 <i className="fas fa-calendar-times text-5xl sm:text-6xl text-gray-300 mb-4"></i>
                 <h3 className="text-xl sm:text-2xl font-bold text-[#03325a] mb-2">No Events Found</h3>
-                <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">We couldn't find any events matching your search criteria.</p>
+                <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">{pageSettings?.no_events_message || "We couldn't find any events matching your search criteria."}</p>
                 <button
                   onClick={clearFilters}
                   className="px-6 py-2 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap"

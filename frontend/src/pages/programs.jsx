@@ -19,6 +19,7 @@ const Programs = () => {
   const [showModal, setShowModal] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
   const [enrollmentSuccess, setEnrollmentSuccess] = useState(false);
+  const [pageSettings, setPageSettings] = useState(null);
 
   const clearFilters = () => {
     setSearchTerm('');
@@ -29,10 +30,23 @@ const Programs = () => {
     });
   };
 
-  // Fetch programs from backend
+  // Fetch programs and page settings from backend
   useEffect(() => {
     fetchPrograms();
+    fetchPageSettings();
   }, []);
+
+  const fetchPageSettings = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/page-settings/programs/`);
+      if (response.ok) {
+        const data = await response.json();
+        setPageSettings(data);
+      }
+    } catch (error) {
+      console.error('Error fetching programs page settings:', error);
+    }
+  };
 
   const fetchPrograms = async () => {
     try {
@@ -145,8 +159,11 @@ const Programs = () => {
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">All Programs</h1>
-              <p className="text-base sm:text-lg text-gray-300">Explore our comprehensive range of tech training programs</p>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">{pageSettings?.hero_title || 'All Programs'}</h1>
+              <p className="text-base sm:text-lg text-gray-300">{pageSettings?.hero_subtitle || 'Explore our comprehensive range of tech training programs'}</p>
+              {pageSettings?.hero_description && (
+                <p className="text-sm text-gray-400 mt-2">{pageSettings.hero_description}</p>
+              )}
             </div>
             <div className="mt-8 text-center">
               <Link to="/">
@@ -287,7 +304,7 @@ const Programs = () => {
               <div className="text-center mb-6">
                 <i className="fas fa-search text-5xl sm:text-6xl text-gray-300 mb-4"></i>
                 <h3 className="text-xl sm:text-2xl font-bold text-[#03325a] mb-2">No Programs Found</h3>
-                <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">We couldn't find any programs matching your search criteria.</p>
+                <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">{pageSettings?.no_programs_message || "We couldn't find any programs matching your search criteria."}</p>
                 <button
                   onClick={clearFilters}
                   className="px-6 py-2 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 transition-all duration-300"

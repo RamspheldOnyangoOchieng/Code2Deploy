@@ -5,6 +5,7 @@ import authService from '../services/authService';
 import SignupModal from './SignupModal';
 import LoginModal from './LoginModal';
 import ForgotPasswordModal from './ForgotPasswordModal';
+import LogoutModal from './LogoutModal';
 
 const Layout = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,6 +15,7 @@ const Layout = ({ children }) => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -48,12 +50,18 @@ const Layout = ({ children }) => {
   }, [location]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
-      authService.logout();
-      setUser(null);
-      navigate('/');
-    }
+  
+  const handleLogoutClick = () => {
+    setIsLogoutModalOpen(true);
+    setIsUserDropdownOpen(false);
+    setIsMenuOpen(false);
+  };
+
+  const handleLogoutConfirm = () => {
+    authService.logout();
+    setUser(null);
+    setIsLogoutModalOpen(false);
+    navigate('/');
   };
 
   const handlePartnerSponsor = () => {
@@ -187,7 +195,7 @@ const Layout = ({ children }) => {
                       <div className="border-t border-gray-200 my-1"></div>
                       
                       <button
-                        onClick={() => { handleLogout(); setIsUserDropdownOpen(false); }}
+                        onClick={handleLogoutClick}
                         className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
                       >
                         <i className="fas fa-sign-out-alt mr-2"></i>
@@ -261,7 +269,7 @@ const Layout = ({ children }) => {
                         Profile
                       </Link>
                       <button 
-                        onClick={() => { handleLogout(); setIsMenuOpen(false); }}
+                        onClick={handleLogoutClick}
                         className="px-4 py-2 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer"
                       >
                         Logout
@@ -401,6 +409,13 @@ const Layout = ({ children }) => {
       <ForgotPasswordModal 
         isOpen={isForgotPasswordModalOpen}
         onClose={() => setIsForgotPasswordModalOpen(false)}
+      />
+
+      {/* Logout Confirmation Modal */}
+      <LogoutModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={handleLogoutConfirm}
       />
     </div>
   );

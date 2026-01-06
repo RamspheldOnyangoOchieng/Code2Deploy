@@ -1,14 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Autoplay, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import Layout from '../components/layout';
 import '../styles/swiper-custom.css';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+
 const Home = () => {
   const [activeTab, setActiveTab] = useState('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [pageSettings, setPageSettings] = useState(null);
+  const [loading, setLoading] = useState(true);
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  useEffect(() => {
+    fetchPageSettings();
+  }, []);
+
+  const fetchPageSettings = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/page-settings/home/`);
+      if (response.ok) {
+        const data = await response.json();
+        setPageSettings(data);
+      }
+    } catch (error) {
+      console.error('Error fetching home page settings:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Layout>
@@ -19,28 +41,27 @@ const Home = () => {
           <div className="relative z-10 w-full max-w-screen-xl mx-auto flex flex-col lg:flex-row gap-8 items-center">
             <div className="w-full lg:w-1/2 text-left">
                 <h1 className="mb-6 font-extrabold leading-tight text-3xl sm:text-5xl md:text-6xl lg:text-7xl text-white">
-                  <span className="block">From</span>
-                  <span className="text-[#30d9fe]">Hello World</span>
-                  <span className="block">to</span>
-                  <span className="text-[#eec262]">Hello AI</span>
+                  <span className="block">{pageSettings?.hero_title_line1 || 'From'}</span>
+                  <span className="text-[#30d9fe]">{pageSettings?.hero_title_highlight1 || 'Hello World'}</span>
+                  <span className="block">{pageSettings?.hero_title_line2 || 'to'}</span>
+                  <span className="text-[#eec262]">{pageSettings?.hero_title_highlight2 || 'Hello AI'}</span>
               </h1>
                 <p className="max-w-xl mb-8 text-base sm:text-xl md:text-2xl text-gray-200">
-                  Empowering African youth with cutting-edge tech skills to build solutions that matter.<br className="hidden sm:inline" />
-                  <span className="block sm:inline">Join our community of innovators today.</span>
+                  {pageSettings?.hero_description || 'Empowering African youth with cutting-edge tech skills to build solutions that matter. Join our community of innovators today.'}
                 </p>
                 <div className="flex flex-wrap gap-3 sm:gap-4">
-                  <Link to="/programs">
-                    <button className="px-6 py-3 text-base font-bold rounded-lg bg-[#30d9fe] text-[#03325a] hover:bg-opacity-90 transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap shadow-md w-full sm:w-auto">Join a Program</button>
+                  <Link to={pageSettings?.hero_button1_link || '/programs'}>
+                    <button className="px-6 py-3 text-base font-bold rounded-lg bg-[#30d9fe] text-[#03325a] hover:bg-opacity-90 transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap shadow-md w-full sm:w-auto">{pageSettings?.hero_button1_text || 'Join a Program'}</button>
                   </Link>
-                  <Link to="/events">
-                    <button className="px-6 py-3 text-base font-bold rounded-lg bg-[#eec262] text-[#03325a] hover:bg-opacity-90 transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap shadow-md w-full sm:w-auto">Upcoming Events</button>
+                  <Link to={pageSettings?.hero_button2_link || '/events'}>
+                    <button className="px-6 py-3 text-base font-bold rounded-lg bg-[#eec262] text-[#03325a] hover:bg-opacity-90 transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap shadow-md w-full sm:w-auto">{pageSettings?.hero_button2_text || 'Upcoming Events'}</button>
                   </Link>
                 </div>
               </div>
             <div className="w-full lg:w-1/2 flex justify-center items-center mt-8 lg:mt-0">
               <div className="w-full max-w-xs sm:max-w-md md:max-w-lg h-60 sm:h-80 md:h-96 relative overflow-hidden rounded-2xl shadow-lg">
                 <img
-                  src="https://readdy.ai/api/search-image?query=abstract%20digital%20brain%20with%20glowing%20neural%20pathways%20and%20AI%20connections%20floating%20in%20space%20with%20bright%20cyan%20and%20electric%20blue%20colors%20modern%20minimalist%20tech%20illustration&width=600&height=400&seq=hero-img-001&orientation=landscape"
+                  src={pageSettings?.hero_image_url || "https://readdy.ai/api/search-image?query=abstract%20digital%20brain%20with%20glowing%20neural%20pathways%20and%20AI%20connections%20floating%20in%20space%20with%20bright%20cyan%20and%20electric%20blue%20colors%20modern%20minimalist%20tech%20illustration&width=600&height=400&seq=hero-img-001&orientation=landscape"}
                   alt="AI Brain Illustration"
                   className="w-full h-full object-cover object-top"
                 />
@@ -51,9 +72,9 @@ const Home = () => {
       {/* Value Proposition */}
         <section className="py-8 sm:py-14 md:py-20">
           <div className="max-w-screen-xl mx-auto px-2 sm:px-4 lg:px-8">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-8 text-[#30d9fe]">Our Approach</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-8 text-[#30d9fe]">{pageSettings?.approach_title || 'Our Approach'}</h2>
             <p className="text-base sm:text-lg text-center text-gray-300 max-w-3xl mx-auto mb-8">
-              Most courses stop at code. We take you further. By the end of our program, you'll have:
+              {pageSettings?.approach_description || 'Most courses stop at code. We take you further. By the end of our program, you\'ll have:'}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
               {[
@@ -107,7 +128,7 @@ const Home = () => {
           <div className="max-w-screen-xl mx-auto px-2 sm:px-4 lg:px-8">
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="w-full md:w-1/2 md:pr-10 mb-8 md:mb-0">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-[#30d9fe]">What We Do</h2>
+                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-[#30d9fe]">{pageSettings?.what_we_do_title || 'What We Do'}</h2>
                 <ul className="space-y-4">
                 <li className="flex items-start">
                     <div className="bg-[#03325a] p-2 rounded-full mr-4 mt-1">
@@ -160,7 +181,7 @@ const Home = () => {
       {/* Program Carousel */}
         <section className="py-8 sm:py-14 md:py-20 bg-gray-50">
           <div className="max-w-screen-xl mx-auto px-2 sm:px-4 lg:px-8">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-8 text-[#03325a]">Our Programs</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-8 text-[#03325a]">{pageSettings?.programs_section_title || 'Our Programs'}</h2>
             <div className="-mx-2">
           <Swiper
             modules={[Pagination, Autoplay]}
@@ -299,17 +320,21 @@ const Home = () => {
       {/* Call to Action */}
         <section className="py-8 sm:py-14 md:py-20 bg-[#03325a] text-white">
           <div className="max-w-screen-xl mx-auto px-2 sm:px-4 lg:px-8 text-center">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-6">Ready to Start Your Tech Journey?</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-6">{pageSettings?.cta_title || 'Ready to Start Your Tech Journey?'}</h2>
             <p className="max-w-2xl mx-auto mb-8 text-base sm:text-lg md:text-xl lg:text-2xl">
-            Join our community of learners and innovators today. Take the first step toward a future in technology.
+              {pageSettings?.cta_description || 'Join our community of learners and innovators today. Take the first step toward a future in technology.'}
           </p>
             <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4 sm:gap-6">
-              <button className="px-6 py-3 sm:px-8 sm:py-4 bg-[#30d9fe] text-[#03325a] text-base sm:text-lg font-bold rounded-lg hover:bg-opacity-90 transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap w-full sm:w-auto">
-              Apply Now
-            </button>
-              <button className="px-6 py-3 sm:px-8 sm:py-4 bg-[#eec262] text-[#03325a] text-base sm:text-lg font-bold rounded-lg hover:bg-opacity-90 transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap w-full sm:w-auto">
-              Schedule a Call
-            </button>
+              <Link to={pageSettings?.cta_button1_link || '/programs'}>
+                <button className="px-6 py-3 sm:px-8 sm:py-4 bg-[#30d9fe] text-[#03325a] text-base sm:text-lg font-bold rounded-lg hover:bg-opacity-90 transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap w-full sm:w-auto">
+                  {pageSettings?.cta_button1_text || 'Apply Now'}
+                </button>
+              </Link>
+              <Link to={pageSettings?.cta_button2_link || '/contact'}>
+                <button className="px-6 py-3 sm:px-8 sm:py-4 bg-[#eec262] text-[#03325a] text-base sm:text-lg font-bold rounded-lg hover:bg-opacity-90 transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap w-full sm:w-auto">
+                  {pageSettings?.cta_button2_text || 'Schedule a Call'}
+                </button>
+              </Link>
           </div>
         </div>
       </section>
