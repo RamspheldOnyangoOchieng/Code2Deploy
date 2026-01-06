@@ -12,6 +12,8 @@ const SignupModal = ({ isOpen, onClose, onSignupSuccess }) => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleChange = (e) => {
     setFormData({
@@ -40,18 +42,21 @@ const SignupModal = ({ isOpen, onClose, onSignupSuccess }) => {
 
     try {
       // Register the user
-      await AuthService.signup(formData);
+      const response = await AuthService.signup(formData);
       
-      // Auto-login after successful registration
-      await AuthService.login({
-        username: formData.username,
-        password: formData.password
+      // Show success message - user needs to confirm email before logging in
+      setSuccess(true);
+      setSuccessMessage(response.detail || '🎉 Signup successful! Please check your email and click the confirmation link to activate your account.');
+      
+      // Clear form
+      setFormData({
+        email: '',
+        username: '',
+        password: '',
+        re_password: '',
+        first_name: '',
+        last_name: ''
       });
-      
-      // Get user profile and pass to parent
-      const user = await AuthService.getCurrentUser();
-      onSignupSuccess(user);
-      onClose();
     } catch (error) {
       // Try to parse error message for duplicate email/username
       if (error.message.includes('email')) {
@@ -67,6 +72,34 @@ const SignupModal = ({ isOpen, onClose, onSignupSuccess }) => {
   };
 
   if (!isOpen) return null;
+
+  // Show success message after successful signup
+  if (success) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-8 w-full max-w-md mx-4">
+          <div className="text-center">
+            <div className="text-6xl mb-4">📧</div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Check Your Email!</h2>
+            <p className="text-gray-600 mb-6">{successMessage}</p>
+            <p className="text-sm text-gray-500 mb-6">
+              Click the confirmation link in your email to activate your account, then you can log in.
+            </p>
+            <button
+              onClick={() => {
+                setSuccess(false);
+                setSuccessMessage('');
+                onClose();
+              }}
+              className="w-full bg-[#30d9fe] text-[#03325a] font-medium py-2 px-4 rounded-md hover:bg-opacity-90 transition-all duration-300"
+            >
+              Got it!
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

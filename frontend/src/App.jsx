@@ -7,6 +7,7 @@ import Programs from './pages/programs';
 import Profile from './pages/profile';
 import AdminDashboard from './pages/admin';
 import ResetPassword from './pages/ResetPassword';
+import Confirmed from './pages/Confirmed';
 
 // Import Tailwind CSS
 import './index.css';
@@ -26,6 +27,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/confirmed" element={<Confirmed />} />
       </Routes>
     </Router>
   );
