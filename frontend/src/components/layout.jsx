@@ -61,6 +61,7 @@ const Layout = ({ children }) => {
 
   const handleEducationPartner = () => {
     // Navigate to contact page with education partner parameter
+    navigate('/contact?type=education-partner');
   };
 
   const handleSignupSuccess = (user) => {
@@ -109,12 +110,14 @@ const Layout = ({ children }) => {
             {/* Right Side - Partner Buttons & User Profile - Far Right */}
             <div className="items-center hidden lg:flex space-x-3 flex-shrink-0">
               <button 
+                type="button"
                 onClick={handlePartnerSponsor}
                 className="px-4 py-2 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer whitespace-nowrap text-sm"
               >
                 Partner as Sponsor
               </button>
               <button 
+                type="button"
                 onClick={handleEducationPartner}
                 className="px-4 py-2 border-2 border-[#30d9fe] text-white font-medium rounded-lg hover:bg-[#30d9fe] hover:text-[#03325a] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer whitespace-nowrap text-sm"
               >
@@ -281,12 +284,14 @@ const Layout = ({ children }) => {
                 </div>
                 <div className="flex flex-col pt-2 space-y-2">
                   <button 
+                    type="button"
                     onClick={() => { handlePartnerSponsor(); setIsMenuOpen(false); }}
                     className="px-4 py-2 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap text-sm"
                   >
                     Partner as Sponsor
                   </button>
                   <button 
+                    type="button"
                     onClick={() => { handleEducationPartner(); setIsMenuOpen(false); }}
                     className="px-4 py-2 border-2 border-[#30d9fe] text-white font-medium rounded-lg hover:bg-[#30d9fe] hover:text-[#03325a] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap text-sm"
                   >
