@@ -163,7 +163,7 @@ const Contact = () => {
         buttonText: contactSettings.button_text || 'Send Message',
         contactInfoTitle: contactSettings.contact_info_title || 'Ping Our Network',
         visitLabel: contactSettings.visit_label || 'Visit Us',
-        visitAddress: contactSettings.visit_address || '123 Tech Hub, Innovation Street\nLagos, Nigeria',
+        visitAddress: contactSettings.visit_address || '123 Tech Hub, Innovation Street\nNairobi, Kenya',
         emailLabel: contactSettings.email_label || 'Email Us',
         primaryEmail: contactSettings.primary_email || 'info@code2deploy.com',
         secondaryEmail: contactSettings.secondary_email || '',
