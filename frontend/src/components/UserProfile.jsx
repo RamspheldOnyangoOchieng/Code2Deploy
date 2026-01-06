@@ -7,9 +7,11 @@ const UserProfile = ({ user, onLogout }) => {
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
   const handleLogout = () => {
-    AuthService.logout();
-    onLogout();
-    setIsDropdownOpen(false);
+    if (window.confirm('Are you sure you want to logout?')) {
+      AuthService.logout();
+      onLogout();
+      setIsDropdownOpen(false);
+    }
   };
 
   return (

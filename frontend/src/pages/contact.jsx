@@ -39,10 +39,10 @@ const Contact = () => {
         reason: 'sponsor',
         message: 'I am interested in becoming a sponsor for Code2Deploy programs and events.'
       }));
-    } else if (type === 'education') {
+    } else if (type === 'education' || type === 'education-partner') {
       setFormData(prev => ({
         ...prev,
-        subject: 'Partnership Inquiry - Education & Training',
+        subject: 'Partnership Inquiry - Education & Training Partner',
         reason: 'education',
         message: 'I am interested in becoming an education and training partner with Code2Deploy.'
       }));
@@ -115,11 +115,11 @@ const Contact = () => {
         subtitle: 'Partner with us to empower African youth in tech',
         description: 'Join us in our mission to transform African youth through technology education. Your sponsorship will help provide scholarships, resources, and opportunities for aspiring developers.'
       };
-    } else if (type === 'education') {
+    } else if (type === 'education' || type === 'education-partner') {
       return {
-        title: 'Education & Training Partnership',
-        subtitle: 'Collaborate with us to expand tech education',
-        description: 'Partner with Code2Deploy to deliver world-class technology education. Together, we can create innovative learning programs and expand our reach across Africa.'
+        title: 'Become an Education & Training Partner',
+        subtitle: 'Collaborate with us to expand tech education across Africa',
+        description: 'Partner with Code2Deploy to deliver world-class technology education. Together, we can create innovative learning programs, share resources, and empower the next generation of African developers.'
       };
     }
     return {

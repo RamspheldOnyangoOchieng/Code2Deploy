@@ -49,9 +49,11 @@ const Layout = ({ children }) => {
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const handleLogout = () => {
-    authService.logout();
-    setUser(null);
-    navigate('/');
+    if (window.confirm('Are you sure you want to logout?')) {
+      authService.logout();
+      setUser(null);
+      navigate('/');
+    }
   };
 
   const handlePartnerSponsor = () => {
