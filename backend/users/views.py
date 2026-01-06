@@ -1,3 +1,4 @@
+import os
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -97,7 +98,8 @@ class ConfirmEmailView(APIView):
             user.is_active = True
             user.save()
             # Redirect to frontend confirmation page
-            return redirect('http://localhost:5173/confirmed')  # Update to your frontend URL
+            frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+            return redirect(f'{frontend_url}/confirmed')
         return Response({'detail': 'Invalid or expired token.'}, status=status.HTTP_400_BAD_REQUEST)
 
 class ResendConfirmationEmailView(APIView):
