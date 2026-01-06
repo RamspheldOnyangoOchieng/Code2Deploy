@@ -29,10 +29,28 @@ from rest_framework.permissions import AllowAny
 logger = logging.getLogger(__name__)
 
 
+def is_email_configured():
+    """Check if email is properly configured for sending."""
+    backend = settings.EMAIL_BACKEND
+    # Console backend is for development only
+    if 'console' in backend.lower():
+        return False
+    # Check if SMTP credentials are set
+    if 'smtp' in backend.lower():
+        return bool(settings.EMAIL_HOST_USER and settings.EMAIL_HOST_PASSWORD)
+    return True
+
+
 def send_email_async(subject, plain_message, from_email, recipient_list, html_message=None):
     """Send email in a background thread to prevent blocking the request."""
     def send():
         try:
+            # Check if email is configured
+            if not is_email_configured():
+                logger.warning(f"Email not configured. Would have sent to {recipient_list}: {subject}")
+                logger.info(f"To enable email, set EMAIL_BACKEND, EMAIL_HOST_USER, and EMAIL_HOST_PASSWORD environment variables")
+                return
+            
             send_mail(
                 subject,
                 plain_message,
@@ -44,6 +62,7 @@ def send_email_async(subject, plain_message, from_email, recipient_list, html_me
             logger.info(f"Email sent successfully to {recipient_list}")
         except Exception as e:
             logger.error(f"Failed to send email to {recipient_list}: {str(e)}")
+            logger.error(f"Email config: HOST={settings.EMAIL_HOST}, PORT={settings.EMAIL_PORT}, USER={settings.EMAIL_HOST_USER[:3] if settings.EMAIL_HOST_USER else 'NOT SET'}...")
     
     thread = threading.Thread(target=send)
     thread.daemon = True
