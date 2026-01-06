@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment files with secrets (keep .env.production for public URLs)
+.env.development.local
+.env.test.local
+.env.local
+.env
