@@ -77,7 +77,8 @@ const MentorDashboard = () => {
         return;
       }
       const userData = await authService.getCurrentUser();
-      if (userData.role !== 'mentor') {
+      // Allow access for mentors and admins (admins have access to all dashboards)
+      if (userData.role !== 'mentor' && userData.role !== 'admin') {
         navigate('/profile');
         return;
       }
