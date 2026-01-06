@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Layout from '../components/layout';
 import authService from '../services/authService';
 import { API_BASE_URL } from '../config/api';
+import LogoutModal from '../components/LogoutModal';
 import {
   HomeIcon,
   UsersIcon,
@@ -19,7 +20,9 @@ import {
   EyeIcon,
   CheckCircleIcon,
   XCircleIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
+  UserCircleIcon,
+  ArrowLeftOnRectangleIcon
 } from '@heroicons/react/24/outline';
 
 const MentorDashboard = () => {
@@ -47,6 +50,17 @@ const MentorDashboard = () => {
   const [showResourceModal, setShowResourceModal] = useState(false);
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  const handleLogoutClick = () => {
+    setIsLogoutModalOpen(true);
+  };
+
+  const handleLogoutConfirm = () => {
+    authService.logout();
+    setIsLogoutModalOpen(false);
+    navigate('/');
+  };
 
   const tabs = [
     { id: 'overview', name: 'Overview', icon: HomeIcon },
@@ -79,7 +93,7 @@ const MentorDashboard = () => {
       const userData = await authService.getCurrentUser();
       // Allow access for mentors and admins (admins have access to all dashboards)
       if (userData.role !== 'mentor' && userData.role !== 'admin') {
-        navigate('/profile');
+        navigate('/learner-dashboard');
         return;
       }
       setUser(userData);
@@ -752,9 +766,9 @@ const MentorDashboard = () => {
         <div className="flex">
           {/* Sidebar */}
           <div className="w-64 bg-[#03325a] min-h-screen fixed left-0 top-0 pt-20">
-            <div className="p-4">
+            <div className="p-4 flex flex-col h-[calc(100vh-5rem)]">
               <h2 className="text-white text-lg font-semibold mb-6">Mentor Dashboard</h2>
-              <nav className="space-y-2">
+              <nav className="space-y-2 flex-1">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
@@ -770,6 +784,24 @@ const MentorDashboard = () => {
                   </button>
                 ))}
               </nav>
+              
+              {/* Profile & Logout Section */}
+              <div className="pt-4 border-t border-[#30d9fe]/30 space-y-2">
+                <Link
+                  to="/profile"
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-300 hover:bg-[#0a4a7a]"
+                >
+                  <UserCircleIcon className="w-5 h-5" />
+                  <span className="text-sm font-medium">Profile</span>
+                </Link>
+                <button
+                  onClick={handleLogoutClick}
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-red-300 hover:bg-red-500/20"
+                >
+                  <ArrowLeftOnRectangleIcon className="w-5 h-5" />
+                  <span className="text-sm font-medium">Logout</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -784,6 +816,13 @@ const MentorDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      <LogoutModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={handleLogoutConfirm}
+      />
     </Layout>
   );
 };

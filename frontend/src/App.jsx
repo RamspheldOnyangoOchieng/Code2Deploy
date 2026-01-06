@@ -4,7 +4,8 @@ import Contact from './pages/contact';
 import Events from './pages/events';
 import Home from './pages/home';
 import Programs from './pages/programs';
-import Profile from './pages/profile';
+import ProfilePage from './pages/ProfilePage';
+import LearnerDashboard from './pages/LearnerDashboard';
 import AdminDashboard from './pages/admin';
 import MentorDashboard from './pages/MentorDashboard';
 import ResetPassword from './pages/ResetPassword';
@@ -25,7 +26,8 @@ function App() {
         <Route path="/events" element={<Events />} />
         <Route path="/programs" element={<Programs />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/learner-dashboard" element={<LearnerDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/mentor-dashboard" element={<MentorDashboard />} />
         <Route path="/reset-password" element={<ResetPassword />} />

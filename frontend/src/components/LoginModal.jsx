@@ -39,8 +39,10 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess, onForgotPassword }) => {
       // Redirect based on user role
       if (user.role === 'admin') {
         navigate('/admin');
+      } else if (user.role === 'mentor') {
+        navigate('/mentor-dashboard');
       } else {
-        navigate('/profile');
+        navigate('/learner-dashboard');
       }
     } catch (err) {
       setError(err.message || 'Invalid credentials');

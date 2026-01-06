@@ -41,10 +41,6 @@ const Events = () => {
     }
   };
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
   const clearFilters = () => {
     setSearchTerm('');
     setFilters({

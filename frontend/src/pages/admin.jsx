@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import authService from '../services/authService';
 import { API_BASE_URL } from '../config/api';
 import AdminUsers from '../components/admin/AdminUsers';
@@ -11,6 +11,7 @@ import AdminMentors from '../components/admin/AdminMentors';
 import AdminNotifications from '../components/admin/AdminNotifications';
 import AdminSecurity from '../components/admin/AdminSecurity';
 import AdminPages from '../components/admin/AdminPages';
+import LogoutModal from '../components/LogoutModal';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -18,7 +19,18 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const navigate = useNavigate();
+
+  const handleLogoutClick = () => {
+    setIsLogoutModalOpen(true);
+  };
+
+  const handleLogoutConfirm = () => {
+    authService.logout();
+    setIsLogoutModalOpen(false);
+    navigate('/');
+  };
 
   useEffect(() => {
     checkAdminAccess();
@@ -281,6 +293,24 @@ const AdminDashboard = () => {
                 </button>
               ))}
             </nav>
+            
+            {/* Profile & Logout Section */}
+            <div className="mt-8 pt-4 border-t border-gray-200 space-y-2">
+              <Link
+                to="/profile"
+                className="w-full flex items-center space-x-3 px-3 md:px-4 py-2.5 md:py-3 text-xs md:text-sm font-medium rounded-lg transition-all duration-300 text-gray-700 hover:bg-gray-100 hover:text-[#03325a]"
+              >
+                <span className="text-lg md:text-xl">👤</span>
+                <span>Profile</span>
+              </Link>
+              <button
+                onClick={handleLogoutClick}
+                className="w-full flex items-center space-x-3 px-3 md:px-4 py-2.5 md:py-3 text-xs md:text-sm font-medium rounded-lg transition-all duration-300 text-red-600 hover:bg-red-50"
+              >
+                <span className="text-lg md:text-xl">🚪</span>
+                <span>Logout</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -301,6 +331,13 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      <LogoutModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={handleLogoutConfirm}
+      />
     </div>
   );
 };

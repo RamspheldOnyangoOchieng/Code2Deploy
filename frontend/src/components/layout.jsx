@@ -161,27 +161,8 @@ const Layout = ({ children }) => {
                         )}
                       </div>
                       
-                      <Link
-                        to="/profile"
-                        onClick={() => setIsUserDropdownOpen(false)}
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
-                      >
-                        <i className="fas fa-user mr-2"></i>
-                        Profile
-                      </Link>
-                      
-                      {user.role === 'mentor' && (
-                        <Link
-                          to="/mentor-dashboard"
-                          onClick={() => setIsUserDropdownOpen(false)}
-                          className="block px-4 py-2 text-sm text-teal-600 hover:bg-teal-50 transition-colors duration-200"
-                        >
-                          <i className="fas fa-chalkboard-teacher mr-2"></i>
-                          Mentor Dashboard
-                        </Link>
-                      )}
-                      
-                      {user.role === 'admin' && (
+                      {/* Dashboard Link - Role Based */}
+                      {user.role === 'admin' ? (
                         <Link
                           to="/admin"
                           onClick={() => setIsUserDropdownOpen(false)}
@@ -190,7 +171,34 @@ const Layout = ({ children }) => {
                           <i className="fas fa-crown mr-2"></i>
                           Admin Dashboard
                         </Link>
+                      ) : user.role === 'mentor' ? (
+                        <Link
+                          to="/mentor-dashboard"
+                          onClick={() => setIsUserDropdownOpen(false)}
+                          className="block px-4 py-2 text-sm text-teal-600 hover:bg-teal-50 transition-colors duration-200"
+                        >
+                          <i className="fas fa-chalkboard-teacher mr-2"></i>
+                          Mentor Dashboard
+                        </Link>
+                      ) : (
+                        <Link
+                          to="/learner-dashboard"
+                          onClick={() => setIsUserDropdownOpen(false)}
+                          className="block px-4 py-2 text-sm text-green-600 hover:bg-green-50 transition-colors duration-200"
+                        >
+                          <i className="fas fa-graduation-cap mr-2"></i>
+                          My Dashboard
+                        </Link>
                       )}
+                      
+                      <Link
+                        to="/profile"
+                        onClick={() => setIsUserDropdownOpen(false)}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                      >
+                        <i className="fas fa-user mr-2"></i>
+                        Profile
+                      </Link>
                       
                       <div className="border-t border-gray-200 my-1"></div>
                       
@@ -243,7 +251,16 @@ const Layout = ({ children }) => {
                   {user ? (
                     <>
                       <span className="text-sm text-gray-300">Welcome, {user.first_name || user.username}!</span>
-                      {user.role === 'mentor' && (
+                      {/* Dashboard Link - Role Based */}
+                      {user.role === 'admin' ? (
+                        <Link 
+                          to="/admin"
+                          onClick={() => setIsMenuOpen(false)}
+                          className="px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer"
+                        >
+                          Admin Dashboard
+                        </Link>
+                      ) : user.role === 'mentor' ? (
                         <Link 
                           to="/mentor-dashboard"
                           onClick={() => setIsMenuOpen(false)}
@@ -251,14 +268,13 @@ const Layout = ({ children }) => {
                         >
                           Mentor Dashboard
                         </Link>
-                      )}
-                      {user.role === 'admin' && (
+                      ) : (
                         <Link 
-                          to="/admin"
+                          to="/learner-dashboard"
                           onClick={() => setIsMenuOpen(false)}
-                          className="px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer"
+                          className="px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer"
                         >
-                          Admin
+                          My Dashboard
                         </Link>
                       )}
                       <Link 
