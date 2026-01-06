@@ -239,11 +239,11 @@ const AdminDashboard = () => {
           ></div>
         )}
 
-        {/* Left Sidebar Navigation */}
+        {/* Left Sidebar Navigation - Fixed */}
         <div className={`
-          fixed lg:sticky top-0 left-0 h-screen
+          fixed top-0 left-0 h-screen pt-20
           w-64 bg-white shadow-xl border-r border-gray-200
-          transform transition-transform duration-300 ease-in-out z-30
+          transform transition-transform duration-300 ease-in-out z-20
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
           overflow-y-auto
         `}>
@@ -285,7 +285,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 p-3 md:p-6 lg:p-8">
+        <div className="flex-1 lg:ml-64 p-3 md:p-6 lg:p-8">
           <div className="bg-white rounded-lg md:rounded-xl shadow-lg border border-gray-200 p-4 md:p-6 lg:p-8">
             {activeTab === 'dashboard' && renderDashboard()}
             {activeTab === 'pages' && <AdminPages />}
