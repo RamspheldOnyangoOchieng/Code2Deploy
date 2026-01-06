@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import authService from '../services/authService';
 import {
   UserCircleIcon,
@@ -10,7 +10,9 @@ import {
   ChartBarIcon,
   DocumentTextIcon,
   ShieldCheckIcon,
-  CameraIcon
+  CameraIcon,
+  Cog6ToothIcon,
+  UsersIcon
 } from '@heroicons/react/24/outline';
 
 const Profile = () => {
@@ -127,6 +129,20 @@ const Profile = () => {
     }
   };
 
+  // Get role-specific dashboard info
+  const getRoleDashboard = () => {
+    switch (user?.role) {
+      case 'admin':
+        return { path: '/admin', label: 'Admin Dashboard', icon: Cog6ToothIcon, color: 'bg-purple-500' };
+      case 'mentor':
+        return { path: '/mentor-dashboard', label: 'Mentor Dashboard', icon: UsersIcon, color: 'bg-teal-500' };
+      default:
+        return null;
+    }
+  };
+
+  const roleDashboard = getRoleDashboard();
+
   const sidebarItems = [
     { id: 'overview', name: 'Overview', icon: ChartBarIcon },
     { id: 'profile', name: 'Profile Info', icon: UserCircleIcon },
@@ -203,6 +219,17 @@ const Profile = () => {
                     {user?.first_name} {user?.last_name}
                   </h2>
                   <p className="text-[#30d9fe] text-sm truncate">@{user?.username}</p>
+                  {user?.role && (
+                    <span className={`inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full ${
+                      user.role === 'admin' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/50' :
+                      user.role === 'mentor' ? 'bg-teal-500/20 text-teal-300 border border-teal-500/50' :
+                      user.role === 'sponsor' ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/50' :
+                      user.role === 'partner' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/50' :
+                      'bg-green-500/20 text-green-300 border border-green-500/50'
+                    }`}>
+                      {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="text-xs text-gray-400">
@@ -241,7 +268,17 @@ const Profile = () => {
               })}
             </nav>
 
-            <div className="p-4 border-t border-[#30d9fe]/20">
+            <div className="p-4 border-t border-[#30d9fe]/20 space-y-3">
+              {/* Role-specific Dashboard Link */}
+              {roleDashboard && (
+                <Link
+                  to={roleDashboard.path}
+                  className={`w-full flex items-center justify-center space-x-2 px-4 py-3 ${roleDashboard.color} hover:opacity-90 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg`}
+                >
+                  <roleDashboard.icon className="w-5 h-5" />
+                  <span>{roleDashboard.label}</span>
+                </Link>
+              )}
               <button
                 onClick={handleLogout}
                 className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-red-500/90 hover:bg-red-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg"
@@ -276,14 +313,50 @@ const Profile = () => {
             {activeTab === 'overview' && (
               <div className="space-y-6">
                 <div className="bg-gradient-to-r from-[#30d9fe] via-[#03325a] to-[#eec262] rounded-2xl p-8 text-white shadow-2xl">
-                  <h1 className="text-3xl sm:text-4xl font-bold mb-2">
-                    Welcome back, {user?.first_name}! 👋
-                  </h1>
-                  <p className="text-white/90">{user?.email}</p>
-                  <p className="text-sm text-white/70 mt-2">
-                    Member since {new Date(user?.date_joined).toLocaleDateString()}
-                  </p>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <h1 className="text-3xl sm:text-4xl font-bold mb-2">
+                        Welcome back, {user?.first_name}! 👋
+                      </h1>
+                      <p className="text-white/90">{user?.email}</p>
+                      <p className="text-sm text-white/70 mt-2">
+                        Member since {new Date(user?.date_joined).toLocaleDateString()}
+                      </p>
+                    </div>
+                    {roleDashboard && (
+                      <Link
+                        to={roleDashboard.path}
+                        className={`mt-4 sm:mt-0 inline-flex items-center space-x-2 px-6 py-3 ${roleDashboard.color} hover:opacity-90 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg`}
+                      >
+                        <roleDashboard.icon className="w-5 h-5" />
+                        <span>Go to {roleDashboard.label}</span>
+                      </Link>
+                    )}
+                  </div>
                 </div>
+
+                {/* Role Badge */}
+                {user?.role && (
+                  <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-4 flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-gray-300">Your Role:</span>
+                      <span className={`px-3 py-1 text-sm font-semibold rounded-full ${
+                        user.role === 'admin' ? 'bg-purple-500 text-white' :
+                        user.role === 'mentor' ? 'bg-teal-500 text-white' :
+                        user.role === 'sponsor' ? 'bg-yellow-500 text-gray-900' :
+                        user.role === 'partner' ? 'bg-blue-500 text-white' :
+                        'bg-green-500 text-white'
+                      }`}>
+                        {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                      </span>
+                    </div>
+                    {roleDashboard && (
+                      <span className="text-sm text-gray-400">
+                        Access your {user.role} tools in the dashboard →
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="bg-white/10 backdrop-blur-lg border border-[#30d9fe]/30 rounded-xl p-6 text-center hover:scale-105 transition-transform duration-200">
@@ -413,6 +486,18 @@ const Profile = () => {
                       <div className="flex items-start justify-between py-3 border-b border-white/10">
                         <span className="text-sm font-semibold text-gray-400">Organization:</span>
                         <p className="text-white text-right">{user?.organization || 'Not provided'}</p>
+                      </div>
+                      <div className="flex items-start justify-between py-3 border-b border-white/10">
+                        <span className="text-sm font-semibold text-gray-400">Role:</span>
+                        <span className={`px-3 py-1 text-sm font-semibold rounded-full ${
+                          user?.role === 'admin' ? 'bg-purple-500 text-white' :
+                          user?.role === 'mentor' ? 'bg-teal-500 text-white' :
+                          user?.role === 'sponsor' ? 'bg-yellow-500 text-gray-900' :
+                          user?.role === 'partner' ? 'bg-blue-500 text-white' :
+                          'bg-green-500 text-white'
+                        }`}>
+                          {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Learner'}
+                        </span>
                       </div>
                       <div className="flex items-start justify-between py-3">
                         <span className="text-sm font-semibold text-gray-400">Member Since:</span>

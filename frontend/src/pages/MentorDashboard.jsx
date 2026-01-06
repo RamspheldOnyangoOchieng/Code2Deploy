@@ -13,7 +13,6 @@ import {
   ChatBubbleLeftRightIcon,
   ClockIcon,
   ChartBarIcon,
-  UserCircleIcon,
   PlusIcon,
   PencilIcon,
   TrashIcon,
@@ -41,7 +40,6 @@ const MentorDashboard = () => {
   const [messages, setMessages] = useState([]);
   const [availability, setAvailability] = useState([]);
   const [reports, setReports] = useState(null);
-  const [profile, setProfile] = useState(null);
 
   // Modal states
   const [showSessionModal, setShowSessionModal] = useState(false);
@@ -60,7 +58,6 @@ const MentorDashboard = () => {
     { id: 'messages', name: 'Messages', icon: ChatBubbleLeftRightIcon },
     { id: 'schedule', name: 'Schedule', icon: ClockIcon },
     { id: 'reports', name: 'Reports', icon: ChartBarIcon },
-    { id: 'profile', name: 'Profile', icon: UserCircleIcon },
   ];
 
   useEffect(() => {
@@ -128,9 +125,6 @@ const MentorDashboard = () => {
           break;
         case 'reports':
           await loadReports();
-          break;
-        case 'profile':
-          await loadProfile();
           break;
       }
     } catch (err) {
@@ -217,14 +211,6 @@ const MentorDashboard = () => {
     if (response.ok) {
       const data = await response.json();
       setReports(data);
-    }
-  };
-
-  const loadProfile = async () => {
-    const response = await fetch(`${API_BASE_URL}/mentors/profile/`, { headers: getHeaders() });
-    if (response.ok) {
-      const data = await response.json();
-      setProfile(data);
     }
   };
 
@@ -736,55 +722,6 @@ const MentorDashboard = () => {
     </div>
   );
 
-  const renderProfile = () => (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800">My Profile</h2>
-      
-      {profile && (
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <div className="flex items-start space-x-6">
-            <div className="w-24 h-24 bg-[#03325a] rounded-full flex items-center justify-center text-white text-3xl font-bold">
-              {profile.name?.[0] || 'M'}
-            </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-semibold text-gray-800">{profile.name}</h3>
-              <p className="text-gray-500">{profile.user_email}</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {profile.expertise_list?.map((exp, i) => (
-                  <span key={i} className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
-                    {exp}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
-              Edit Profile
-            </button>
-          </div>
-          
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-500">Bio</label>
-              <p className="mt-1 text-gray-800">{profile.bio || 'No bio provided'}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-500">Years of Experience</label>
-              <p className="mt-1 text-gray-800">{profile.years_experience || 0} years</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-500">LinkedIn</label>
-              <p className="mt-1 text-blue-600">{profile.linkedin || 'Not provided'}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-500">GitHub</label>
-              <p className="mt-1 text-blue-600">{profile.github || 'Not provided'}</p>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-
   const renderContent = () => {
     if (loading && !dashboardStats) {
       return (
@@ -804,7 +741,6 @@ const MentorDashboard = () => {
       case 'messages': return renderMessages();
       case 'schedule': return renderSchedule();
       case 'reports': return renderReports();
-      case 'profile': return renderProfile();
       default: return renderOverview();
     }
   };
