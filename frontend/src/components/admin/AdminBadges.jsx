@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../../services/authService';
+import { API_BASE_URL } from '../../config/api';
 
 const AdminBadges = () => {
   const [badges, setBadges] = useState([]);
@@ -49,7 +50,7 @@ const AdminBadges = () => {
       if (searchTerm) params.append('search', searchTerm);
       if (typeFilter) params.append('badge_type', typeFilter);
 
-      const response = await fetch(`http://127.0.0.1:8000/api/certificates/admin/badges/?${params}`, {
+      const response = await fetch(`${API_BASE_URL}/certificates/admin/badges/?${params}`, {
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
           'Content-Type': 'application/json'
@@ -72,7 +73,7 @@ const AdminBadges = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/admin/users/', {
+      const response = await fetch(`${API_BASE_URL}/admin/users/', {
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
           'Content-Type': 'application/json'
@@ -90,7 +91,7 @@ const AdminBadges = () => {
 
   const handleCreateBadge = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/certificates/admin/badges/', {
+      const response = await fetch(`${API_BASE_URL}/certificates/admin/badges/', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
@@ -135,7 +136,7 @@ const AdminBadges = () => {
 
   const handleUpdateBadge = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/certificates/admin/badges/${selectedBadge.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/certificates/admin/badges/${selectedBadge.id}/`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
@@ -157,7 +158,7 @@ const AdminBadges = () => {
 
   const handleDeleteBadge = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/certificates/admin/badges/${selectedBadge.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/certificates/admin/badges/${selectedBadge.id}/`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
@@ -178,7 +179,7 @@ const AdminBadges = () => {
 
   const handleAwardBadge = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/certificates/admin/badges/award/', {
+      const response = await fetch(`${API_BASE_URL}/certificates/admin/badges/award/', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,

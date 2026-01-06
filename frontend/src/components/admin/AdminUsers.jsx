@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../../services/authService';
+import { API_BASE_URL } from '../../config/api';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -45,7 +46,7 @@ const AdminUsers = () => {
         return;
       }
 
-      const response = await fetch(`http://127.0.0.1:8000/api/admin/users/?${params}`, {
+      const response = await fetch(`${API_BASE_URL}/admin/users/?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -83,7 +84,7 @@ const AdminUsers = () => {
 
   const handleUpdateUser = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/admin/users/${selectedUser.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/admin/users/${selectedUser.id}/`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
@@ -105,7 +106,7 @@ const AdminUsers = () => {
 
   const handleDeleteUser = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/admin/users/${selectedUser.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/admin/users/${selectedUser.id}/`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,

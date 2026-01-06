@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
+import { API_BASE_URL } from '../config/api';
 import AdminUsers from '../components/admin/AdminUsers';
 import AdminPrograms from '../components/admin/AdminPrograms';
 import AdminEvents from '../components/admin/AdminEvents';
@@ -40,7 +41,7 @@ const AdminDashboard = () => {
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/admin/dashboard/stats/', {
+      const response = await fetch(`${API_BASE_URL}/admin/dashboard/stats/`, {
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
           'Content-Type': 'application/json'

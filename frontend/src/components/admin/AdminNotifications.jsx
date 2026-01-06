@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../../services/authService';
+import { API_BASE_URL } from '../../config/api';
 
 const AdminNotifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -38,7 +39,7 @@ const AdminNotifications = () => {
       if (typeFilter) params.append('notification_type', typeFilter);
       if (priorityFilter) params.append('priority', priorityFilter);
 
-      const response = await fetch(`http://127.0.0.1:8000/api/notifications/admin/?${params}`, {
+      const response = await fetch(`${API_BASE_URL}/notifications/admin/?${params}`, {
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
           'Content-Type': 'application/json'
@@ -61,7 +62,7 @@ const AdminNotifications = () => {
 
   const handleCreateNotification = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/notifications/admin/send/', {
+      const response = await fetch(`${API_BASE_URL}/notifications/admin/send/', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
@@ -102,7 +103,7 @@ const AdminNotifications = () => {
 
   const handleUpdateNotification = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/notifications/${selectedNotification.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/notifications/${selectedNotification.id}/`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
@@ -124,7 +125,7 @@ const AdminNotifications = () => {
 
   const handleDeleteNotification = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/notifications/${selectedNotification.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/notifications/${selectedNotification.id}/`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,

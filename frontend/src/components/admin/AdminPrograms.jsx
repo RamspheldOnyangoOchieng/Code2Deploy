@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../../services/authService';
+import { API_BASE_URL } from '../../config/api';
 
 const AdminPrograms = () => {
   const [programs, setPrograms] = useState([]);
@@ -53,7 +54,7 @@ const AdminPrograms = () => {
         return;
       }
 
-      const response = await fetch(`http://127.0.0.1:8000/api/programs/?${params}`, {
+      const response = await fetch(`${API_BASE_URL}/programs/?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -103,7 +104,7 @@ const AdminPrograms = () => {
         formData.append('image', editForm.image);
       }
 
-      const response = await fetch('http://127.0.0.1:8000/api/programs/', {
+      const response = await fetch(`${API_BASE_URL}/programs/', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
@@ -198,7 +199,7 @@ const AdminPrograms = () => {
         formData.append('image', editForm.image);
       }
 
-      const response = await fetch(`http://127.0.0.1:8000/api/programs/${selectedProgram.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/programs/${selectedProgram.id}/`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
@@ -223,7 +224,7 @@ const AdminPrograms = () => {
 
   const handleDeleteProgram = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/programs/${selectedProgram.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/programs/${selectedProgram.id}/`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,

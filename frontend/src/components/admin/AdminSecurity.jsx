@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../../services/authService';
 import { 
+import { API_BASE_URL } from '../../config/api';
   ShieldCheckIcon, 
   ClipboardDocumentListIcon, 
   ExclamationTriangleIcon,
@@ -34,7 +35,7 @@ const AdminSecurity = () => {
   const fetchSecurityStats = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://127.0.0.1:8000/api/security/dashboard/', {
+      const response = await fetch(`${API_BASE_URL}/security/dashboard/', {
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
           'Content-Type': 'application/json'
@@ -62,7 +63,7 @@ const AdminSecurity = () => {
         page_size: 20
       });
 
-      const response = await fetch(`http://127.0.0.1:8000/api/security/audit-logs/?${params}`, {
+      const response = await fetch(`${API_BASE_URL}/security/audit-logs/?${params}`, {
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
           'Content-Type': 'application/json'
@@ -91,7 +92,7 @@ const AdminSecurity = () => {
         page_size: 20
       });
 
-      const response = await fetch(`http://127.0.0.1:8000/api/security/security-events/?${params}`, {
+      const response = await fetch(`${API_BASE_URL}/security/security-events/?${params}`, {
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
           'Content-Type': 'application/json'

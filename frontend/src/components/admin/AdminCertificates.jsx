@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../../services/authService';
+import { API_BASE_URL } from '../../config/api';
 
 const AdminCertificates = () => {
   const [certificates, setCertificates] = useState([]);
@@ -51,7 +52,7 @@ const AdminCertificates = () => {
       if (statusFilter) params.append('status', statusFilter);
       if (typeFilter) params.append('certificate_type', typeFilter);
 
-      const response = await fetch(`http://127.0.0.1:8000/api/admin/certificates/?${params}`, {
+      const response = await fetch(`${API_BASE_URL}/admin/certificates/?${params}`, {
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
           'Content-Type': 'application/json'
@@ -74,7 +75,7 @@ const AdminCertificates = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/admin/users/', {
+      const response = await fetch(`${API_BASE_URL}/admin/users/', {
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
           'Content-Type': 'application/json'
@@ -92,7 +93,7 @@ const AdminCertificates = () => {
 
   const handleCreateCertificate = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/admin/certificates/', {
+      const response = await fetch(`${API_BASE_URL}/admin/certificates/', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
@@ -139,7 +140,7 @@ const AdminCertificates = () => {
 
   const handleUpdateCertificate = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/admin/certificates/${selectedCertificate.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/admin/certificates/${selectedCertificate.id}/`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
@@ -161,7 +162,7 @@ const AdminCertificates = () => {
 
   const handleDeleteCertificate = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/admin/certificates/${selectedCertificate.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/admin/certificates/${selectedCertificate.id}/`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
@@ -182,7 +183,7 @@ const AdminCertificates = () => {
 
   const handleAwardCertificate = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/admin/certificates/award/', {
+      const response = await fetch(`${API_BASE_URL}/admin/certificates/award/', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/layout';
 import authService from '../services/authService';
+import { API_BASE_URL } from '../config/api';
 
 const Programs = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -36,7 +37,7 @@ const Programs = () => {
   const fetchPrograms = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://127.0.0.1:8000/api/programs/', {
+      const response = await fetch(`${API_BASE_URL}/programs/`, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -79,7 +80,7 @@ const Programs = () => {
 
     try {
       setEnrolling(true);
-      const response = await fetch('http://127.0.0.1:8000/api/programs/enroll/', {
+      const response = await fetch(`${API_BASE_URL}/programs/enroll/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,

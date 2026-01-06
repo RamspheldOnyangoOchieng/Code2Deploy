@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../../services/authService';
+import { API_BASE_URL } from '../../config/api';
 
 const AdminMentors = () => {
   const [mentors, setMentors] = useState([]);
@@ -42,7 +43,7 @@ const AdminMentors = () => {
       if (statusFilter) params.append('is_active', statusFilter);
       if (specialtyFilter) params.append('specialty', specialtyFilter);
 
-      const response = await fetch(`http://127.0.0.1:8000/api/mentors/?${params}`, {
+      const response = await fetch(`${API_BASE_URL}/mentors/?${params}`, {
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
           'Content-Type': 'application/json'
@@ -65,7 +66,7 @@ const AdminMentors = () => {
 
   const handleCreateMentor = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/mentors/', {
+      const response = await fetch(`${API_BASE_URL}/mentors/', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
@@ -114,7 +115,7 @@ const AdminMentors = () => {
 
   const handleUpdateMentor = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/mentors/${selectedMentor.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/mentors/${selectedMentor.id}/`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
@@ -136,7 +137,7 @@ const AdminMentors = () => {
 
   const handleDeleteMentor = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/mentors/${selectedMentor.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/mentors/${selectedMentor.id}/`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,

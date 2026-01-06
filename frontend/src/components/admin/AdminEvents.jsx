@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../../services/authService';
+import { API_BASE_URL } from '../../config/api';
 
 const AdminEvents = () => {
   const [events, setEvents] = useState([]);
@@ -50,7 +51,7 @@ const AdminEvents = () => {
         return;
       }
 
-      const response = await fetch(`http://127.0.0.1:8000/api/admin/events/?${params}`, {
+      const response = await fetch(`${API_BASE_URL}/admin/events/?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -76,7 +77,7 @@ const AdminEvents = () => {
 
   const handleCreateEvent = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/admin/events/', {
+      const response = await fetch(`${API_BASE_URL}/admin/events/', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
@@ -125,7 +126,7 @@ const AdminEvents = () => {
 
   const handleUpdateEvent = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/admin/events/${selectedEvent.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/admin/events/${selectedEvent.id}/`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
@@ -147,7 +148,7 @@ const AdminEvents = () => {
 
   const handleDeleteEvent = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/admin/events/${selectedEvent.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/admin/events/${selectedEvent.id}/`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
