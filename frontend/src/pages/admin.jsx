@@ -11,7 +11,6 @@ import AdminMentors from '../components/admin/AdminMentors';
 import AdminNotifications from '../components/admin/AdminNotifications';
 import AdminSecurity from '../components/admin/AdminSecurity';
 import AdminPages from '../components/admin/AdminPages';
-import AdminContactSettings from '../components/admin/AdminContactSettings';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -65,7 +64,6 @@ const AdminDashboard = () => {
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
     { id: 'pages', label: 'Pages', icon: '📄' },
-    { id: 'contact-settings', label: 'Contact Settings', icon: '📧' },
     { id: 'users', label: 'Users', icon: '👥' },
     { id: 'programs', label: 'Programs', icon: '📚' },
     { id: 'events', label: 'Events', icon: '🎫' },
@@ -291,7 +289,6 @@ const AdminDashboard = () => {
           <div className="bg-white rounded-lg md:rounded-xl shadow-lg border border-gray-200 p-4 md:p-6 lg:p-8">
             {activeTab === 'dashboard' && renderDashboard()}
             {activeTab === 'pages' && <AdminPages />}
-            {activeTab === 'contact-settings' && <AdminContactSettings />}
             {activeTab === 'users' && <AdminUsers />}
             {activeTab === 'programs' && <AdminPrograms />}
             {activeTab === 'events' && <AdminEvents />}

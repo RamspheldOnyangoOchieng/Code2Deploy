@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import AuthService from '../../services/authService';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const AdminPages = () => {
   const [selectedPage, setSelectedPage] = useState(null);
@@ -21,6 +24,65 @@ const AdminPages = () => {
     textColor: '#ffffff',
     order: 0
   });
+
+  // Contact Settings State
+  const [contactSettings, setContactSettings] = useState([]);
+  const [activeContactTab, setActiveContactTab] = useState('general');
+  const [contactEditForm, setContactEditForm] = useState({
+    general: {
+      title: 'Get in Touch',
+      subtitle: "We'd love to hear from you",
+      description: "Whether you're ready to enroll, curious about our programs, or just want to say hi — drop us a line!",
+      default_subject: '',
+      default_message: '',
+      button_text: 'Send Message',
+      is_active: true
+    },
+    sponsor: {
+      title: 'Become a Sponsor',
+      subtitle: 'Partner with us to empower African youth in tech',
+      description: 'Join us in our mission to transform African youth through technology education. Your sponsorship will help provide scholarships, resources, and opportunities for aspiring developers.',
+      default_subject: 'Partnership Inquiry - Sponsor',
+      default_message: 'I am interested in becoming a sponsor for Code2Deploy programs and events.',
+      button_text: 'Submit Sponsorship Inquiry',
+      is_active: true
+    },
+    education: {
+      title: 'Become an Education & Training Partner',
+      subtitle: 'Collaborate with us to expand tech education across Africa',
+      description: 'Partner with Code2Deploy to deliver world-class technology education. Together, we can create innovative learning programs, share resources, and empower the next generation of African developers.',
+      default_subject: 'Partnership Inquiry - Education & Training Partner',
+      default_message: 'I am interested in becoming an education and training partner with Code2Deploy.',
+      button_text: 'Submit Partnership Inquiry',
+      is_active: true
+    }
+  });
+  const [loadingContact, setLoadingContact] = useState(false);
+  const [savingContact, setSavingContact] = useState(false);
+
+  const contactTypes = [
+    { 
+      id: 'general', 
+      name: 'General Contact', 
+      icon: '📧',
+      description: 'Default contact page when users click "Contact"',
+      color: 'from-blue-500 to-cyan-500'
+    },
+    { 
+      id: 'sponsor', 
+      name: 'Partner as Sponsor', 
+      icon: '💰',
+      description: 'Contact page for "Partner as Sponsor" button',
+      color: 'from-yellow-500 to-orange-500'
+    },
+    { 
+      id: 'education', 
+      name: 'Education & Training Partner', 
+      icon: '🎓',
+      description: 'Contact page for "Education & Training Partner" button',
+      color: 'from-green-500 to-emerald-500'
+    }
+  ];
 
   const pages = [
     { id: 'home', name: 'Home Page', slug: '/', icon: '🏠' },
@@ -46,22 +108,153 @@ const AdminPages = () => {
   ];
 
   useEffect(() => {
-    // Load saved sections from localStorage
     const saved = localStorage.getItem(`page_home_sections`);
     if (saved) {
       setEditForm({ ...editForm, sections: JSON.parse(saved) });
     }
   }, []);
 
+  // Fetch Contact Settings
+  const fetchContactSettings = async () => {
+    try {
+      setLoadingContact(true);
+      const token = AuthService.getToken();
+      const response = await fetch(`${API_BASE_URL}/api/admin/contact-settings/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setContactSettings(data);
+        
+        const newForm = { ...contactEditForm };
+        data.forEach(setting => {
+          if (newForm[setting.contact_type]) {
+            newForm[setting.contact_type] = {
+              id: setting.id,
+              title: setting.title,
+              subtitle: setting.subtitle,
+              description: setting.description,
+              default_subject: setting.default_subject || '',
+              default_message: setting.default_message || '',
+              button_text: setting.button_text || 'Send Message',
+              is_active: setting.is_active
+            };
+          }
+        });
+        setContactEditForm(newForm);
+      }
+    } catch (error) {
+      console.error('Error fetching contact settings:', error);
+    } finally {
+      setLoadingContact(false);
+    }
+  };
+
+  const initializeContactSettings = async () => {
+    try {
+      setSavingContact(true);
+      const token = AuthService.getToken();
+      const response = await fetch(`${API_BASE_URL}/api/admin/contact-settings/initialize/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(`✅ ${data.message}`);
+        fetchContactSettings();
+      } else {
+        alert('❌ Failed to initialize settings');
+      }
+    } catch (error) {
+      console.error('Error initializing settings:', error);
+      alert('❌ Error initializing settings');
+    } finally {
+      setSavingContact(false);
+    }
+  };
+
+  const handleSaveContactSettings = async (contactType) => {
+    try {
+      setSavingContact(true);
+      const token = AuthService.getToken();
+      const formData = contactEditForm[contactType];
+      
+      const existingSetting = contactSettings.find(s => s.contact_type === contactType);
+      
+      let response;
+      if (existingSetting) {
+        response = await fetch(`${API_BASE_URL}/api/admin/contact-settings/${existingSetting.id}/`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            ...formData,
+            contact_type: contactType
+          })
+        });
+      } else {
+        response = await fetch(`${API_BASE_URL}/api/admin/contact-settings/`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            ...formData,
+            contact_type: contactType
+          })
+        });
+      }
+
+      if (response.ok) {
+        alert(`✅ ${contactTypes.find(t => t.id === contactType)?.name} settings saved successfully!`);
+        fetchContactSettings();
+      } else {
+        const error = await response.json();
+        alert(`❌ Error: ${JSON.stringify(error)}`);
+      }
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      alert('❌ Error saving settings');
+    } finally {
+      setSavingContact(false);
+    }
+  };
+
+  const handleContactInputChange = (contactType, field, value) => {
+    setContactEditForm(prev => ({
+      ...prev,
+      [contactType]: {
+        ...prev[contactType],
+        [field]: value
+      }
+    }));
+  };
+
   const handleEditPage = (page) => {
     setSelectedPage(page);
-    const saved = localStorage.getItem(`page_${page.id}_sections`);
-    setEditForm({
-      title: page.name,
-      meta_description: '',
-      is_active: true,
-      sections: saved ? JSON.parse(saved) : []
-    });
+    
+    if (page.id === 'contact') {
+      fetchContactSettings();
+    } else {
+      const saved = localStorage.getItem(`page_${page.id}_sections`);
+      setEditForm({
+        title: page.name,
+        meta_description: '',
+        is_active: true,
+        sections: saved ? JSON.parse(saved) : []
+      });
+    }
     setShowEditModal(true);
   };
 
@@ -121,6 +314,199 @@ const AdminPages = () => {
     setEditForm({ ...editForm, sections: newSections });
   };
 
+  // Render Contact Page Editor
+  const renderContactPageEditor = () => {
+    const currentType = contactTypes.find(t => t.id === activeContactTab);
+    const currentForm = contactEditForm[activeContactTab];
+
+    return (
+      <div className="space-y-6">
+        {/* Contact Type Tabs */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {contactTypes.map((type) => (
+            <button
+              key={type.id}
+              onClick={() => setActiveContactTab(type.id)}
+              className={`p-4 rounded-xl border-2 transition-all duration-300 text-left ${
+                activeContactTab === type.id
+                  ? 'border-[#30d9fe] bg-gradient-to-br from-[#03325a] to-[#044e7c] text-white shadow-lg'
+                  : 'border-gray-200 bg-white hover:border-[#30d9fe]/50 hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-3xl">{type.icon}</span>
+                <div>
+                  <h3 className={`font-bold ${activeContactTab === type.id ? 'text-white' : 'text-gray-900'}`}>
+                    {type.name}
+                  </h3>
+                  <p className={`text-xs ${activeContactTab === type.id ? 'text-gray-200' : 'text-gray-500'}`}>
+                    {type.description}
+                  </p>
+                </div>
+              </div>
+              {contactSettings.find(s => s.contact_type === type.id) ? (
+                <span className={`text-xs px-2 py-1 rounded-full ${
+                  activeContactTab === type.id ? 'bg-green-400/20 text-green-200' : 'bg-green-100 text-green-600'
+                }`}>
+                  ✓ Configured
+                </span>
+              ) : (
+                <span className={`text-xs px-2 py-1 rounded-full ${
+                  activeContactTab === type.id ? 'bg-yellow-400/20 text-yellow-200' : 'bg-yellow-100 text-yellow-600'
+                }`}>
+                  ○ Using Defaults
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Preview Section */}
+        <div className="bg-gradient-to-br from-[#03325a] via-[#044e7c] to-[#30d9fe]/10 rounded-xl p-6 text-white">
+          <h4 className="text-sm font-medium text-[#30d9fe] mb-4">📺 Live Preview</h4>
+          <div className="text-center">
+            <h2 className="text-[#30d9fe] text-2xl md:text-3xl font-bold mb-2">{currentForm.title}</h2>
+            <p className="text-lg mb-2">{currentForm.subtitle}</p>
+            <p className="text-sm opacity-80 max-w-xl mx-auto">{currentForm.description}</p>
+            <button className="mt-4 px-6 py-2 bg-[#30d9fe] text-[#03325a] font-bold rounded-lg">
+              {currentForm.button_text}
+            </button>
+          </div>
+        </div>
+
+        {/* Form Fields */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Page Title *
+            </label>
+            <input
+              type="text"
+              value={currentForm.title}
+              onChange={(e) => handleContactInputChange(activeContactTab, 'title', e.target.value)}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+              style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              placeholder="e.g., Get in Touch"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Subtitle *
+            </label>
+            <input
+              type="text"
+              value={currentForm.subtitle}
+              onChange={(e) => handleContactInputChange(activeContactTab, 'subtitle', e.target.value)}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+              style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              placeholder="e.g., We'd love to hear from you"
+            />
+          </div>
+
+          <div className="lg:col-span-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Description *
+            </label>
+            <textarea
+              value={currentForm.description}
+              onChange={(e) => handleContactInputChange(activeContactTab, 'description', e.target.value)}
+              rows={3}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+              style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              placeholder="Detailed description text shown to visitors"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Pre-filled Subject (Optional)
+            </label>
+            <input
+              type="text"
+              value={currentForm.default_subject}
+              onChange={(e) => handleContactInputChange(activeContactTab, 'default_subject', e.target.value)}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+              style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              placeholder="e.g., Partnership Inquiry"
+            />
+            <p className="text-xs text-gray-500 mt-1">This will be pre-filled in the contact form</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Submit Button Text
+            </label>
+            <input
+              type="text"
+              value={currentForm.button_text}
+              onChange={(e) => handleContactInputChange(activeContactTab, 'button_text', e.target.value)}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+              style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              placeholder="e.g., Send Message"
+            />
+          </div>
+
+          <div className="lg:col-span-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Pre-filled Message (Optional)
+            </label>
+            <textarea
+              value={currentForm.default_message}
+              onChange={(e) => handleContactInputChange(activeContactTab, 'default_message', e.target.value)}
+              rows={3}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+              style={{ color: '#111827', backgroundColor: '#ffffff' }}
+              placeholder="Default message text for the form"
+            />
+          </div>
+
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id={`is_active_${activeContactTab}`}
+              checked={currentForm.is_active}
+              onChange={(e) => handleContactInputChange(activeContactTab, 'is_active', e.target.checked)}
+              className="h-5 w-5 text-[#30d9fe] rounded border-gray-300 focus:ring-[#30d9fe]"
+            />
+            <label htmlFor={`is_active_${activeContactTab}`} className="text-sm font-semibold text-gray-700">
+              Page Active (Visible to users)
+            </label>
+          </div>
+        </div>
+
+        {/* Save Button */}
+        <div className="flex justify-end pt-4 border-t border-gray-200">
+          <button
+            onClick={() => handleSaveContactSettings(activeContactTab)}
+            disabled={savingContact}
+            className="px-8 py-3 bg-[#30d9fe] text-[#03325a] font-bold rounded-lg hover:bg-[#eec262] transition-all shadow-lg hover:shadow-xl disabled:opacity-50"
+          >
+            {savingContact ? (
+              <>
+                <span className="animate-spin inline-block mr-2">⏳</span> Saving...
+              </>
+            ) : (
+              <>💾 Save {currentType?.name} Settings</>
+            )}
+          </button>
+        </div>
+
+        {/* Help Section */}
+        <div className="bg-blue-50 rounded-xl p-4 border-2 border-blue-200">
+          <h4 className="font-bold text-blue-800 mb-2 flex items-center gap-2">
+            <span>💡</span> How it works
+          </h4>
+          <ul className="text-sm text-blue-700 space-y-1">
+            <li>• <strong>General Contact:</strong> Shown when users click the "Contact" link</li>
+            <li>• <strong>Partner as Sponsor:</strong> Shown when users click the "Partner as Sponsor" button</li>
+            <li>• <strong>Education Partner:</strong> Shown when users click the "Education & Training Partner" button</li>
+          </ul>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -158,15 +544,30 @@ const AdminPages = () => {
                 <div className="flex justify-between items-center">
                   <div>
                     <h3 className="text-3xl font-bold text-white mb-1">Edit {selectedPage?.name}</h3>
-                    <p className="text-gray-300">Manage sections and content</p>
+                    <p className="text-gray-300">
+                      {selectedPage?.id === 'contact' 
+                        ? 'Manage contact page content for different contact types'
+                        : 'Manage sections and content'
+                      }
+                    </p>
                   </div>
                   <div className="flex space-x-3">
-                    <button
-                      onClick={handleSavePage}
-                      className="bg-[#30d9fe] text-[#03325a] px-6 py-2.5 rounded-lg hover:bg-[#eec262] transition-all font-bold shadow-lg"
-                    >
-                      💾 Save Page
-                    </button>
+                    {selectedPage?.id === 'contact' ? (
+                      <button
+                        onClick={initializeContactSettings}
+                        disabled={savingContact}
+                        className="bg-white/20 text-white px-4 py-2.5 rounded-lg hover:bg-white/30 transition-all font-semibold"
+                      >
+                        🔄 Initialize Defaults
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleSavePage}
+                        className="bg-[#30d9fe] text-[#03325a] px-6 py-2.5 rounded-lg hover:bg-[#eec262] transition-all font-bold shadow-lg"
+                      >
+                        💾 Save Page
+                      </button>
+                    )}
                     <button
                       onClick={() => setShowEditModal(false)}
                       className="bg-white/20 text-white px-6 py-2.5 rounded-lg hover:bg-white/30 transition-all font-semibold"
@@ -179,263 +580,243 @@ const AdminPages = () => {
 
               {/* Modal Body */}
               <div className="p-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  {/* Left Sidebar - Add Section */}
-                  <div className="lg:col-span-1 space-y-6">
-                    {/* Page Settings */}
-                    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border-2 border-blue-200">
-                      <h4 className="font-bold text-[#03325a] mb-4 text-lg flex items-center">
-                        <span className="text-2xl mr-2">⚙️</span> Page Settings
-                      </h4>
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">Page Title</label>
-                          <input
-                            type="text"
-                            value={editForm.title}
-                            onChange={(e) => setEditForm({...editForm, title: e.target.value})}
-                            className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
-                            style={{ color: '#111827', backgroundColor: '#ffffff' }}
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">Meta Description</label>
-                          <textarea
-                            value={editForm.meta_description}
-                            onChange={(e) => setEditForm({...editForm, meta_description: e.target.value})}
-                            rows={3}
-                            className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
-                            style={{ color: '#111827', backgroundColor: '#ffffff' }}
-                          />
-                        </div>
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={editForm.is_active}
-                            onChange={(e) => setEditForm({...editForm, is_active: e.target.checked})}
-                            className="h-5 w-5 text-[#30d9fe] rounded border-gray-300 focus:ring-[#30d9fe]"
-                          />
-                          <label className="ml-3 text-sm font-semibold text-gray-700">Page Active</label>
+                {selectedPage?.id === 'contact' ? (
+                  loadingContact ? (
+                    <div className="flex items-center justify-center py-12">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#30d9fe]"></div>
+                      <span className="ml-3 text-gray-600">Loading contact settings...</span>
+                    </div>
+                  ) : (
+                    renderContactPageEditor()
+                  )
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Left Sidebar - Add Section */}
+                    <div className="lg:col-span-1 space-y-6">
+                      {/* Page Settings */}
+                      <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border-2 border-blue-200">
+                        <h4 className="font-bold text-[#03325a] mb-4 text-lg flex items-center">
+                          <span className="text-2xl mr-2">⚙️</span> Page Settings
+                        </h4>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Page Title</label>
+                            <input
+                              type="text"
+                              value={editForm.title}
+                              onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                              className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+                              style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Meta Description</label>
+                            <textarea
+                              value={editForm.meta_description}
+                              onChange={(e) => setEditForm({...editForm, meta_description: e.target.value})}
+                              rows={3}
+                              className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+                              style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                            />
+                          </div>
+                          <div className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={editForm.is_active}
+                              onChange={(e) => setEditForm({...editForm, is_active: e.target.checked})}
+                              className="h-5 w-5 text-[#30d9fe] rounded border-gray-300 focus:ring-[#30d9fe]"
+                            />
+                            <label className="ml-3 text-sm font-semibold text-gray-700">Page Active</label>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Add New Section */}
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
-                      <h4 className="font-bold text-[#03325a] mb-4 text-lg flex items-center">
-                        <span className="text-2xl mr-2">➕</span> Add Section
-                      </h4>
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">Section Type</label>
-                          <select
-                            value={currentSection.type}
-                            onChange={(e) => {
-                              const selected = sectionTypes.find(t => t.id === e.target.value);
-                              setCurrentSection({...currentSection, type: e.target.value});
-                            }}
-                            className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
-                            style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                      {/* Add New Section */}
+                      <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
+                        <h4 className="font-bold text-[#03325a] mb-4 text-lg flex items-center">
+                          <span className="text-2xl mr-2">➕</span> Add Section
+                        </h4>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Section Type</label>
+                            <select
+                              value={currentSection.type}
+                              onChange={(e) => {
+                                setCurrentSection({...currentSection, type: e.target.value});
+                              }}
+                              className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+                              style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                            >
+                              {sectionTypes.map(type => (
+                                <option key={type.id} value={type.id}>
+                                  {type.icon} {type.name}
+                                </option>
+                              ))}
+                            </select>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {sectionTypes.find(t => t.id === currentSection.type)?.desc}
+                            </p>
+                          </div>
+                          
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Section Title</label>
+                            <input
+                              type="text"
+                              value={currentSection.title}
+                              onChange={(e) => setCurrentSection({...currentSection, title: e.target.value})}
+                              placeholder="e.g., Welcome to Code2Deploy"
+                              className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+                              style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Subtitle (Optional)</label>
+                            <input
+                              type="text"
+                              value={currentSection.subtitle}
+                              onChange={(e) => setCurrentSection({...currentSection, subtitle: e.target.value})}
+                              placeholder="e.g., Empowering African Youth"
+                              className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+                              style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                            />
+                          </div>
+                          
+                          <button
+                            onClick={handleAddSection}
+                            disabled={!currentSection.title}
+                            className="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition-all font-bold shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            {sectionTypes.map(type => (
-                              <option key={type.id} value={type.id}>
-                                {type.icon} {type.name}
-                              </option>
-                            ))}
-                          </select>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {sectionTypes.find(t => t.id === currentSection.type)?.desc}
-                          </p>
+                            ➕ Add Section
+                          </button>
                         </div>
-                        
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">Section Title</label>
-                          <input
-                            type="text"
-                            value={currentSection.title}
-                            onChange={(e) => setCurrentSection({...currentSection, title: e.target.value})}
-                            placeholder="e.g., Welcome to Code2Deploy"
-                            className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
-                            style={{ color: '#111827', backgroundColor: '#ffffff' }}
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">Subtitle (Optional)</label>
-                          <input
-                            type="text"
-                            value={currentSection.subtitle}
-                            onChange={(e) => setCurrentSection({...currentSection, subtitle: e.target.value})}
-                            placeholder="e.g., Empowering African Youth"
-                            className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
-                            style={{ color: '#111827', backgroundColor: '#ffffff' }}
-                          />
-                        </div>
-                        
-                        <button
-                          onClick={handleAddSection}
-                          disabled={!currentSection.title}
-                          className="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition-all font-bold shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          ➕ Add Section
-                        </button>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Right Content - Sections List */}
-                  <div className="lg:col-span-2">
-                    <h4 className="font-bold text-[#03325a] mb-6 text-2xl flex items-center">
-                      <span className="text-3xl mr-3">📄</span> Page Sections ({editForm.sections.length})
-                    </h4>
-                    
-                    {editForm.sections.length === 0 ? (
-                      <div className="text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
-                        <div className="text-6xl mb-4">📝</div>
-                        <p className="text-xl text-gray-500 font-medium">No sections added yet</p>
-                        <p className="text-gray-400 mt-2">Add your first section using the form on the left</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {editForm.sections
-                          .sort((a, b) => a.order - b.order)
-                          .map((section, index) => (
-                            <div key={section.id} className="bg-white rounded-xl shadow-lg border-2 border-gray-200 hover:border-[#30d9fe] transition-all">
-                              {/* Section Header */}
-                              <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-t-xl border-b-2 border-gray-200">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center space-x-3">
-                                    <span className="text-2xl">
-                                      {sectionTypes.find(t => t.id === section.type)?.icon}
-                                    </span>
-                                    <div>
-                                      <h5 className="font-bold text-gray-900">
-                                        {sectionTypes.find(t => t.id === section.type)?.name}
-                                      </h5>
-                                      <p className="text-sm text-gray-500">{section.title || 'Untitled'}</p>
+                    {/* Right Content - Sections List */}
+                    <div className="lg:col-span-2">
+                      <h4 className="font-bold text-[#03325a] mb-6 text-2xl flex items-center">
+                        <span className="text-3xl mr-3">📄</span> Page Sections ({editForm.sections.length})
+                      </h4>
+                      
+                      {editForm.sections.length === 0 ? (
+                        <div className="text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+                          <div className="text-6xl mb-4">📝</div>
+                          <p className="text-xl text-gray-500 font-medium">No sections added yet</p>
+                          <p className="text-gray-400 mt-2">Add your first section using the form on the left</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {editForm.sections
+                            .sort((a, b) => a.order - b.order)
+                            .map((section, index) => (
+                              <div key={section.id} className="bg-white rounded-xl shadow-lg border-2 border-gray-200 hover:border-[#30d9fe] transition-all">
+                                {/* Section Header */}
+                                <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-t-xl border-b-2 border-gray-200">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-3">
+                                      <span className="text-2xl">
+                                        {sectionTypes.find(t => t.id === section.type)?.icon}
+                                      </span>
+                                      <div>
+                                        <h5 className="font-bold text-gray-900">
+                                          {sectionTypes.find(t => t.id === section.type)?.name}
+                                        </h5>
+                                        <p className="text-sm text-gray-500">{section.title || 'Untitled'}</p>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <button
+                                        onClick={() => moveSection(section.id, 'up')}
+                                        disabled={index === 0}
+                                        className="p-2 bg-white rounded-lg hover:bg-blue-50 border border-gray-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                        title="Move Up"
+                                      >
+                                        ⬆️
+                                      </button>
+                                      <button
+                                        onClick={() => moveSection(section.id, 'down')}
+                                        disabled={index === editForm.sections.length - 1}
+                                        className="p-2 bg-white rounded-lg hover:bg-blue-50 border border-gray-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                        title="Move Down"
+                                      >
+                                        ⬇️
+                                      </button>
+                                      <button
+                                        onClick={() => handleRemoveSection(section.id)}
+                                        className="p-2 bg-white rounded-lg hover:bg-red-50 border border-gray-300 text-red-600 transition-all"
+                                        title="Delete Section"
+                                      >
+                                        🗑️
+                                      </button>
                                     </div>
                                   </div>
-                                  <div className="flex items-center space-x-2">
-                                    <button
-                                      onClick={() => moveSection(section.id, 'up')}
-                                      disabled={index === 0}
-                                      className="p-2 bg-white rounded-lg hover:bg-blue-50 border border-gray-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                                      title="Move Up"
-                                    >
-                                      ⬆️
-                                    </button>
-                                    <button
-                                      onClick={() => moveSection(section.id, 'down')}
-                                      disabled={index === editForm.sections.length - 1}
-                                      className="p-2 bg-white rounded-lg hover:bg-blue-50 border border-gray-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                                      title="Move Down"
-                                    >
-                                      ⬇️
-                                    </button>
-                                    <button
-                                      onClick={() => handleRemoveSection(section.id)}
-                                      className="p-2 bg-white rounded-lg hover:bg-red-50 border border-gray-300 text-red-600 transition-all"
-                                      title="Delete Section"
-                                    >
-                                      🗑️
-                                    </button>
-                                  </div>
                                 </div>
-                              </div>
 
-                              {/* Section Content */}
-                              <div className="p-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Title</label>
-                                    <input
-                                      type="text"
-                                      value={section.title}
-                                      onChange={(e) => handleUpdateSection(section.id, { title: e.target.value })}
-                                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
-                                      style={{ color: '#111827', backgroundColor: '#ffffff' }}
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Subtitle</label>
-                                    <input
-                                      type="text"
-                                      value={section.subtitle || ''}
-                                      onChange={(e) => handleUpdateSection(section.id, { subtitle: e.target.value })}
-                                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
-                                      style={{ color: '#111827', backgroundColor: '#ffffff' }}
-                                    />
-                                  </div>
-                                  <div className="md:col-span-2">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Content</label>
-                                    <textarea
-                                      value={section.content || ''}
-                                      onChange={(e) => handleUpdateSection(section.id, { content: e.target.value })}
-                                      rows={4}
-                                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
-                                      style={{ color: '#111827', backgroundColor: '#ffffff' }}
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Button Text</label>
-                                    <input
-                                      type="text"
-                                      value={section.buttonText || ''}
-                                      onChange={(e) => handleUpdateSection(section.id, { buttonText: e.target.value })}
-                                      placeholder="e.g., Learn More"
-                                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
-                                      style={{ color: '#111827', backgroundColor: '#ffffff' }}
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Button Link</label>
-                                    <input
-                                      type="text"
-                                      value={section.buttonLink || ''}
-                                      onChange={(e) => handleUpdateSection(section.id, { buttonLink: e.target.value })}
-                                      placeholder="/programs"
-                                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
-                                      style={{ color: '#111827', backgroundColor: '#ffffff' }}
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Image URL</label>
-                                    <input
-                                      type="url"
-                                      value={section.image_url || ''}
-                                      onChange={(e) => handleUpdateSection(section.id, { image_url: e.target.value })}
-                                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
-                                      style={{ color: '#111827', backgroundColor: '#ffffff' }}
-                                    />
-                                  </div>
-                                  <div className="grid grid-cols-2 gap-2">
+                                {/* Section Content */}
+                                <div className="p-6">
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                      <label className="block text-sm font-semibold text-gray-700 mb-2">Background</label>
+                                      <label className="block text-sm font-semibold text-gray-700 mb-2">Title</label>
                                       <input
-                                        type="color"
-                                        value={section.backgroundColor || '#03325a'}
-                                        onChange={(e) => handleUpdateSection(section.id, { backgroundColor: e.target.value })}
-                                        className="w-full h-10 border-2 border-gray-300 rounded-lg cursor-pointer"
+                                        type="text"
+                                        value={section.title}
+                                        onChange={(e) => handleUpdateSection(section.id, { title: e.target.value })}
+                                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+                                        style={{ color: '#111827', backgroundColor: '#ffffff' }}
                                       />
                                     </div>
                                     <div>
-                                      <label className="block text-sm font-semibold text-gray-700 mb-2">Text Color</label>
+                                      <label className="block text-sm font-semibold text-gray-700 mb-2">Subtitle</label>
                                       <input
-                                        type="color"
-                                        value={section.textColor || '#ffffff'}
-                                        onChange={(e) => handleUpdateSection(section.id, { textColor: e.target.value })}
-                                        className="w-full h-10 border-2 border-gray-300 rounded-lg cursor-pointer"
+                                        type="text"
+                                        value={section.subtitle || ''}
+                                        onChange={(e) => handleUpdateSection(section.id, { subtitle: e.target.value })}
+                                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+                                        style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                                      />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                      <label className="block text-sm font-semibold text-gray-700 mb-2">Content</label>
+                                      <textarea
+                                        value={section.content || ''}
+                                        onChange={(e) => handleUpdateSection(section.id, { content: e.target.value })}
+                                        rows={4}
+                                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+                                        style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-sm font-semibold text-gray-700 mb-2">Button Text</label>
+                                      <input
+                                        type="text"
+                                        value={section.buttonText || ''}
+                                        onChange={(e) => handleUpdateSection(section.id, { buttonText: e.target.value })}
+                                        placeholder="e.g., Learn More"
+                                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+                                        style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-sm font-semibold text-gray-700 mb-2">Button Link</label>
+                                      <input
+                                        type="text"
+                                        value={section.buttonLink || ''}
+                                        onChange={(e) => handleUpdateSection(section.id, { buttonLink: e.target.value })}
+                                        placeholder="/programs"
+                                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+                                        style={{ color: '#111827', backgroundColor: '#ffffff' }}
                                       />
                                     </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
-                          ))}
-                      </div>
-                    )}
+                            ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
