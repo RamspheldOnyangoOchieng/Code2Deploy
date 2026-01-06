@@ -559,7 +559,16 @@ class InitializeContactSettingsView(APIView):
                 'description': "Whether you're ready to enroll, curious about our programs, or just want to say hi — drop us a line!",
                 'default_subject': '',
                 'default_message': '',
-                'button_text': 'Send Message'
+                'button_text': 'Send Message',
+                'contact_info_title': 'Ping Our Network',
+                'visit_label': 'Visit Us',
+                'visit_address': '123 Tech Hub, Innovation Street\nLagos, Nigeria',
+                'email_label': 'Email Us',
+                'primary_email': 'info@code2deploy.com',
+                'secondary_email': 'support@code2deploy.com',
+                'phone_label': 'Call Us',
+                'phone_number': '+254 743 864 7890',
+                'phone_hours': 'Mon-Fri: 9AM-6PM WAT'
             },
             {
                 'contact_type': 'sponsor',
@@ -568,7 +577,16 @@ class InitializeContactSettingsView(APIView):
                 'description': 'Join us in our mission to transform African youth through technology education. Your sponsorship will help provide scholarships, resources, and opportunities for aspiring developers.',
                 'default_subject': 'Partnership Inquiry - Sponsor',
                 'default_message': 'I am interested in becoming a sponsor for Code2Deploy programs and events.',
-                'button_text': 'Submit Sponsorship Inquiry'
+                'button_text': 'Submit Sponsorship Inquiry',
+                'contact_info_title': 'Ping Our Network',
+                'visit_label': 'Visit Us',
+                'visit_address': '123 Tech Hub, Innovation Street\nLagos, Nigeria',
+                'email_label': 'Email Us',
+                'primary_email': 'info@code2deploy.com',
+                'secondary_email': 'support@code2deploy.com',
+                'phone_label': 'Call Us',
+                'phone_number': '+254 743 864 7890',
+                'phone_hours': 'Mon-Fri: 9AM-6PM WAT'
             },
             {
                 'contact_type': 'education',
@@ -577,7 +595,16 @@ class InitializeContactSettingsView(APIView):
                 'description': 'Partner with Code2Deploy to deliver world-class technology education. Together, we can create innovative learning programs, share resources, and empower the next generation of African developers.',
                 'default_subject': 'Partnership Inquiry - Education & Training Partner',
                 'default_message': 'I am interested in becoming an education and training partner with Code2Deploy.',
-                'button_text': 'Submit Partnership Inquiry'
+                'button_text': 'Submit Partnership Inquiry',
+                'contact_info_title': 'Ping Our Network',
+                'visit_label': 'Visit Us',
+                'visit_address': '123 Tech Hub, Innovation Street\nLagos, Nigeria',
+                'email_label': 'Email Us',
+                'primary_email': 'info@code2deploy.com',
+                'secondary_email': 'support@code2deploy.com',
+                'phone_label': 'Call Us',
+                'phone_number': '+254 743 864 7890',
+                'phone_hours': 'Mon-Fri: 9AM-6PM WAT'
             }
         ]
         

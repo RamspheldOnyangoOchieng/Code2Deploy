@@ -35,6 +35,53 @@ class ContactPageSettings(models.Model):
         default="Send Message",
         help_text="Text for the submit button"
     )
+    
+    # Contact Info Section - "Ping Our Network"
+    contact_info_title = models.CharField(
+        max_length=100,
+        default="Ping Our Network",
+        help_text="Title for the contact info section"
+    )
+    visit_label = models.CharField(
+        max_length=100,
+        default="Visit Us",
+        help_text="Label for the address section"
+    )
+    visit_address = models.TextField(
+        default="123 Tech Hub, Innovation Street\nLagos, Nigeria",
+        help_text="Physical address"
+    )
+    email_label = models.CharField(
+        max_length=100,
+        default="Email Us",
+        help_text="Label for the email section"
+    )
+    primary_email = models.EmailField(
+        default="info@code2deploy.com",
+        help_text="Primary contact email"
+    )
+    secondary_email = models.EmailField(
+        blank=True,
+        null=True,
+        default="support@code2deploy.com",
+        help_text="Secondary contact email (optional)"
+    )
+    phone_label = models.CharField(
+        max_length=100,
+        default="Call Us",
+        help_text="Label for the phone section"
+    )
+    phone_number = models.CharField(
+        max_length=50,
+        default="+254 743 864 7890",
+        help_text="Contact phone number"
+    )
+    phone_hours = models.CharField(
+        max_length=100,
+        default="Mon-Fri: 9AM-6PM WAT",
+        help_text="Business hours"
+    )
+    
     is_active = models.BooleanField(default=True, help_text="Whether this contact type is active")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

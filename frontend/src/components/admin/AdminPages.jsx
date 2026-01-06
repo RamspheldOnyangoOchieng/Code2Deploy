@@ -36,6 +36,15 @@ const AdminPages = () => {
       default_subject: '',
       default_message: '',
       button_text: 'Send Message',
+      contact_info_title: 'Ping Our Network',
+      visit_label: 'Visit Us',
+      visit_address: '123 Tech Hub, Innovation Street\nLagos, Nigeria',
+      email_label: 'Email Us',
+      primary_email: 'info@code2deploy.com',
+      secondary_email: 'support@code2deploy.com',
+      phone_label: 'Call Us',
+      phone_number: '+254 743 864 7890',
+      phone_hours: 'Mon-Fri: 9AM-6PM WAT',
       is_active: true
     },
     sponsor: {
@@ -45,6 +54,15 @@ const AdminPages = () => {
       default_subject: 'Partnership Inquiry - Sponsor',
       default_message: 'I am interested in becoming a sponsor for Code2Deploy programs and events.',
       button_text: 'Submit Sponsorship Inquiry',
+      contact_info_title: 'Ping Our Network',
+      visit_label: 'Visit Us',
+      visit_address: '123 Tech Hub, Innovation Street\nLagos, Nigeria',
+      email_label: 'Email Us',
+      primary_email: 'info@code2deploy.com',
+      secondary_email: 'support@code2deploy.com',
+      phone_label: 'Call Us',
+      phone_number: '+254 743 864 7890',
+      phone_hours: 'Mon-Fri: 9AM-6PM WAT',
       is_active: true
     },
     education: {
@@ -54,6 +72,15 @@ const AdminPages = () => {
       default_subject: 'Partnership Inquiry - Education & Training Partner',
       default_message: 'I am interested in becoming an education and training partner with Code2Deploy.',
       button_text: 'Submit Partnership Inquiry',
+      contact_info_title: 'Ping Our Network',
+      visit_label: 'Visit Us',
+      visit_address: '123 Tech Hub, Innovation Street\nLagos, Nigeria',
+      email_label: 'Email Us',
+      primary_email: 'info@code2deploy.com',
+      secondary_email: 'support@code2deploy.com',
+      phone_label: 'Call Us',
+      phone_number: '+254 743 864 7890',
+      phone_hours: 'Mon-Fri: 9AM-6PM WAT',
       is_active: true
     }
   });
@@ -119,7 +146,7 @@ const AdminPages = () => {
     try {
       setLoadingContact(true);
       const token = AuthService.getToken();
-      const response = await fetch(`${API_BASE_URL}/api/admin/contact-settings/`, {
+      const response = await fetch(`${API_BASE_URL}/admin/contact-settings/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -141,6 +168,15 @@ const AdminPages = () => {
               default_subject: setting.default_subject || '',
               default_message: setting.default_message || '',
               button_text: setting.button_text || 'Send Message',
+              contact_info_title: setting.contact_info_title || 'Ping Our Network',
+              visit_label: setting.visit_label || 'Visit Us',
+              visit_address: setting.visit_address || '123 Tech Hub, Innovation Street\nLagos, Nigeria',
+              email_label: setting.email_label || 'Email Us',
+              primary_email: setting.primary_email || 'info@code2deploy.com',
+              secondary_email: setting.secondary_email || '',
+              phone_label: setting.phone_label || 'Call Us',
+              phone_number: setting.phone_number || '+254 743 864 7890',
+              phone_hours: setting.phone_hours || 'Mon-Fri: 9AM-6PM WAT',
               is_active: setting.is_active
             };
           }
@@ -158,7 +194,7 @@ const AdminPages = () => {
     try {
       setSavingContact(true);
       const token = AuthService.getToken();
-      const response = await fetch(`${API_BASE_URL}/api/admin/contact-settings/initialize/`, {
+      const response = await fetch(`${API_BASE_URL}/admin/contact-settings/initialize/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -191,7 +227,7 @@ const AdminPages = () => {
       
       let response;
       if (existingSetting) {
-        response = await fetch(`${API_BASE_URL}/api/admin/contact-settings/${existingSetting.id}/`, {
+        response = await fetch(`${API_BASE_URL}/admin/contact-settings/${existingSetting.id}/`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -203,7 +239,7 @@ const AdminPages = () => {
           })
         });
       } else {
-        response = await fetch(`${API_BASE_URL}/api/admin/contact-settings/`, {
+        response = await fetch(`${API_BASE_URL}/admin/contact-settings/`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -472,6 +508,178 @@ const AdminPages = () => {
             <label htmlFor={`is_active_${activeContactTab}`} className="text-sm font-semibold text-gray-700">
               Page Active (Visible to users)
             </label>
+          </div>
+        </div>
+
+        {/* Contact Info Section - Ping Our Network */}
+        <div className="bg-gradient-to-r from-[#03325a]/10 to-[#30d9fe]/10 rounded-xl p-6 border-2 border-[#30d9fe]/30">
+          <h4 className="text-lg font-bold text-[#03325a] mb-4 flex items-center gap-2">
+            <span>📍</span> Ping Our Network - Contact Info Section
+          </h4>
+          <p className="text-sm text-gray-600 mb-4">
+            This section appears on the right side of the contact page with your address, email, and phone information.
+          </p>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Section Title
+              </label>
+              <input
+                type="text"
+                value={currentForm.contact_info_title || 'Ping Our Network'}
+                onChange={(e) => handleContactInputChange(activeContactTab, 'contact_info_title', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                placeholder="e.g., Ping Our Network"
+              />
+            </div>
+
+            {/* Visit Us Section */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                📍 Address Label
+              </label>
+              <input
+                type="text"
+                value={currentForm.visit_label || 'Visit Us'}
+                onChange={(e) => handleContactInputChange(activeContactTab, 'visit_label', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                placeholder="e.g., Visit Us"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                📍 Address
+              </label>
+              <textarea
+                value={currentForm.visit_address || '123 Tech Hub, Innovation Street\nLagos, Nigeria'}
+                onChange={(e) => handleContactInputChange(activeContactTab, 'visit_address', e.target.value)}
+                rows={2}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                placeholder="123 Tech Hub, Innovation Street&#10;Lagos, Nigeria"
+              />
+            </div>
+
+            {/* Email Section */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                📧 Email Label
+              </label>
+              <input
+                type="text"
+                value={currentForm.email_label || 'Email Us'}
+                onChange={(e) => handleContactInputChange(activeContactTab, 'email_label', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                placeholder="e.g., Email Us"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                📧 Primary Email
+              </label>
+              <input
+                type="email"
+                value={currentForm.primary_email || 'info@code2deploy.com'}
+                onChange={(e) => handleContactInputChange(activeContactTab, 'primary_email', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                placeholder="info@code2deploy.com"
+              />
+            </div>
+
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                📧 Secondary Email (Optional)
+              </label>
+              <input
+                type="email"
+                value={currentForm.secondary_email || ''}
+                onChange={(e) => handleContactInputChange(activeContactTab, 'secondary_email', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                placeholder="support@code2deploy.com"
+              />
+            </div>
+
+            {/* Phone Section */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                📞 Phone Label
+              </label>
+              <input
+                type="text"
+                value={currentForm.phone_label || 'Call Us'}
+                onChange={(e) => handleContactInputChange(activeContactTab, 'phone_label', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                placeholder="e.g., Call Us"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                📞 Phone Number
+              </label>
+              <input
+                type="text"
+                value={currentForm.phone_number || '+254 743 864 7890'}
+                onChange={(e) => handleContactInputChange(activeContactTab, 'phone_number', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                placeholder="+254 743 864 7890"
+              />
+            </div>
+
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                📞 Business Hours
+              </label>
+              <input
+                type="text"
+                value={currentForm.phone_hours || 'Mon-Fri: 9AM-6PM WAT'}
+                onChange={(e) => handleContactInputChange(activeContactTab, 'phone_hours', e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
+                placeholder="Mon-Fri: 9AM-6PM WAT"
+              />
+            </div>
+          </div>
+
+          {/* Live Preview for Contact Info */}
+          <div className="mt-6 bg-[#03325a]/80 rounded-xl p-4 text-white">
+            <h5 className="text-sm font-medium text-[#30d9fe] mb-3">📺 Live Preview</h5>
+            <h3 className="text-lg font-bold text-[#30d9fe] mb-4">{currentForm.contact_info_title || 'Ping Our Network'}</h3>
+            <div className="space-y-3 text-sm">
+              <div className="flex items-start gap-3">
+                <span className="text-[#30d9fe]">📍</span>
+                <div>
+                  <p className="font-semibold">{currentForm.visit_label || 'Visit Us'}</p>
+                  <p className="opacity-80 whitespace-pre-line">{currentForm.visit_address || '123 Tech Hub, Innovation Street\nLagos, Nigeria'}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-[#30d9fe]">📧</span>
+                <div>
+                  <p className="font-semibold">{currentForm.email_label || 'Email Us'}</p>
+                  <p className="opacity-80">{currentForm.primary_email || 'info@code2deploy.com'}</p>
+                  {currentForm.secondary_email && <p className="opacity-80">{currentForm.secondary_email}</p>}
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-[#30d9fe]">📞</span>
+                <div>
+                  <p className="font-semibold">{currentForm.phone_label || 'Call Us'}</p>
+                  <p className="opacity-80">{currentForm.phone_number || '+254 743 864 7890'}</p>
+                  <p className="opacity-80">{currentForm.phone_hours || 'Mon-Fri: 9AM-6PM WAT'}</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

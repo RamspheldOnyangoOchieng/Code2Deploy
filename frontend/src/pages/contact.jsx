@@ -47,7 +47,7 @@ const Contact = () => {
           contactType = 'education';
         }
 
-        const response = await fetch(`${API_BASE_URL}/api/admin/contact-settings/type/${contactType}/`);
+        const response = await fetch(`${API_BASE_URL}/admin/contact-settings/type/${contactType}/`);
         
         if (response.ok) {
           const data = await response.json();
@@ -160,7 +160,16 @@ const Contact = () => {
         title: contactSettings.title,
         subtitle: contactSettings.subtitle,
         description: contactSettings.description,
-        buttonText: contactSettings.button_text || 'Send Message'
+        buttonText: contactSettings.button_text || 'Send Message',
+        contactInfoTitle: contactSettings.contact_info_title || 'Ping Our Network',
+        visitLabel: contactSettings.visit_label || 'Visit Us',
+        visitAddress: contactSettings.visit_address || '123 Tech Hub, Innovation Street\nLagos, Nigeria',
+        emailLabel: contactSettings.email_label || 'Email Us',
+        primaryEmail: contactSettings.primary_email || 'info@code2deploy.com',
+        secondaryEmail: contactSettings.secondary_email || '',
+        phoneLabel: contactSettings.phone_label || 'Call Us',
+        phoneNumber: contactSettings.phone_number || '+254 743 864 7890',
+        phoneHours: contactSettings.phone_hours || 'Mon-Fri: 9AM-6PM WAT'
       };
     }
 
@@ -171,21 +180,48 @@ const Contact = () => {
         title: 'Become a Sponsor',
         subtitle: 'Partner with us to empower African youth in tech',
         description: 'Join us in our mission to transform African youth through technology education. Your sponsorship will help provide scholarships, resources, and opportunities for aspiring developers.',
-        buttonText: 'Submit Sponsorship Inquiry'
+        buttonText: 'Submit Sponsorship Inquiry',
+        contactInfoTitle: 'Ping Our Network',
+        visitLabel: 'Visit Us',
+        visitAddress: '123 Tech Hub, Innovation Street\nLagos, Nigeria',
+        emailLabel: 'Email Us',
+        primaryEmail: 'info@code2deploy.com',
+        secondaryEmail: 'support@code2deploy.com',
+        phoneLabel: 'Call Us',
+        phoneNumber: '+254 743 864 7890',
+        phoneHours: 'Mon-Fri: 9AM-6PM WAT'
       };
     } else if (type === 'education' || type === 'education-partner') {
       return {
         title: 'Become an Education & Training Partner',
         subtitle: 'Collaborate with us to expand tech education across Africa',
         description: 'Partner with Code2Deploy to deliver world-class technology education. Together, we can create innovative learning programs, share resources, and empower the next generation of African developers.',
-        buttonText: 'Submit Partnership Inquiry'
+        buttonText: 'Submit Partnership Inquiry',
+        contactInfoTitle: 'Ping Our Network',
+        visitLabel: 'Visit Us',
+        visitAddress: '123 Tech Hub, Innovation Street\nLagos, Nigeria',
+        emailLabel: 'Email Us',
+        primaryEmail: 'info@code2deploy.com',
+        secondaryEmail: 'support@code2deploy.com',
+        phoneLabel: 'Call Us',
+        phoneNumber: '+254 743 864 7890',
+        phoneHours: 'Mon-Fri: 9AM-6PM WAT'
       };
     }
     return {
       title: 'Get in Touch',
       subtitle: 'We\'d love to hear from you',
       description: 'Whether you\'re ready to enroll, curious about our programs, or just want to say hi — drop us a line!',
-      buttonText: 'Send Message'
+      buttonText: 'Send Message',
+      contactInfoTitle: 'Ping Our Network',
+      visitLabel: 'Visit Us',
+      visitAddress: '123 Tech Hub, Innovation Street\nLagos, Nigeria',
+      emailLabel: 'Email Us',
+      primaryEmail: 'info@code2deploy.com',
+      secondaryEmail: 'support@code2deploy.com',
+      phoneLabel: 'Call Us',
+      phoneNumber: '+254 743 864 7890',
+      phoneHours: 'Mon-Fri: 9AM-6PM WAT'
     };
   };
 
@@ -340,15 +376,15 @@ const Contact = () => {
             {/* Right Panel - Contact Information */}
             <div className="lg:w-2/5 w-full space-y-6">
               <div className="bg-[#03325a]/60 p-6 sm:p-8 rounded-2xl border border-[#30d9fe]/20 shadow-lg">
-                <h3 className="text-xl sm:text-2xl font-bold mb-6 text-[#30d9fe]">Get in Touch</h3>
+                <h3 className="text-xl sm:text-2xl font-bold mb-6 text-[#30d9fe]">{contactInfo.contactInfoTitle}</h3>
                 <div className="space-y-6">
                   <div className="flex items-start space-x-4">
                     <div className="text-[#30d9fe] text-xl mt-1">
                       <i className="fas fa-map-marker-alt"></i>
                     </div>
                     <div>
-                      <h4 className="font-semibold mb-1">Visit Us</h4>
-                      <p className="text-sm opacity-90">123 Tech Hub, Innovation Street<br />Lagos, Nigeria</p>
+                      <h4 className="font-semibold mb-1">{contactInfo.visitLabel}</h4>
+                      <p className="text-sm opacity-90 whitespace-pre-line">{contactInfo.visitAddress}</p>
                     </div>
                   </div>
                   
@@ -357,9 +393,9 @@ const Contact = () => {
                       <i className="fas fa-envelope"></i>
                     </div>
                     <div>
-                      <h4 className="font-semibold mb-1">Email Us</h4>
-                      <p className="text-sm opacity-90">info@code2deploy.com</p>
-                      <p className="text-sm opacity-90">support@code2deploy.com</p>
+                      <h4 className="font-semibold mb-1">{contactInfo.emailLabel}</h4>
+                      <p className="text-sm opacity-90">{contactInfo.primaryEmail}</p>
+                      {contactInfo.secondaryEmail && <p className="text-sm opacity-90">{contactInfo.secondaryEmail}</p>}
                     </div>
                   </div>
                   
@@ -368,9 +404,9 @@ const Contact = () => {
                       <i className="fas fa-phone"></i>
                     </div>
                     <div>
-                      <h4 className="font-semibold mb-1">Call Us</h4>
-                      <p className="text-sm opacity-90">+254 743 864 7890</p>
-                      <p className="text-sm opacity-90">Mon-Fri: 9AM-6PM WAT</p>
+                      <h4 className="font-semibold mb-1">{contactInfo.phoneLabel}</h4>
+                      <p className="text-sm opacity-90">{contactInfo.phoneNumber}</p>
+                      <p className="text-sm opacity-90">{contactInfo.phoneHours}</p>
                     </div>
                   </div>
                 </div>
