@@ -48,7 +48,9 @@ services:
       - key: EMAIL_USE_TLS
         value: "True"
       - key: DEFAULT_FROM_EMAIL
-        value: "Code2Deploy <noreply@code2deploy.tech>"
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
       - key: CLOUDINARY_URL
         sync: false
       - key: CLOUDINARY_CLOUD_NAME
