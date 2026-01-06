@@ -17,7 +17,9 @@ import {
   ArrowLeftIcon,
   KeyIcon,
   ClockIcon,
-  Cog6ToothIcon
+  Cog6ToothIcon,
+  ClipboardDocumentIcon,
+  ClipboardDocumentCheckIcon
 } from '@heroicons/react/24/outline';
 
 const ProfilePage = () => {
@@ -30,8 +32,19 @@ const ProfilePage = () => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [copied, setCopied] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
@@ -238,8 +251,19 @@ const ProfilePage = () => {
             </div>
 
             {/* Quick ID */}
-            <div className="bg-[#30d9fe]/10 border border-[#30d9fe]/30 rounded-lg px-4 py-2">
-              <span className="text-gray-400 text-xs">ID</span>
+            <div 
+              onClick={() => copyToClipboard(user?.unique_id)}
+              className="bg-[#30d9fe]/10 border border-[#30d9fe]/30 rounded-lg px-4 py-2 cursor-pointer hover:bg-[#30d9fe]/20 transition-colors group"
+              title="Click to copy full ID"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400 text-xs">ID</span>
+                {copied ? (
+                  <ClipboardDocumentCheckIcon className="w-4 h-4 text-green-400" />
+                ) : (
+                  <ClipboardDocumentIcon className="w-4 h-4 text-gray-400 group-hover:text-[#30d9fe] transition-colors" />
+                )}
+              </div>
               <p className="text-[#30d9fe] font-mono text-sm">{user?.unique_id?.slice(0, 8)}...</p>
             </div>
           </div>
@@ -587,10 +611,19 @@ const ProfilePage = () => {
             {/* User ID Card */}
             <div className="bg-gradient-to-br from-[#30d9fe]/20 to-[#eec262]/20 backdrop-blur-lg border border-[#30d9fe]/30 rounded-2xl p-6">
               <h3 className="text-lg font-bold text-white mb-4">Your Unique ID</h3>
-              <div className="bg-black/30 rounded-lg p-3 font-mono text-[#30d9fe] text-sm break-all">
-                {user?.unique_id}
+              <div 
+                onClick={() => copyToClipboard(user?.unique_id)}
+                className="bg-black/30 rounded-lg p-3 font-mono text-[#30d9fe] text-sm break-all cursor-pointer hover:bg-black/40 transition-colors flex items-center justify-between gap-2 group"
+                title="Click to copy"
+              >
+                <span>{user?.unique_id}</span>
+                {copied ? (
+                  <ClipboardDocumentCheckIcon className="w-5 h-5 text-green-400 flex-shrink-0" />
+                ) : (
+                  <ClipboardDocumentIcon className="w-5 h-5 text-[#30d9fe]/50 group-hover:text-[#30d9fe] transition-colors flex-shrink-0" />
+                )}
               </div>
-              <p className="text-xs text-gray-400 mt-2">Use this ID for support inquiries</p>
+              <p className="text-xs text-gray-400 mt-2">Click to copy • Use this ID for support inquiries</p>
             </div>
           </div>
         </div>
