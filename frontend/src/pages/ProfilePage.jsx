@@ -19,7 +19,14 @@ import {
   ClockIcon,
   Cog6ToothIcon,
   ClipboardDocumentIcon,
-  ClipboardDocumentCheckIcon
+  ClipboardDocumentCheckIcon,
+  AcademicCapIcon,
+  BellIcon,
+  DocumentTextIcon,
+  GlobeAltIcon,
+  SunIcon,
+  MoonIcon,
+  LinkIcon
 } from '@heroicons/react/24/outline';
 
 const ProfilePage = () => {
@@ -484,6 +491,108 @@ const ProfilePage = () => {
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* Quick Links Section */}
+              <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
+                <h2 className="text-xl font-bold text-white flex items-center mb-4">
+                  <LinkIcon className="w-6 h-6 mr-2 text-[#30d9fe]" />
+                  Quick Links
+                </h2>
+                <div className="grid grid-cols-2 gap-3">
+                  <Link
+                    to="/programs"
+                    className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-all group"
+                  >
+                    <div className="p-2 bg-[#30d9fe]/20 rounded-lg group-hover:bg-[#30d9fe]/30 transition-colors">
+                      <AcademicCapIcon className="w-5 h-5 text-[#30d9fe]" />
+                    </div>
+                    <span className="text-white font-medium">Browse Programs</span>
+                  </Link>
+                  <Link
+                    to="/events"
+                    className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-all group"
+                  >
+                    <div className="p-2 bg-[#eec262]/20 rounded-lg group-hover:bg-[#eec262]/30 transition-colors">
+                      <CalendarIcon className="w-5 h-5 text-[#eec262]" />
+                    </div>
+                    <span className="text-white font-medium">View Events</span>
+                  </Link>
+                  <Link
+                    to={getDashboardPath()}
+                    className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-all group"
+                  >
+                    <div className="p-2 bg-green-500/20 rounded-lg group-hover:bg-green-500/30 transition-colors">
+                      <DocumentTextIcon className="w-5 h-5 text-green-400" />
+                    </div>
+                    <span className="text-white font-medium">My Certificates</span>
+                  </Link>
+                  <Link
+                    to="/contact"
+                    className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-all group"
+                  >
+                    <div className="p-2 bg-purple-500/20 rounded-lg group-hover:bg-purple-500/30 transition-colors">
+                      <EnvelopeIcon className="w-5 h-5 text-purple-400" />
+                    </div>
+                    <span className="text-white font-medium">Contact Support</span>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Preferences Section */}
+              <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
+                <h2 className="text-xl font-bold text-white flex items-center mb-4">
+                  <Cog6ToothIcon className="w-6 h-6 mr-2 text-[#30d9fe]" />
+                  Preferences
+                </h2>
+                <div className="space-y-4">
+                  {/* Notifications Toggle */}
+                  <div className="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <BellIcon className="w-5 h-5 text-[#30d9fe]" />
+                      <div>
+                        <p className="text-white font-medium">Email Notifications</p>
+                        <p className="text-gray-400 text-sm">Receive updates about your account</p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" defaultChecked className="sr-only peer" />
+                      <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#30d9fe] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#30d9fe]"></div>
+                    </label>
+                  </div>
+
+                  {/* Language */}
+                  <div className="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <GlobeAltIcon className="w-5 h-5 text-[#eec262]" />
+                      <div>
+                        <p className="text-white font-medium">Language</p>
+                        <p className="text-gray-400 text-sm">Choose your preferred language</p>
+                      </div>
+                    </div>
+                    <select className="bg-white/10 border border-white/20 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#30d9fe]">
+                      <option value="en" className="bg-slate-800">English</option>
+                      <option value="es" className="bg-slate-800">Español</option>
+                      <option value="fr" className="bg-slate-800">Français</option>
+                      <option value="sw" className="bg-slate-800">Swahili</option>
+                    </select>
+                  </div>
+
+                  {/* Theme */}
+                  <div className="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <MoonIcon className="w-5 h-5 text-purple-400" />
+                      <div>
+                        <p className="text-white font-medium">Dark Mode</p>
+                        <p className="text-gray-400 text-sm">Toggle dark/light theme</p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" defaultChecked className="sr-only peer" />
+                      <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#30d9fe] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500"></div>
+                    </label>
+                  </div>
+                </div>
               </div>
             )}
 

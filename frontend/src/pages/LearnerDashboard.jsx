@@ -20,7 +20,8 @@ import {
   ClockIcon,
   ArrowUpTrayIcon,
   CheckCircleIcon,
-  ExclamationCircleIcon
+  ExclamationCircleIcon,
+  HomeIcon
 } from '@heroicons/react/24/outline';
 
 const LearnerDashboard = () => {
@@ -313,21 +314,30 @@ const LearnerDashboard = () => {
             </nav>
 
             {/* Bottom Actions */}
-            <div className="p-4 border-t border-[#30d9fe]/20 space-y-3">
+            <div className="p-4 border-t border-[#30d9fe]/20 space-y-2">
               <Link
                 to="/profile"
-                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-all duration-200"
+                className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-all duration-200"
               >
                 <UserCircleIcon className="w-5 h-5" />
                 <span>Profile</span>
               </Link>
-              <button
-                onClick={handleLogoutClick}
-                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-red-500/90 hover:bg-red-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg"
-              >
-                <ArrowLeftOnRectangleIcon className="w-5 h-5" />
-                <span>Logout</span>
-              </button>
+              <div className="flex gap-2">
+                <Link
+                  to="/"
+                  className="flex-1 flex items-center justify-center space-x-2 px-3 py-2.5 bg-[#30d9fe]/20 hover:bg-[#30d9fe]/30 text-[#30d9fe] font-semibold rounded-lg transition-all duration-200 border border-[#30d9fe]/30"
+                >
+                  <HomeIcon className="w-5 h-5" />
+                  <span>Home</span>
+                </Link>
+                <button
+                  onClick={handleLogoutClick}
+                  className="flex-1 flex items-center justify-center space-x-2 px-3 py-2.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-semibold rounded-lg transition-all duration-200 border border-red-500/30"
+                >
+                  <ArrowLeftOnRectangleIcon className="w-5 h-5" />
+                  <span>Logout</span>
+                </button>
+              </div>
             </div>
           </div>
         </aside>
