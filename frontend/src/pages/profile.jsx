@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import authService from '../services/authService';
+import { API_BASE_URL } from '../config/api';
 import {
   UserCircleIcon,
   AcademicCapIcon,
@@ -12,7 +13,9 @@ import {
   ShieldCheckIcon,
   CameraIcon,
   Cog6ToothIcon,
-  UsersIcon
+  UsersIcon,
+  BuildingOfficeIcon,
+  ClipboardDocumentListIcon
 } from '@heroicons/react/24/outline';
 
 const Profile = () => {
@@ -22,6 +25,8 @@ const Profile = () => {
   const [certificates, setCertificates] = useState([]);
   const [badges, setBadges] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [adminStats, setAdminStats] = useState(null);
+  const [mentorStats, setMentorStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [editing, setEditing] = useState(false);
@@ -71,11 +76,52 @@ const Profile = () => {
         phone: userData.phone || '',
         organization: userData.organization || ''
       });
+
+      // Load role-specific stats
+      if (userData.role === 'admin') {
+        loadAdminStats();
+      } else if (userData.role === 'mentor') {
+        loadMentorStats();
+      }
     } catch (err) {
       setError('Failed to load user data');
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadAdminStats = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/dashboard/stats/`, {
+        headers: {
+          'Authorization': `Bearer ${authService.getToken()}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setAdminStats(data);
+      }
+    } catch (err) {
+      console.error('Failed to load admin stats:', err);
+    }
+  };
+
+  const loadMentorStats = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/mentors/dashboard/`, {
+        headers: {
+          'Authorization': `Bearer ${authService.getToken()}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setMentorStats(data);
+      }
+    } catch (err) {
+      console.error('Failed to load mentor stats:', err);
     }
   };
 
@@ -358,16 +404,92 @@ const Profile = () => {
                   </div>
                 )}
 
+                {/* Admin Stats Section */}
+                {user?.role === 'admin' && adminStats && (
+                  <div className="bg-gradient-to-r from-purple-900/50 to-purple-600/30 backdrop-blur-lg border border-purple-500/30 rounded-2xl p-6">
+                    <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+                      <Cog6ToothIcon className="w-6 h-6 mr-2 text-purple-400" />
+                      Platform Overview (Admin)
+                    </h3>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="bg-white/10 rounded-xl p-4 text-center">
+                        <UsersIcon className="w-6 h-6 text-purple-300 mx-auto mb-1" />
+                        <div className="text-2xl font-bold text-white">{adminStats.total_users || 0}</div>
+                        <div className="text-xs text-gray-300">Total Users</div>
+                      </div>
+                      <div className="bg-white/10 rounded-xl p-4 text-center">
+                        <AcademicCapIcon className="w-6 h-6 text-purple-300 mx-auto mb-1" />
+                        <div className="text-2xl font-bold text-white">{adminStats.total_programs || 0}</div>
+                        <div className="text-xs text-gray-300">Programs</div>
+                      </div>
+                      <div className="bg-white/10 rounded-xl p-4 text-center">
+                        <CalendarIcon className="w-6 h-6 text-purple-300 mx-auto mb-1" />
+                        <div className="text-2xl font-bold text-white">{adminStats.total_events || 0}</div>
+                        <div className="text-xs text-gray-300">Events</div>
+                      </div>
+                      <div className="bg-white/10 rounded-xl p-4 text-center">
+                        <ClipboardDocumentListIcon className="w-6 h-6 text-purple-300 mx-auto mb-1" />
+                        <div className="text-2xl font-bold text-white">{adminStats.pending_applications || 0}</div>
+                        <div className="text-xs text-gray-300">Pending Apps</div>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Link to="/admin" className="px-4 py-2 bg-purple-500 text-white text-sm rounded-lg hover:bg-purple-600 transition-colors">
+                        Manage Users
+                      </Link>
+                      <Link to="/admin" className="px-4 py-2 bg-purple-500/50 text-white text-sm rounded-lg hover:bg-purple-500 transition-colors">
+                        View Applications
+                      </Link>
+                      <Link to="/mentor-dashboard" className="px-4 py-2 bg-teal-500/50 text-white text-sm rounded-lg hover:bg-teal-500 transition-colors">
+                        Mentor Tools
+                      </Link>
+                    </div>
+                  </div>
+                )}
+
+                {/* Mentor Stats Section */}
+                {user?.role === 'mentor' && mentorStats && (
+                  <div className="bg-gradient-to-r from-teal-900/50 to-teal-600/30 backdrop-blur-lg border border-teal-500/30 rounded-2xl p-6">
+                    <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+                      <UsersIcon className="w-6 h-6 mr-2 text-teal-400" />
+                      Mentoring Overview
+                    </h3>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="bg-white/10 rounded-xl p-4 text-center">
+                        <UsersIcon className="w-6 h-6 text-teal-300 mx-auto mb-1" />
+                        <div className="text-2xl font-bold text-white">{mentorStats.total_mentees || 0}</div>
+                        <div className="text-xs text-gray-300">Mentees</div>
+                      </div>
+                      <div className="bg-white/10 rounded-xl p-4 text-center">
+                        <CalendarIcon className="w-6 h-6 text-teal-300 mx-auto mb-1" />
+                        <div className="text-2xl font-bold text-white">{mentorStats.upcoming_sessions || 0}</div>
+                        <div className="text-xs text-gray-300">Upcoming Sessions</div>
+                      </div>
+                      <div className="bg-white/10 rounded-xl p-4 text-center">
+                        <ClipboardDocumentListIcon className="w-6 h-6 text-teal-300 mx-auto mb-1" />
+                        <div className="text-2xl font-bold text-white">{mentorStats.pending_reviews || 0}</div>
+                        <div className="text-xs text-gray-300">Pending Reviews</div>
+                      </div>
+                      <div className="bg-white/10 rounded-xl p-4 text-center">
+                        <AcademicCapIcon className="w-6 h-6 text-teal-300 mx-auto mb-1" />
+                        <div className="text-2xl font-bold text-white">{mentorStats.total_programs || 0}</div>
+                        <div className="text-xs text-gray-300">Programs</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Personal Stats - For Everyone */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="bg-white/10 backdrop-blur-lg border border-[#30d9fe]/30 rounded-xl p-6 text-center hover:scale-105 transition-transform duration-200">
                     <AcademicCapIcon className="w-8 h-8 text-[#30d9fe] mx-auto mb-2" />
                     <div className="text-3xl font-bold text-white mb-1">{enrollments.length}</div>
-                    <div className="text-sm text-gray-300">Programs</div>
+                    <div className="text-sm text-gray-300">My Programs</div>
                   </div>
                   <div className="bg-white/10 backdrop-blur-lg border border-[#eec262]/30 rounded-xl p-6 text-center hover:scale-105 transition-transform duration-200">
                     <CalendarIcon className="w-8 h-8 text-[#eec262] mx-auto mb-2" />
                     <div className="text-3xl font-bold text-white mb-1">{eventRegistrations.length}</div>
-                    <div className="text-sm text-gray-300">Events</div>
+                    <div className="text-sm text-gray-300">My Events</div>
                   </div>
                   <div className="bg-white/10 backdrop-blur-lg border border-green-400/30 rounded-xl p-6 text-center hover:scale-105 transition-transform duration-200">
                     <DocumentTextIcon className="w-8 h-8 text-green-400 mx-auto mb-2" />
