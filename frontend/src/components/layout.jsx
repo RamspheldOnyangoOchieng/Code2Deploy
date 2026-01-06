@@ -157,6 +157,17 @@ const Layout = ({ children }) => {
                         Profile
                       </Link>
                       
+                      {user.role === 'mentor' && (
+                        <Link
+                          to="/mentor-dashboard"
+                          onClick={() => setIsUserDropdownOpen(false)}
+                          className="block px-4 py-2 text-sm text-teal-600 hover:bg-teal-50 transition-colors duration-200"
+                        >
+                          <i className="fas fa-chalkboard-teacher mr-2"></i>
+                          Mentor Dashboard
+                        </Link>
+                      )}
+                      
                       {user.role === 'admin' && (
                         <Link
                           to="/admin"
@@ -219,6 +230,15 @@ const Layout = ({ children }) => {
                   {user ? (
                     <>
                       <span className="text-sm text-gray-300">Welcome, {user.first_name || user.username}!</span>
+                      {user.role === 'mentor' && (
+                        <Link 
+                          to="/mentor-dashboard"
+                          onClick={() => setIsMenuOpen(false)}
+                          className="px-4 py-2 bg-teal-600 text-white font-medium rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer"
+                        >
+                          Mentor Dashboard
+                        </Link>
+                      )}
                       {user.role === 'admin' && (
                         <Link 
                           to="/admin"

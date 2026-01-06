@@ -6,6 +6,7 @@ import Home from './pages/home';
 import Programs from './pages/programs';
 import Profile from './pages/profile';
 import AdminDashboard from './pages/admin';
+import MentorDashboard from './pages/MentorDashboard';
 import ResetPassword from './pages/ResetPassword';
 import Confirmed from './pages/Confirmed';
 
@@ -26,6 +27,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/mentor-dashboard" element={<MentorDashboard />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/confirmed" element={<Confirmed />} />
       </Routes>
