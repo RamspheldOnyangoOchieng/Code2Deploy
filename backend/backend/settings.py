@@ -36,6 +36,8 @@ _default_cors_origins = [
     'http://127.0.0.1:5173',
     'https://code2-deploy.vercel.app',
     'https://code2deploy.vercel.app',
+    'https://code2deploy.tech',
+    'https://www.code2deploy.tech',
 ]
 _env_cors_origins = os.getenv('CORS_ALLOWED_ORIGINS', '')
 if _env_cors_origins:
@@ -44,6 +46,28 @@ else:
     CORS_ALLOWED_ORIGINS = _default_cors_origins
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = False  # Only allow specific origins
+
+# Additional CORS settings for proper preflight handling
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+CORS_PREFLIGHT_MAX_AGE = 86400  # Cache preflight requests for 24 hours
 
 # Application definition
 

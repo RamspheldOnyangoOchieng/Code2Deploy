@@ -1,4 +1,6 @@
 import os
+import threading
+import logging
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -23,6 +25,29 @@ from events.models import EventRegistration
 from rest_framework.generics import ListAPIView
 from django.utils import timezone
 from rest_framework.permissions import AllowAny
+
+logger = logging.getLogger(__name__)
+
+
+def send_email_async(subject, plain_message, from_email, recipient_list, html_message=None):
+    """Send email in a background thread to prevent blocking the request."""
+    def send():
+        try:
+            send_mail(
+                subject,
+                plain_message,
+                from_email,
+                recipient_list,
+                fail_silently=False,
+                html_message=html_message
+            )
+            logger.info(f"Email sent successfully to {recipient_list}")
+        except Exception as e:
+            logger.error(f"Failed to send email to {recipient_list}: {str(e)}")
+    
+    thread = threading.Thread(target=send)
+    thread.daemon = True
+    thread.start()
 
 User = get_user_model()
 
@@ -50,62 +75,92 @@ class RegisterView(APIView):
     throttle_classes = [RegisterRateThrottle]
     permission_classes = [AllowAny]
     serializer_class = MessageSerializer
+    
     def post(self, request):
         serializer = UserCreateSerializer(data=request.data)
         if serializer.is_valid():
+            # Create user as inactive until email is confirmed
             user = serializer.save()
+            user.is_active = False
+            user.save()
+            
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
-            confirm_url = request.build_absolute_uri(
-                reverse('users:confirm-email') + f'?uid={uid}&token={token}'
-            )
+            
+            # Build frontend confirmation URL instead of backend
+            frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+            confirm_url = f'{frontend_url}/confirm-email?uid={uid}&token={token}'
+            
             html_message = CODE2DEPLOY_EMAIL_BRAND.format(
                 message="Thank you for signing up! Please confirm your email to activate your account.",
                 button_url=confirm_url,
                 button_text="Confirm Email"
             )
-            try:
-                send_mail(
-                    'Confirm your Code2Deploy account',
-                    f'Please confirm your account: {confirm_url}',
-                    settings.DEFAULT_FROM_EMAIL,
-                    [user.email],
-                    fail_silently=False,
-                    html_message=html_message
-                )
-                return Response({'detail': '🎉 Signup successful! Please check your email and click the confirmation link to activate your account.'}, status=status.HTTP_201_CREATED)
-            except Exception as e:
-                # If email fails, still create the user but inform them
-                return Response({
-                    'detail': '🎉 Signup successful! However, we could not send a confirmation email. Please contact support to activate your account.',
-                    'user_id': user.id,
-                    'email': user.email
-                }, status=status.HTTP_201_CREATED)
+            
+            # Send email asynchronously to prevent timeout
+            send_email_async(
+                'Confirm your Code2Deploy account',
+                f'Please confirm your account: {confirm_url}',
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                html_message=html_message
+            )
+            
+            return Response({
+                'detail': '🎉 Signup successful! Please check your email and click the confirmation link to activate your account.',
+                'email_sent': True,
+                'requires_confirmation': True
+            }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ConfirmEmailView(APIView):
     permission_classes = [AllowAny]
-    # No serializer_class needed, as it redirects or returns a message
+    
     def get(self, request):
+        """Handle email confirmation from link (redirects to frontend)"""
         uidb64 = request.GET.get('uid')
         token = request.GET.get('token')
+        frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+        
         try:
             uid = urlsafe_base64_decode(uidb64).decode()
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
+            
         if user and default_token_generator.check_token(user, token):
             user.is_active = True
             user.save()
-            # Redirect to frontend confirmation page
-            frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
-            return redirect(f'{frontend_url}/confirmed')
-        return Response({'detail': 'Invalid or expired token.'}, status=status.HTTP_400_BAD_REQUEST)
+            return redirect(f'{frontend_url}/confirmed?success=true')
+        return redirect(f'{frontend_url}/confirmed?success=false&error=invalid_token')
+    
+    def post(self, request):
+        """Handle email confirmation via API (for frontend SPA routing)"""
+        uid = request.data.get('uid')
+        token = request.data.get('token')
+        
+        if not uid or not token:
+            return Response({'detail': 'Missing confirmation parameters.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            decoded_uid = urlsafe_base64_decode(uid).decode()
+            user = User.objects.get(pk=decoded_uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return Response({'detail': 'Invalid confirmation link.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        if default_token_generator.check_token(user, token):
+            if user.is_active:
+                return Response({'detail': 'Email already confirmed. You can log in.', 'already_confirmed': True}, status=status.HTTP_200_OK)
+            user.is_active = True
+            user.save()
+            return Response({'detail': '🎉 Email confirmed successfully! You can now log in.', 'confirmed': True}, status=status.HTTP_200_OK)
+        return Response({'detail': 'Invalid or expired confirmation link.'}, status=status.HTTP_400_BAD_REQUEST)
 
 class ResendConfirmationEmailView(APIView):
     throttle_classes = [ResendConfirmationRateThrottle]
     permission_classes = [AllowAny]
     serializer_class = MessageSerializer
+    
     def post(self, request):
         email = request.data.get('email')
         if not email:
@@ -113,25 +168,30 @@ class ResendConfirmationEmailView(APIView):
         try:
             user = User.objects.get(email=email, is_active=False)
         except User.DoesNotExist:
-            return Response({'detail': 'No inactive user found with this email.'}, status=status.HTTP_400_BAD_REQUEST)
+            # Don't reveal whether email exists for security
+            return Response({'detail': 'If an account with this email exists and is not yet confirmed, a new confirmation email will be sent.'}, status=status.HTTP_200_OK)
+        
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
-        confirm_url = request.build_absolute_uri(
-            reverse('users:confirm-email') + f'?uid={uid}&token={token}'
-        )
+        
+        frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+        confirm_url = f'{frontend_url}/confirm-email?uid={uid}&token={token}'
+        
         html_message = CODE2DEPLOY_EMAIL_BRAND.format(
             message="You requested a new confirmation email. Please confirm your email to activate your Code2Deploy account.",
             button_url=confirm_url,
             button_text="Confirm Email"
         )
-        send_mail(
+        
+        # Send email asynchronously
+        send_email_async(
             'Resend: Confirm your Code2Deploy account',
             f'Please confirm your account: {confirm_url}',
             settings.DEFAULT_FROM_EMAIL,
             [user.email],
-            fail_silently=False,
             html_message=html_message
         )
+        
         return Response({'detail': 'A new confirmation email has been sent! Please check your inbox.'}, status=status.HTTP_200_OK)
 
 class LoginRateThrottle(AnonRateThrottle):

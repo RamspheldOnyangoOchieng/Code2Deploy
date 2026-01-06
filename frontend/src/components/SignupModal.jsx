@@ -14,12 +14,34 @@ const SignupModal = ({ isOpen, onClose, onSignupSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [showResendOption, setShowResendOption] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMessage, setResendMessage] = useState('');
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    // Clear error when user starts typing
+    if (error) setError('');
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!registeredEmail) return;
+    
+    setResendLoading(true);
+    setResendMessage('');
+    
+    try {
+      const response = await AuthService.resendConfirmationEmail(registeredEmail);
+      setResendMessage(response.detail || 'Confirmation email sent! Check your inbox.');
+    } catch (error) {
+      setResendMessage(error.message || 'Failed to resend email. Please try again.');
+    } finally {
+      setResendLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -38,6 +60,22 @@ const SignupModal = ({ isOpen, onClose, onSignupSuccess }) => {
       return;
     }
 
+    // Validate required fields
+    if (!formData.first_name.trim() || !formData.last_name.trim()) {
+      setError('First name and last name are required');
+      return;
+    }
+
+    if (!formData.username.trim()) {
+      setError('Username is required');
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      setError('Email is required');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -47,6 +85,8 @@ const SignupModal = ({ isOpen, onClose, onSignupSuccess }) => {
       // Show success message - user needs to confirm email before logging in
       setSuccess(true);
       setSuccessMessage(response.detail || '🎉 Signup successful! Please check your email and click the confirmation link to activate your account.');
+      setRegisteredEmail(formData.email);
+      setShowResendOption(true);
       
       // Clear form
       setFormData({
@@ -58,17 +98,31 @@ const SignupModal = ({ isOpen, onClose, onSignupSuccess }) => {
         last_name: ''
       });
     } catch (error) {
-      // Try to parse error message for duplicate email/username
-      if (error.message.includes('email')) {
+      // Handle different types of errors
+      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+        setError('Network error. Please check your internet connection and try again.');
+      } else if (error.message.includes('NetworkError')) {
+        setError('Network error. Please check your internet connection and try again.');
+      } else if (error.message.includes('email')) {
         setError('This email is already in use.');
       } else if (error.message.includes('username')) {
         setError('This username is already taken.');
       } else {
-        setError(error.message);
+        setError(error.message || 'Registration failed. Please try again.');
       }
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleClose = () => {
+    setSuccess(false);
+    setSuccessMessage('');
+    setError('');
+    setShowResendOption(false);
+    setRegisteredEmail('');
+    setResendMessage('');
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -81,16 +135,32 @@ const SignupModal = ({ isOpen, onClose, onSignupSuccess }) => {
           <div className="text-center">
             <div className="text-6xl mb-4">📧</div>
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Check Your Email!</h2>
-            <p className="text-gray-600 mb-6">{successMessage}</p>
+            <p className="text-gray-600 mb-4">{successMessage}</p>
             <p className="text-sm text-gray-500 mb-6">
               Click the confirmation link in your email to activate your account, then you can log in.
             </p>
+            
+            {/* Resend confirmation email option */}
+            {showResendOption && (
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-600 mb-3">Didn't receive the email?</p>
+                {resendMessage && (
+                  <p className={`text-sm mb-3 ${resendMessage.includes('Failed') ? 'text-red-600' : 'text-green-600'}`}>
+                    {resendMessage}
+                  </p>
+                )}
+                <button
+                  onClick={handleResendConfirmation}
+                  disabled={resendLoading}
+                  className="text-[#30d9fe] hover:text-[#03325a] font-medium text-sm disabled:opacity-50"
+                >
+                  {resendLoading ? 'Sending...' : 'Resend confirmation email'}
+                </button>
+              </div>
+            )}
+            
             <button
-              onClick={() => {
-                setSuccess(false);
-                setSuccessMessage('');
-                onClose();
-              }}
+              onClick={handleClose}
               className="w-full bg-[#30d9fe] text-[#03325a] font-medium py-2 px-4 rounded-md hover:bg-opacity-90 transition-all duration-300"
             >
               Got it!

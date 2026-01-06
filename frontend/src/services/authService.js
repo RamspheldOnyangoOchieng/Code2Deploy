@@ -30,14 +30,25 @@ class AuthService {
 
   async register(userData) {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
       const response = await fetch(`${this.baseURL}/auth/register/`, {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify(userData),
+        signal: controller.signal
       });
       
+      clearTimeout(timeoutId);
+      
       if (!response.ok) {
-        const errorData = await response.json();
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          throw new Error('Server error. Please try again later.');
+        }
         // Handle field-specific validation errors from DRF
         if (typeof errorData === 'object' && !errorData.detail) {
           const errorMessages = Object.entries(errorData)
@@ -53,6 +64,9 @@ class AuthService {
       
       return await response.json();
     } catch (error) {
+      if (error.name === 'AbortError') {
+        throw new Error('Request timed out. Please try again.');
+      }
       throw error;
     }
   }
@@ -60,6 +74,45 @@ class AuthService {
   // Alias for register method
   async signup(userData) {
     return this.register(userData);
+  }
+
+  async resendConfirmationEmail(email) {
+    try {
+      const response = await fetch(`${this.baseURL}/auth/resend-confirmation/`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify({ email }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to resend confirmation email');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async confirmEmail(uid, token) {
+    try {
+      const response = await fetch(`${this.baseURL}/auth/confirm-email/`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify({ uid, token }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.detail || 'Email confirmation failed');
+      }
+      
+      return data;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async login(credentials) {

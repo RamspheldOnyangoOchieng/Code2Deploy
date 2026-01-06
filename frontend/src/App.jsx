@@ -10,6 +10,7 @@ import AdminDashboard from './pages/admin';
 import MentorDashboard from './pages/MentorDashboard';
 import ResetPassword from './pages/ResetPassword';
 import Confirmed from './pages/Confirmed';
+import ConfirmEmail from './pages/ConfirmEmail';
 
 // Import Tailwind CSS
 import './index.css';
@@ -32,6 +33,7 @@ function App() {
         <Route path="/mentor-dashboard" element={<MentorDashboard />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/confirmed" element={<Confirmed />} />
+        <Route path="/confirm-email" element={<ConfirmEmail />} />
       </Routes>
     </Router>
   );
