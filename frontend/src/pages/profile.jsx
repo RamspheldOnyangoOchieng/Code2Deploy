@@ -189,15 +189,45 @@ const Profile = () => {
 
   const roleDashboard = getRoleDashboard();
 
-  const sidebarItems = [
+  // Base sidebar items for all users
+  const baseSidebarItems = [
     { id: 'overview', name: 'Overview', icon: ChartBarIcon },
     { id: 'profile', name: 'Profile Info', icon: UserCircleIcon },
-    { id: 'programs', name: 'My Programs', icon: AcademicCapIcon },
-    { id: 'events', name: 'My Events', icon: CalendarIcon },
-    { id: 'certificates', name: 'Certificates', icon: DocumentTextIcon },
-    { id: 'badges', name: 'Badges', icon: ShieldCheckIcon },
-    { id: 'notifications', name: 'Notifications', icon: BellIcon },
   ];
+
+  // Role-specific sidebar items
+  const getRoleSidebarItems = () => {
+    if (user?.role === 'admin') {
+      return [
+        { id: 'admin-overview', name: 'Platform Stats', icon: BuildingOfficeIcon },
+        { id: 'programs', name: 'My Programs', icon: AcademicCapIcon },
+        { id: 'events', name: 'My Events', icon: CalendarIcon },
+        { id: 'certificates', name: 'Certificates', icon: DocumentTextIcon },
+        { id: 'badges', name: 'Badges', icon: ShieldCheckIcon },
+        { id: 'notifications', name: 'Notifications', icon: BellIcon },
+      ];
+    } else if (user?.role === 'mentor') {
+      return [
+        { id: 'mentor-overview', name: 'Mentoring Stats', icon: UsersIcon },
+        { id: 'programs', name: 'My Programs', icon: AcademicCapIcon },
+        { id: 'events', name: 'My Events', icon: CalendarIcon },
+        { id: 'certificates', name: 'Certificates', icon: DocumentTextIcon },
+        { id: 'badges', name: 'Badges', icon: ShieldCheckIcon },
+        { id: 'notifications', name: 'Notifications', icon: BellIcon },
+      ];
+    } else {
+      // Learner/Default
+      return [
+        { id: 'programs', name: 'My Programs', icon: AcademicCapIcon },
+        { id: 'events', name: 'My Events', icon: CalendarIcon },
+        { id: 'certificates', name: 'Certificates', icon: DocumentTextIcon },
+        { id: 'badges', name: 'Badges', icon: ShieldCheckIcon },
+        { id: 'notifications', name: 'Notifications', icon: BellIcon },
+      ];
+    }
+  };
+
+  const sidebarItems = [...baseSidebarItems, ...getRoleSidebarItems()];
 
   if (loading) {
     return (
@@ -626,6 +656,127 @@ const Profile = () => {
                         <p className="text-white text-right">{new Date(user?.date_joined).toLocaleDateString()}</p>
                       </div>
                     </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Admin Platform Stats Tab */}
+            {activeTab === 'admin-overview' && (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-r from-purple-900/50 to-purple-600/30 backdrop-blur-lg border border-purple-500/30 rounded-2xl p-6 shadow-2xl">
+                  <h2 className="text-2xl font-bold text-white flex items-center mb-6">
+                    <BuildingOfficeIcon className="w-7 h-7 mr-2 text-purple-400" />
+                    Platform Statistics
+                  </h2>
+                  {adminStats ? (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="bg-white/10 rounded-xl p-6 text-center">
+                          <UsersIcon className="w-10 h-10 text-purple-300 mx-auto mb-2" />
+                          <div className="text-3xl font-bold text-white">{adminStats.total_users || 0}</div>
+                          <div className="text-sm text-gray-300">Total Users</div>
+                        </div>
+                        <div className="bg-white/10 rounded-xl p-6 text-center">
+                          <AcademicCapIcon className="w-10 h-10 text-purple-300 mx-auto mb-2" />
+                          <div className="text-3xl font-bold text-white">{adminStats.total_programs || 0}</div>
+                          <div className="text-sm text-gray-300">Total Programs</div>
+                        </div>
+                        <div className="bg-white/10 rounded-xl p-6 text-center">
+                          <CalendarIcon className="w-10 h-10 text-purple-300 mx-auto mb-2" />
+                          <div className="text-3xl font-bold text-white">{adminStats.total_events || 0}</div>
+                          <div className="text-sm text-gray-300">Total Events</div>
+                        </div>
+                        <div className="bg-white/10 rounded-xl p-6 text-center">
+                          <ClipboardDocumentListIcon className="w-10 h-10 text-yellow-300 mx-auto mb-2" />
+                          <div className="text-3xl font-bold text-white">{adminStats.pending_applications || 0}</div>
+                          <div className="text-sm text-gray-300">Pending Applications</div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="bg-white/10 rounded-xl p-4 text-center">
+                          <div className="text-2xl font-bold text-white">{adminStats.total_mentors || 0}</div>
+                          <div className="text-sm text-gray-300">Mentors</div>
+                        </div>
+                        <div className="bg-white/10 rounded-xl p-4 text-center">
+                          <div className="text-2xl font-bold text-white">{adminStats.total_certificates || 0}</div>
+                          <div className="text-sm text-gray-300">Certificates Issued</div>
+                        </div>
+                        <div className="bg-white/10 rounded-xl p-4 text-center">
+                          <div className="text-2xl font-bold text-white">{adminStats.total_enrollments || 0}</div>
+                          <div className="text-sm text-gray-300">Total Enrollments</div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-3 pt-4">
+                        <Link to="/admin" className="px-6 py-3 bg-purple-500 text-white font-semibold rounded-lg hover:bg-purple-600 transition-colors">
+                          Go to Admin Dashboard
+                        </Link>
+                        <Link to="/mentor-dashboard" className="px-6 py-3 bg-teal-500 text-white font-semibold rounded-lg hover:bg-teal-600 transition-colors">
+                          Mentor Dashboard
+                        </Link>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-400">Loading platform statistics...</div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Mentor Stats Tab */}
+            {activeTab === 'mentor-overview' && (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-r from-teal-900/50 to-teal-600/30 backdrop-blur-lg border border-teal-500/30 rounded-2xl p-6 shadow-2xl">
+                  <h2 className="text-2xl font-bold text-white flex items-center mb-6">
+                    <UsersIcon className="w-7 h-7 mr-2 text-teal-400" />
+                    Mentoring Statistics
+                  </h2>
+                  {mentorStats ? (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="bg-white/10 rounded-xl p-6 text-center">
+                          <UsersIcon className="w-10 h-10 text-teal-300 mx-auto mb-2" />
+                          <div className="text-3xl font-bold text-white">{mentorStats.total_mentees || 0}</div>
+                          <div className="text-sm text-gray-300">My Mentees</div>
+                        </div>
+                        <div className="bg-white/10 rounded-xl p-6 text-center">
+                          <CalendarIcon className="w-10 h-10 text-teal-300 mx-auto mb-2" />
+                          <div className="text-3xl font-bold text-white">{mentorStats.upcoming_sessions || 0}</div>
+                          <div className="text-sm text-gray-300">Upcoming Sessions</div>
+                        </div>
+                        <div className="bg-white/10 rounded-xl p-6 text-center">
+                          <ClipboardDocumentListIcon className="w-10 h-10 text-yellow-300 mx-auto mb-2" />
+                          <div className="text-3xl font-bold text-white">{mentorStats.pending_reviews || 0}</div>
+                          <div className="text-sm text-gray-300">Pending Reviews</div>
+                        </div>
+                        <div className="bg-white/10 rounded-xl p-6 text-center">
+                          <AcademicCapIcon className="w-10 h-10 text-teal-300 mx-auto mb-2" />
+                          <div className="text-3xl font-bold text-white">{mentorStats.total_programs || 0}</div>
+                          <div className="text-sm text-gray-300">Programs</div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="bg-white/10 rounded-xl p-4 text-center">
+                          <div className="text-2xl font-bold text-white">{mentorStats.total_sessions || 0}</div>
+                          <div className="text-sm text-gray-300">Total Sessions</div>
+                        </div>
+                        <div className="bg-white/10 rounded-xl p-4 text-center">
+                          <div className="text-2xl font-bold text-white">{mentorStats.total_assignments || 0}</div>
+                          <div className="text-sm text-gray-300">Assignments Created</div>
+                        </div>
+                        <div className="bg-white/10 rounded-xl p-4 text-center">
+                          <div className="text-2xl font-bold text-white">{mentorStats.unread_messages || 0}</div>
+                          <div className="text-sm text-gray-300">Unread Messages</div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-3 pt-4">
+                        <Link to="/mentor-dashboard" className="px-6 py-3 bg-teal-500 text-white font-semibold rounded-lg hover:bg-teal-600 transition-colors">
+                          Go to Mentor Dashboard
+                        </Link>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-400">Loading mentoring statistics...</div>
                   )}
                 </div>
               </div>
