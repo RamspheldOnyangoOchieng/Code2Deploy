@@ -15,6 +15,7 @@ import {
   CameraIcon,
   BookOpenIcon,
   ClipboardDocumentCheckIcon,
+  ClipboardDocumentIcon,
   PlayCircleIcon,
   ClockIcon,
   ArrowUpTrayIcon,
@@ -37,8 +38,19 @@ const LearnerDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
 
   useEffect(() => {
     if (!authService.isAuthenticated()) {
@@ -249,8 +261,17 @@ const LearnerDashboard = () => {
                   </span>
                 </div>
               </div>
-              <div className="text-xs text-gray-400">
-                ID: {user?.unique_id}
+              <div 
+                onClick={() => copyToClipboard(user?.unique_id)}
+                className="text-xs text-gray-400 flex items-center gap-2 cursor-pointer hover:text-[#30d9fe] transition-colors group"
+                title="Click to copy ID"
+              >
+                <span>ID: {user?.unique_id}</span>
+                {copied ? (
+                  <ClipboardDocumentCheckIcon className="w-4 h-4 text-green-400" />
+                ) : (
+                  <ClipboardDocumentIcon className="w-4 h-4 opacity-50 group-hover:opacity-100" />
+                )}
               </div>
             </div>
 
