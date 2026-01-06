@@ -413,3 +413,226 @@ class AdminApplicationManagementView(APIView):
             })
         
         return Response(application_data) 
+
+
+# Import the models and serializers for contact page settings
+from .models import ContactPageSettings, SiteSettings
+from .serializers import ContactPageSettingsSerializer, SiteSettingsSerializer
+from rest_framework.permissions import AllowAny
+
+
+class ContactPageSettingsListView(APIView):
+    """List all contact page settings or create a new one"""
+    
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAdminUser()]
+    
+    def get(self, request):
+        """Public endpoint to get all contact page settings"""
+        settings = ContactPageSettings.objects.filter(is_active=True)
+        serializer = ContactPageSettingsSerializer(settings, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request):
+        """Admin endpoint to create new contact page settings"""
+        serializer = ContactPageSettingsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ContactPageSettingsDetailView(APIView):
+    """Get, update or delete a specific contact page setting"""
+    
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAdminUser()]
+    
+    def get_object(self, pk=None, contact_type=None):
+        try:
+            if pk:
+                return ContactPageSettings.objects.get(pk=pk)
+            elif contact_type:
+                return ContactPageSettings.objects.get(contact_type=contact_type)
+        except ContactPageSettings.DoesNotExist:
+            return None
+    
+    def get(self, request, pk=None, contact_type=None):
+        """Public endpoint to get a specific contact page setting by ID or type"""
+        setting = self.get_object(pk=pk, contact_type=contact_type)
+        if not setting:
+            return Response(
+                {'error': 'Contact page setting not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = ContactPageSettingsSerializer(setting)
+        return Response(serializer.data)
+    
+    def put(self, request, pk=None, contact_type=None):
+        """Admin endpoint to update a contact page setting"""
+        setting = self.get_object(pk=pk, contact_type=contact_type)
+        if not setting:
+            return Response(
+                {'error': 'Contact page setting not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = ContactPageSettingsSerializer(setting, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk=None, contact_type=None):
+        """Admin endpoint to delete a contact page setting"""
+        setting = self.get_object(pk=pk, contact_type=contact_type)
+        if not setting:
+            return Response(
+                {'error': 'Contact page setting not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        setting.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ContactPageSettingsByTypeView(APIView):
+    """Get contact page settings by type (public endpoint)"""
+    permission_classes = [AllowAny]
+    
+    def get(self, request, contact_type):
+        """Get contact settings by type: general, sponsor, or education"""
+        try:
+            setting = ContactPageSettings.objects.get(contact_type=contact_type, is_active=True)
+            serializer = ContactPageSettingsSerializer(setting)
+            return Response(serializer.data)
+        except ContactPageSettings.DoesNotExist:
+            # Return default values if not configured
+            defaults = {
+                'general': {
+                    'contact_type': 'general',
+                    'title': 'Get in Touch',
+                    'subtitle': "We'd love to hear from you",
+                    'description': "Whether you're ready to enroll, curious about our programs, or just want to say hi — drop us a line!",
+                    'default_subject': '',
+                    'default_message': '',
+                    'button_text': 'Send Message',
+                    'is_active': True
+                },
+                'sponsor': {
+                    'contact_type': 'sponsor',
+                    'title': 'Become a Sponsor',
+                    'subtitle': 'Partner with us to empower African youth in tech',
+                    'description': 'Join us in our mission to transform African youth through technology education. Your sponsorship will help provide scholarships, resources, and opportunities for aspiring developers.',
+                    'default_subject': 'Partnership Inquiry - Sponsor',
+                    'default_message': 'I am interested in becoming a sponsor for Code2Deploy programs and events.',
+                    'button_text': 'Submit Sponsorship Inquiry',
+                    'is_active': True
+                },
+                'education': {
+                    'contact_type': 'education',
+                    'title': 'Become an Education & Training Partner',
+                    'subtitle': 'Collaborate with us to expand tech education across Africa',
+                    'description': 'Partner with Code2Deploy to deliver world-class technology education. Together, we can create innovative learning programs, share resources, and empower the next generation of African developers.',
+                    'default_subject': 'Partnership Inquiry - Education & Training Partner',
+                    'default_message': 'I am interested in becoming an education and training partner with Code2Deploy.',
+                    'button_text': 'Submit Partnership Inquiry',
+                    'is_active': True
+                }
+            }
+            return Response(defaults.get(contact_type, defaults['general']))
+
+
+class InitializeContactSettingsView(APIView):
+    """Initialize default contact page settings (admin only)"""
+    permission_classes = [IsAdminUser]
+    
+    def post(self, request):
+        """Create default contact settings if they don't exist"""
+        defaults = [
+            {
+                'contact_type': 'general',
+                'title': 'Get in Touch',
+                'subtitle': "We'd love to hear from you",
+                'description': "Whether you're ready to enroll, curious about our programs, or just want to say hi — drop us a line!",
+                'default_subject': '',
+                'default_message': '',
+                'button_text': 'Send Message'
+            },
+            {
+                'contact_type': 'sponsor',
+                'title': 'Become a Sponsor',
+                'subtitle': 'Partner with us to empower African youth in tech',
+                'description': 'Join us in our mission to transform African youth through technology education. Your sponsorship will help provide scholarships, resources, and opportunities for aspiring developers.',
+                'default_subject': 'Partnership Inquiry - Sponsor',
+                'default_message': 'I am interested in becoming a sponsor for Code2Deploy programs and events.',
+                'button_text': 'Submit Sponsorship Inquiry'
+            },
+            {
+                'contact_type': 'education',
+                'title': 'Become an Education & Training Partner',
+                'subtitle': 'Collaborate with us to expand tech education across Africa',
+                'description': 'Partner with Code2Deploy to deliver world-class technology education. Together, we can create innovative learning programs, share resources, and empower the next generation of African developers.',
+                'default_subject': 'Partnership Inquiry - Education & Training Partner',
+                'default_message': 'I am interested in becoming an education and training partner with Code2Deploy.',
+                'button_text': 'Submit Partnership Inquiry'
+            }
+        ]
+        
+        created = []
+        for default in defaults:
+            obj, was_created = ContactPageSettings.objects.get_or_create(
+                contact_type=default['contact_type'],
+                defaults=default
+            )
+            if was_created:
+                created.append(default['contact_type'])
+        
+        if created:
+            return Response({
+                'message': f'Created settings for: {", ".join(created)}',
+                'created': created
+            }, status=status.HTTP_201_CREATED)
+        return Response({
+            'message': 'All contact settings already exist',
+            'created': []
+        })
+
+
+class SiteSettingsView(APIView):
+    """Get or update site settings"""
+    
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAdminUser()]
+    
+    def get(self, request):
+        """Get site settings"""
+        settings = SiteSettings.objects.first()
+        if not settings:
+            # Return defaults
+            return Response({
+                'site_name': 'Code2Deploy',
+                'tagline': 'Empowering African Youth Through Technology',
+                'contact_email': 'info@code2deploy.com',
+                'contact_phone': '',
+                'address': '123 Tech Hub, Innovation Street, Lagos, Nigeria'
+            })
+        serializer = SiteSettingsSerializer(settings)
+        return Response(serializer.data)
+    
+    def put(self, request):
+        """Update site settings"""
+        settings = SiteSettings.objects.first()
+        if not settings:
+            settings = SiteSettings.objects.create(**request.data)
+            serializer = SiteSettingsSerializer(settings)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer = SiteSettingsSerializer(settings, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 

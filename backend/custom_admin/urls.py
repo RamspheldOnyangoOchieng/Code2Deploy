@@ -3,7 +3,10 @@ from .views import (
     AdminDashboardStatsView, AdminUserManagementView,
     AdminProgramManagementView, AdminEventManagementView,
     AdminCertificateManagementView, AdminBadgeManagementView,
-    AdminMentorManagementView, AdminApplicationManagementView
+    AdminMentorManagementView, AdminApplicationManagementView,
+    ContactPageSettingsListView, ContactPageSettingsDetailView,
+    ContactPageSettingsByTypeView, InitializeContactSettingsView,
+    SiteSettingsView
 )
 
 app_name = 'custom_admin'
@@ -18,4 +21,13 @@ urlpatterns = [
     path('badges/', AdminBadgeManagementView.as_view(), name='badge-management'),
     path('mentors/', AdminMentorManagementView.as_view(), name='mentor-management'),
     path('applications/', AdminApplicationManagementView.as_view(), name='application-management'),
+    
+    # Contact Page Settings
+    path('contact-settings/', ContactPageSettingsListView.as_view(), name='contact-settings-list'),
+    path('contact-settings/initialize/', InitializeContactSettingsView.as_view(), name='contact-settings-init'),
+    path('contact-settings/<int:pk>/', ContactPageSettingsDetailView.as_view(), name='contact-settings-detail'),
+    path('contact-settings/type/<str:contact_type>/', ContactPageSettingsByTypeView.as_view(), name='contact-settings-by-type'),
+    
+    # Site Settings
+    path('site-settings/', SiteSettingsView.as_view(), name='site-settings'),
 ] 

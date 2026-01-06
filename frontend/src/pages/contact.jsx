@@ -5,6 +5,8 @@ import { useSearchParams } from 'react-router-dom';
 import Layout from '../components/layout';
 import { Link } from 'react-router-dom';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 const Contact = () => {
   const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
@@ -29,25 +31,69 @@ const Contact = () => {
     message: false
   });
 
-  // Handle URL parameters for partner buttons
+  const [contactSettings, setContactSettings] = useState(null);
+  const [loadingSettings, setLoadingSettings] = useState(true);
+
+  // Fetch contact settings from API
   useEffect(() => {
-    const type = searchParams.get('type');
-    if (type === 'sponsor') {
-      setFormData(prev => ({
-        ...prev,
-        subject: 'Partnership Inquiry - Sponsor',
-        reason: 'sponsor',
-        message: 'I am interested in becoming a sponsor for Code2Deploy programs and events.'
-      }));
-    } else if (type === 'education' || type === 'education-partner') {
-      setFormData(prev => ({
-        ...prev,
-        subject: 'Partnership Inquiry - Education & Training Partner',
-        reason: 'education',
-        message: 'I am interested in becoming an education and training partner with Code2Deploy.'
-      }));
-    }
+    const fetchContactSettings = async () => {
+      try {
+        const type = searchParams.get('type');
+        let contactType = 'general';
+        
+        if (type === 'sponsor') {
+          contactType = 'sponsor';
+        } else if (type === 'education' || type === 'education-partner') {
+          contactType = 'education';
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/admin/contact-settings/type/${contactType}/`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          setContactSettings(data);
+          
+          // Pre-fill form with default values from settings
+          if (data.default_subject || data.default_message) {
+            setFormData(prev => ({
+              ...prev,
+              subject: data.default_subject || prev.subject,
+              message: data.default_message || prev.message,
+              reason: contactType
+            }));
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching contact settings:', error);
+      } finally {
+        setLoadingSettings(false);
+      }
+    };
+
+    fetchContactSettings();
   }, [searchParams]);
+
+  // Legacy fallback - Remove this after settings are migrated
+  useEffect(() => {
+    if (!loadingSettings && !contactSettings) {
+      const type = searchParams.get('type');
+      if (type === 'sponsor') {
+        setFormData(prev => ({
+          ...prev,
+          subject: 'Partnership Inquiry - Sponsor',
+          reason: 'sponsor',
+          message: 'I am interested in becoming a sponsor for Code2Deploy programs and events.'
+        }));
+      } else if (type === 'education' || type === 'education-partner') {
+        setFormData(prev => ({
+          ...prev,
+          subject: 'Partnership Inquiry - Education & Training Partner',
+          reason: 'education',
+          message: 'I am interested in becoming an education and training partner with Code2Deploy.'
+        }));
+      }
+    }
+  }, [searchParams, loadingSettings, contactSettings]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -108,24 +154,38 @@ const Contact = () => {
   };
 
   const getContactTypeInfo = () => {
+    // Use settings from API if available
+    if (contactSettings) {
+      return {
+        title: contactSettings.title,
+        subtitle: contactSettings.subtitle,
+        description: contactSettings.description,
+        buttonText: contactSettings.button_text || 'Send Message'
+      };
+    }
+
+    // Fallback to hardcoded values if API settings not available
     const type = searchParams.get('type');
     if (type === 'sponsor') {
       return {
         title: 'Become a Sponsor',
         subtitle: 'Partner with us to empower African youth in tech',
-        description: 'Join us in our mission to transform African youth through technology education. Your sponsorship will help provide scholarships, resources, and opportunities for aspiring developers.'
+        description: 'Join us in our mission to transform African youth through technology education. Your sponsorship will help provide scholarships, resources, and opportunities for aspiring developers.',
+        buttonText: 'Submit Sponsorship Inquiry'
       };
     } else if (type === 'education' || type === 'education-partner') {
       return {
         title: 'Become an Education & Training Partner',
         subtitle: 'Collaborate with us to expand tech education across Africa',
-        description: 'Partner with Code2Deploy to deliver world-class technology education. Together, we can create innovative learning programs, share resources, and empower the next generation of African developers.'
+        description: 'Partner with Code2Deploy to deliver world-class technology education. Together, we can create innovative learning programs, share resources, and empower the next generation of African developers.',
+        buttonText: 'Submit Partnership Inquiry'
       };
     }
     return {
       title: 'Get in Touch',
       subtitle: 'We\'d love to hear from you',
-      description: 'Whether you\'re ready to enroll, curious about our programs, or just want to say hi — drop us a line!'
+      description: 'Whether you\'re ready to enroll, curious about our programs, or just want to say hi — drop us a line!',
+      buttonText: 'Send Message'
     };
   };
 
@@ -271,7 +331,7 @@ const Contact = () => {
                     className="w-full bg-gradient-to-r from-[#30d9fe] to-[#00b8d4] text-[#03325a] font-bold py-4 px-8 rounded-lg hover:from-[#00b8d4] hover:to-[#30d9fe] transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] focus:ring-offset-2 focus:ring-offset-[#03325a] shadow-lg"
                   >
                     <i className="fas fa-paper-plane mr-2"></i>
-                    Send Message
+                    {contactInfo.buttonText}
                   </button>
                 </form>
               )}
