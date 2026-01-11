@@ -256,11 +256,11 @@ const MentorDashboard = () => {
             <div className="space-y-3">
               {dashboardStats.recent_sessions.map((session) => (
                 <div key={session.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-800">{session.title}</p>
-                    <p className="text-sm text-gray-500">{new Date(session.scheduled_at).toLocaleString()}</p>
+                  <div className="min-w-0 flex-1 mr-3">
+                    <p className="font-medium text-gray-800 truncate">{session.title}</p>
+                    <p className="text-sm text-gray-500 truncate">{new Date(session.scheduled_at).toLocaleString()}</p>
                   </div>
-                  <span className={`px-2 py-1 text-xs rounded-full ${session.status === 'scheduled' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                  <span className={`flex-shrink-0 px-2 py-1 text-xs rounded-full whitespace-nowrap ${session.status === 'scheduled' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
                     }`}>
                     {session.status}
                   </span>
@@ -279,11 +279,11 @@ const MentorDashboard = () => {
             <div className="space-y-3">
               {dashboardStats.recent_submissions.map((submission) => (
                 <div key={submission.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-800">{submission.assignment_title}</p>
-                    <p className="text-sm text-gray-500">By: {submission.student_details?.username}</p>
+                  <div className="min-w-0 flex-1 mr-3">
+                    <p className="font-medium text-gray-800 truncate">{submission.assignment_title}</p>
+                    <p className="text-sm text-gray-500 truncate">By: {submission.student_details?.username}</p>
                   </div>
-                  <button className="px-3 py-1 bg-[#30d9fe] text-[#03325a] text-sm rounded-lg hover:bg-opacity-80">
+                  <button className="flex-shrink-0 px-3 py-1 bg-[#30d9fe] text-[#03325a] text-sm rounded-lg hover:bg-opacity-80">
                     Review
                   </button>
                 </div>
@@ -307,15 +307,15 @@ const MentorDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {mentees.map((mentee) => (
           <div key={mentee.id} className="bg-white rounded-xl shadow-lg p-6">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-[#03325a] rounded-full flex items-center justify-center text-white font-bold">
+            <div className="flex items-center space-x-4 mb-3">
+              <div className="flex-shrink-0 w-12 h-12 bg-[#03325a] rounded-full flex items-center justify-center text-white font-bold">
                 {mentee.mentee_details?.first_name?.[0] || mentee.mentee_details?.username?.[0] || '?'}
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-800">
+              <div className="min-w-0 flex-1">
+                <h3 className="font-semibold text-gray-800 truncate">
                   {mentee.mentee_details?.first_name} {mentee.mentee_details?.last_name}
                 </h3>
-                <p className="text-sm text-gray-500">{mentee.mentee_details?.email}</p>
+                <p className="text-sm text-gray-500 truncate">{mentee.mentee_details?.email}</p>
               </div>
             </div>
             {mentee.program_title && (
@@ -366,53 +366,68 @@ const MentorDashboard = () => {
       </div>
 
       {/* Sessions List */}
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Session</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date & Time</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Attendees</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {sessions.map((session) => (
-              <tr key={session.id}>
-                <td className="px-6 py-4">
-                  <p className="font-medium text-gray-800">{session.title}</p>
-                  <p className="text-sm text-gray-500">{session.program_title}</p>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600">{session.session_type}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {new Date(session.scheduled_at).toLocaleString()}
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600">
-                  {session.attendee_count || 0}/{session.max_attendees}
-                </td>
-                <td className="px-6 py-4">
-                  <StatusBadge status={session.status} />
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex space-x-2">
-                    <button className="p-1 text-blue-600 hover:bg-blue-50 rounded">
-                      <EyeIcon className="w-5 h-5" />
-                    </button>
-                    <button className="p-1 text-green-600 hover:bg-green-50 rounded">
-                      <PencilIcon className="w-5 h-5" />
-                    </button>
-                  </div>
-                </td>
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[800px]">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Session</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date & Time</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Attendees</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {sessions.map((session) => (
+                <tr key={session.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4">
+                    <p className="font-medium text-gray-900">{session.title}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{session.program_title}</p>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-700">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {session.session_type}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-700">
+                    <div className="flex flex-col">
+                      <span className="font-medium">{new Date(session.scheduled_at).toLocaleDateString()}</span>
+                      <span className="text-xs text-gray-500">{new Date(session.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-700">
+                    <div className="flex items-center">
+                      <UsersIcon className="w-4 h-4 text-gray-400 mr-2" />
+                      {session.attendee_count || 0}/{session.max_attendees}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <StatusBadge status={session.status} />
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex space-x-3">
+                      <button className="text-blue-600 hover:text-blue-900 transition-colors" title="View Details">
+                        <EyeIcon className="w-5 h-5" />
+                      </button>
+                      <button className="text-green-600 hover:text-green-900 transition-colors" title="Edit Session">
+                        <PencilIcon className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         {sessions.length === 0 && (
           <div className="text-center py-12">
-            <CalendarDaysIcon className="w-16 h-16 mx-auto text-gray-400" />
-            <p className="mt-4 text-gray-500">No sessions yet</p>
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CalendarDaysIcon className="w-8 h-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900">No sessions yet</h3>
+            <p className="mt-1 text-gray-500">Get started by scheduling your first session.</p>
           </div>
         )}
       </div>
@@ -425,19 +440,31 @@ const MentorDashboard = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {programs.map((program) => (
-          <div key={program.id} className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="h-32 bg-gradient-to-r from-[#03325a] to-[#0a5a8a] flex items-center justify-center">
-              <AcademicCapIcon className="w-16 h-16 text-white opacity-50" />
+          <div key={program.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow border border-gray-100">
+            <div className="h-32 bg-gradient-to-r from-[#03325a] to-[#0a5a8a] flex items-center justify-center relative">
+              <div className="absolute inset-0 bg-black/10"></div>
+              <AcademicCapIcon className="w-16 h-16 text-white/90 relative z-10" />
+              {program.is_active && (
+                <span className="absolute top-3 right-3 px-2 py-1 bg-green-500 text-white text-xs font-bold rounded-full shadow-sm">
+                  ACTIVE
+                </span>
+              )}
             </div>
             <div className="p-6">
-              <h3 className="font-semibold text-gray-800">{program.program_title}</h3>
-              <p className="text-sm text-gray-500 mt-1">Role: {program.role}</p>
-              <div className="mt-4 flex justify-between items-center">
-                <span className={`px-2 py-1 text-xs rounded-full ${program.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+              <h3 className="font-bold text-lg text-gray-900 mb-1">{program.program_title}</h3>
+              <p className="text-sm text-gray-500 font-medium mb-4 flex items-center">
+                <span className="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
+                {program.role}
+              </p>
+
+              <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
+                <span className={`text-xs px-2 py-1 rounded-md font-medium ${program.is_active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'
                   }`}>
-                  {program.is_active ? 'Active' : 'Inactive'}
+                  {program.is_active ? 'Currently Teaching' : 'Past Program'}
                 </span>
-                <button className="text-[#30d9fe] text-sm hover:underline">View Details</button>
+                <button className="text-[#30d9fe] text-sm font-semibold hover:text-[#03325a] transition-colors flex items-center">
+                  View Details <span className="ml-1">→</span>
+                </button>
               </div>
             </div>
           </div>
@@ -445,56 +472,83 @@ const MentorDashboard = () => {
       </div>
 
       {programs.length === 0 && (
-        <div className="text-center py-12 bg-white rounded-xl shadow">
-          <AcademicCapIcon className="w-16 h-16 mx-auto text-gray-400" />
-          <p className="mt-4 text-gray-500">No programs assigned yet</p>
+        <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-100">
+          <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AcademicCapIcon className="w-8 h-8 text-blue-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900">No programs assigned</h3>
+          <p className="mt-1 text-gray-500">You haven't been assigned to any programs yet.</p>
         </div>
       )}
     </div>
   );
 
   const renderAssignments = () => (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Pending Reviews Section */}
       <div>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-800">Pending Reviews ({pendingReviews.length})</h2>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800">Pending Reviews</h2>
+            <p className="text-gray-500 text-sm mt-1">Submissions waiting for your feedback</p>
+          </div>
+          <span className="px-4 py-1.5 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold border border-yellow-200">
+            {pendingReviews.length} Pending
+          </span>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-yellow-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Student</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Assignment</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Submitted</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {pendingReviews.map((submission) => (
-                <tr key={submission.id}>
-                  <td className="px-6 py-4">
-                    <p className="font-medium text-gray-800">{submission.student_details?.username}</p>
-                    <p className="text-sm text-gray-500">{submission.student_details?.email}</p>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{submission.assignment_title}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {new Date(submission.submitted_at).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4">
-                    <button className="px-4 py-2 bg-[#30d9fe] text-[#03325a] text-sm rounded-lg hover:bg-opacity-80">
-                      Review
-                    </button>
-                  </td>
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[700px]">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Student</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Assignment</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Submitted</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {pendingReviews.map((submission) => (
+                  <tr key={submission.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center">
+                        <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold mr-3 text-xs">
+                          {submission.student_details?.username?.[0] || 'S'}
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900 text-sm">{submission.student_details?.username}</p>
+                          <p className="text-xs text-gray-500">{submission.student_details?.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm font-medium text-gray-900">{submission.assignment_title}</p>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      <div className="flex items-center text-xs bg-gray-100 px-2 py-1 rounded w-fit">
+                        <ClockIcon className="w-3 h-3 mr-1 text-gray-500" />
+                        {new Date(submission.submitted_at).toLocaleDateString()}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <button className="inline-flex items-center px-4 py-2 bg-[#30d9fe] text-[#03325a] text-sm font-semibold rounded-lg hover:bg-[#2bc4e6] transition-colors shadow-sm cursor-pointer whitespace-nowrap">
+                        <PencilIcon className="w-4 h-4 mr-2" />
+                        Grade Now
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           {pendingReviews.length === 0 && (
-            <div className="text-center py-8">
-              <CheckCircleIcon className="w-12 h-12 mx-auto text-green-400" />
-              <p className="mt-2 text-gray-500">All caught up! No pending reviews.</p>
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircleIcon className="w-8 h-8 text-green-500" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900">All caught up!</h3>
+              <p className="mt-1 text-gray-500">You have no pending reviews at the moment.</p>
             </div>
           )}
         </div>
@@ -550,17 +604,17 @@ const MentorDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {resources.map((resource) => (
           <div key={resource.id} className="bg-white rounded-xl shadow-lg p-6">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center space-x-3 min-w-0 flex-1">
+                <div className="flex-shrink-0 p-2 bg-blue-100 rounded-lg">
                   <FolderIcon className="w-6 h-6 text-blue-600" />
                 </div>
-                <div>
-                  <h3 className="font-semibold text-gray-800">{resource.title}</h3>
-                  <p className="text-sm text-gray-500">{resource.resource_type}</p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-gray-800 truncate">{resource.title}</h3>
+                  <p className="text-sm text-gray-500 truncate">{resource.resource_type}</p>
                 </div>
               </div>
-              <span className={`px-2 py-1 text-xs rounded-full ${resource.is_public ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+              <span className={`flex-shrink-0 px-2 py-1 text-xs rounded-full ${resource.is_public ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                 }`}>
                 {resource.is_public ? 'Public' : 'Private'}
               </span>
@@ -606,18 +660,23 @@ const MentorDashboard = () => {
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="divide-y divide-gray-200">
           {messages.map((message) => (
-            <div key={message.id} className={`p-4 hover:bg-gray-50 cursor-pointer ${!message.is_read ? 'bg-blue-50' : ''}`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-[#03325a] rounded-full flex items-center justify-center text-white font-bold">
+            <div key={message.id} className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${!message.is_read ? 'bg-blue-50' : ''}`}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center space-x-3 min-w-0 flex-1">
+                  <div className="flex-shrink-0 w-10 h-10 bg-[#03325a] rounded-full flex items-center justify-center text-white font-bold">
                     {message.sender_details?.username?.[0] || '?'}
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-800">{message.sender_details?.username}</p>
-                    <p className="text-sm text-gray-600">{message.subject || 'No subject'}</p>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between sm:justify-start sm:gap-2">
+                      <p className="font-medium text-gray-800 truncate">{message.sender_details?.username}</p>
+                      <span className="text-xs text-gray-500 sm:hidden whitespace-nowrap">
+                        {new Date(message.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 truncate">{message.subject || 'No subject'}</p>
                   </div>
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-gray-500 hidden sm:block whitespace-nowrap">
                   {new Date(message.created_at).toLocaleDateString()}
                 </div>
               </div>
@@ -654,8 +713,8 @@ const MentorDashboard = () => {
           {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, index) => {
             const daySlots = availability.filter(slot => slot.day_of_week === index);
             return (
-              <div key={day} className="flex items-center border-b pb-3">
-                <span className="w-32 font-medium text-gray-700">{day}</span>
+              <div key={day} className="flex flex-col sm:flex-row sm:items-center border-b pb-3 pt-3 sm:pt-0">
+                <span className="w-32 font-medium text-gray-700 mb-2 sm:mb-0">{day}</span>
                 <div className="flex-1 flex flex-wrap gap-2">
                   {daySlots.length > 0 ? (
                     daySlots.map((slot) => (
@@ -665,7 +724,7 @@ const MentorDashboard = () => {
                       </span>
                     ))
                   ) : (
-                    <span className="text-gray-400 text-sm">Not set</span>
+                    <span className="text-gray-400 text-sm italic">Not set</span>
                   )}
                 </div>
               </div>
