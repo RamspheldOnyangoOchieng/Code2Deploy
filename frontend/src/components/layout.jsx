@@ -98,53 +98,93 @@ const Layout = ({ children }) => {
   return (
     <div className="min-h-screen min-h-[100dvh] font-sans text-gray-800 bg-white flex flex-col overflow-x-hidden">
       {/* Navigation */}
-      <nav className="bg-gradient-to-b from-[#0A0F2C] to-[#0A0F2C] sticky top-0 z-50 text-white w-full safe-area-inset" aria-label="Main Navigation">
-        <div className="w-full px-3 xs:px-4 sm:px-6 lg:px-8 py-2 xs:py-3 sm:py-4 max-w-[100vw]">
-          <div className="flex items-center justify-between w-full gap-2">
-            {/* Logo - Far Left */}
-            <div className="flex items-center flex-shrink-0">
+      <nav className="bg-gradient-to-b from-[#0A0F2C] to-[#0A0F2C] sticky top-0 z-50 text-white w-full" aria-label="Main Navigation">
+        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <div className="flex items-center justify-between w-full">
+            {/* Logo */}
+            <div className="flex-shrink-0">
               <Link to="/" className="flex items-center" aria-label="Home">
-                <img src={logo} alt="Code2Deploy Logo" className="h-8 xs:h-9 sm:h-10 md:h-12 w-auto max-w-[100px] xs:max-w-[120px] sm:max-w-none" />
+                <img
+                  src={logo}
+                  alt="Code2Deploy Logo"
+                  className="h-8 sm:h-10 lg:h-12 w-auto"
+                />
               </Link>
             </div>
 
-            {/* Navigation Links - Centered with better spacing */}
-            <div className="hidden lg:flex items-center justify-center flex-1 space-x-8 xl:space-x-12 mx-8">
-              <Link to="/" className={`text-base font-medium hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-colors duration-300 ${activeTab === 'home' ? 'text-[#30d9fe]' : 'text-white'} cursor-pointer whitespace-nowrap`}>Home</Link>
-              <Link to="/programs" className={`text-base font-medium hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-colors duration-300 ${activeTab === 'programs' ? 'text-[#30d9fe]' : 'text-white'} cursor-pointer whitespace-nowrap`}>Programs</Link>
-              <Link to="/events" className={`text-base font-medium hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-colors duration-300 ${activeTab === 'events' ? 'text-[#30d9fe]' : 'text-white'} cursor-pointer whitespace-nowrap`}>Events</Link>
-              <Link to="/about" className={`text-base font-medium hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-colors duration-300 ${activeTab === 'about' ? 'text-[#30d9fe]' : 'text-white'} cursor-pointer whitespace-nowrap`}>About Us</Link>
-              <Link to="/contact" className={`text-base font-medium hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-colors duration-300 ${activeTab === 'contact' ? 'text-[#30d9fe]' : 'text-white'} cursor-pointer whitespace-nowrap`}>Contact</Link>
+            {/* Desktop Navigation Links - Hidden below xl (1280px) */}
+            <div className="hidden xl:flex items-center justify-center flex-1 px-8">
+              <div className="flex items-center space-x-6 2xl:space-x-10">
+                <Link
+                  to="/"
+                  className={`text-sm 2xl:text-base font-medium hover:text-[#30d9fe] transition-colors duration-300 whitespace-nowrap ${activeTab === 'home' ? 'text-[#30d9fe]' : 'text-white'}`}
+                >
+                  Home
+                </Link>
+                <Link
+                  to="/programs"
+                  className={`text-sm 2xl:text-base font-medium hover:text-[#30d9fe] transition-colors duration-300 whitespace-nowrap ${activeTab === 'programs' ? 'text-[#30d9fe]' : 'text-white'}`}
+                >
+                  Programs
+                </Link>
+                <Link
+                  to="/events"
+                  className={`text-sm 2xl:text-base font-medium hover:text-[#30d9fe] transition-colors duration-300 whitespace-nowrap ${activeTab === 'events' ? 'text-[#30d9fe]' : 'text-white'}`}
+                >
+                  Events
+                </Link>
+                <Link
+                  to="/about"
+                  className={`text-sm 2xl:text-base font-medium hover:text-[#30d9fe] transition-colors duration-300 whitespace-nowrap ${activeTab === 'about' ? 'text-[#30d9fe]' : 'text-white'}`}
+                >
+                  About Us
+                </Link>
+                <Link
+                  to="/contact"
+                  className={`text-sm 2xl:text-base font-medium hover:text-[#30d9fe] transition-colors duration-300 whitespace-nowrap ${activeTab === 'contact' ? 'text-[#30d9fe]' : 'text-white'}`}
+                >
+                  Contact
+                </Link>
+              </div>
             </div>
 
-            {/* Right Side - Partner Buttons & User Profile - Far Right */}
-            <div className="items-center hidden lg:flex space-x-2 xl:space-x-3 flex-shrink-0">
-              <button
-                type="button"
-                onClick={handlePartnerSponsor}
-                className="px-3 xl:px-4 py-2 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer whitespace-nowrap text-xs xl:text-sm"
-              >
-                Partner as Sponsor
-              </button>
-              <button
-                type="button"
-                onClick={handleEducationPartner}
-                className="px-3 xl:px-4 py-2 border-2 border-[#30d9fe] text-white font-medium rounded-lg hover:bg-[#30d9fe] hover:text-[#03325a] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer whitespace-nowrap text-xs xl:text-sm"
-              >
-                Education & Training Partner
-              </button>
+            {/* Right Side Actions */}
+            <div className="hidden xl:flex items-center space-x-3 flex-shrink-0">
+              {/* Partner Buttons - Hidden on smaller xl screens */}
+              <div className="hidden 2xl:flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={handlePartnerSponsor}
+                  className="px-4 py-2 bg-[#30d9fe] text-[#03325a] text-sm font-medium rounded-lg hover:bg-[#eec262] transition-all duration-300 whitespace-nowrap"
+                >
+                  Partner as Sponsor
+                </button>
+                <button
+                  type="button"
+                  onClick={handleEducationPartner}
+                  className="px-4 py-2 border-2 border-[#30d9fe] text-white text-sm font-medium rounded-lg hover:bg-[#30d9fe] hover:text-[#03325a] transition-all duration-300 whitespace-nowrap"
+                >
+                  Education Partner
+                </button>
+              </div>
 
-              {/* User Profile Dropdown */}
+              {/* User Profile / Auth Buttons */}
               {user ? (
                 <div className="relative user-dropdown">
                   <button
                     onClick={toggleUserDropdown}
-                    className="flex items-center space-x-2 px-4 py-2 border-2 border-[#30d9fe] text-white font-medium rounded-lg hover:bg-[#30d9fe] hover:text-[#03325a] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer whitespace-nowrap text-sm"
+                    className="flex items-center space-x-2 px-3 py-2 border-2 border-[#30d9fe] text-white font-medium rounded-lg hover:bg-[#30d9fe] hover:text-[#03325a] transition-all duration-300"
                   >
-                    <span className="text-sm">Welcome, {user.first_name || user.username}!</span>
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#30d9fe] to-[#eec262] flex items-center justify-center text-[#03325a] font-bold text-xs">
-                      {getInitials(user)}
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#30d9fe] to-[#eec262] flex items-center justify-center text-[#03325a] font-bold text-xs overflow-hidden">
+                      {user.avatar ? (
+                        <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        getInitials(user)
+                      )}
                     </div>
+                    <span className="text-sm hidden 2xl:inline max-w-[120px] truncate">
+                      {user.first_name || user.username}
+                    </span>
                     <i className={`fas fa-chevron-down text-xs transition-transform duration-300 ${isUserDropdownOpen ? 'rotate-180' : ''}`}></i>
                   </button>
 
@@ -153,7 +193,7 @@ const Layout = ({ children }) => {
                     <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-200">
                       <div className="px-4 py-3 border-b border-gray-200">
                         <p className="text-sm font-semibold text-gray-800">{user.first_name} {user.last_name}</p>
-                        <p className="text-xs text-gray-500">{user.email}</p>
+                        <p className="text-xs text-gray-500 truncate">{user.email}</p>
                         {user.role && (
                           <span className="inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full bg-[#30d9fe] text-[#03325a]">
                             {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
@@ -213,16 +253,16 @@ const Layout = ({ children }) => {
                   )}
                 </div>
               ) : (
-                <div className="flex items-center space-x-2 ml-2">
+                <div className="flex items-center space-x-2">
                   <button
                     onClick={() => setIsLoginModalOpen(true)}
-                    className="px-4 py-2 text-white font-medium rounded-lg hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer whitespace-nowrap"
+                    className="px-4 py-2 text-white text-sm font-medium rounded-lg hover:text-[#30d9fe] transition-all duration-300"
                   >
                     Login
                   </button>
                   <button
                     onClick={() => setIsSignupModalOpen(true)}
-                    className="px-4 py-2 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer whitespace-nowrap"
+                    className="px-4 py-2 bg-[#30d9fe] text-[#03325a] text-sm font-medium rounded-lg hover:bg-[#eec262] transition-all duration-300"
                   >
                     Sign Up
                   </button>
@@ -230,105 +270,159 @@ const Layout = ({ children }) => {
               )}
             </div>
 
-            {/* Hamburger (mobile) */}
-            <div className="lg:hidden flex-shrink-0">
-              <button onClick={toggleMenu} className="text-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#30d9fe] p-2 min-w-[44px] min-h-[44px] flex items-center justify-center">
-                <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars'} text-xl xs:text-2xl`}></i>
+            {/* Hamburger Menu (Mobile/Tablet) - Shown below xl */}
+            <div className="xl:hidden flex-shrink-0">
+              <button
+                onClick={toggleMenu}
+                className="text-white p-2 rounded-lg hover:bg-white/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                aria-label="Toggle menu"
+              >
+                <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars'} text-xl`}></i>
               </button>
             </div>
           </div>
-          {/* Mobile Menu */}
-          {isMenuOpen && (
-            <div className="pb-4 mt-3 xs:mt-4 lg:hidden max-h-[calc(100vh-80px)] overflow-y-auto">
-              <div className="flex flex-col space-y-3 xs:space-y-4">
-                <Link to="/" onClick={() => { setActiveTab('home'); setIsMenuOpen(false); }} className={`hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-colors duration-300 ${activeTab === 'home' ? 'text-[#30d9fe]' : ''} cursor-pointer`}>Home</Link>
-                <Link to="/programs" onClick={() => { setActiveTab('programs'); setIsMenuOpen(false); }} className={`hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-colors duration-300 ${activeTab === 'programs' ? 'text-[#30d9fe]' : ''} cursor-pointer`}>Programs</Link>
-                <Link to="/events" onClick={() => { setActiveTab('events'); setIsMenuOpen(false); }} className={`hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-colors duration-300 ${activeTab === 'events' ? 'text-[#30d9fe]' : ''} cursor-pointer`}>Events</Link>
-                <Link to="/about" onClick={() => { setActiveTab('about'); setIsMenuOpen(false); }} className={`hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-colors duration-300 ${activeTab === 'about' ? 'text-[#30d9fe]' : ''} cursor-pointer`}>About Us</Link>
-                <Link to="/contact" onClick={() => { setActiveTab('contact'); setIsMenuOpen(false); }} className={`hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-colors duration-300 ${activeTab === 'contact' ? 'text-[#30d9fe]' : ''} cursor-pointer`}>Contact</Link>
-                {/* Mobile Auth Buttons */}
-                <div className="flex flex-col pt-2 space-y-2">
-                  {user ? (
-                    <>
-                      <span className="text-sm text-gray-300">Welcome, {user.first_name || user.username}!</span>
-                      {/* Dashboard Link - Role Based */}
-                      {user.role === 'admin' ? (
-                        <Link
-                          to="/admin"
-                          onClick={() => setIsMenuOpen(false)}
-                          className="px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer"
-                        >
-                          Admin Dashboard
-                        </Link>
-                      ) : user.role === 'mentor' ? (
-                        <Link
-                          to="/mentor-dashboard"
-                          onClick={() => setIsMenuOpen(false)}
-                          className="px-4 py-2 bg-teal-600 text-white font-medium rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer"
-                        >
-                          Mentor Dashboard
-                        </Link>
+
+          {/* Mobile/Tablet Menu */}
+          <div className={`xl:hidden overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-[500px] opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
+            <div className="flex flex-col space-y-1 pb-4">
+              {/* Navigation Links */}
+              <Link
+                to="/"
+                onClick={() => { setActiveTab('home'); setIsMenuOpen(false); }}
+                className={`block px-4 py-3 rounded-lg transition-colors ${activeTab === 'home' ? 'bg-[#30d9fe] text-[#03325a]' : 'text-white hover:bg-white/10'}`}
+              >
+                <i className="fas fa-home mr-3 w-5"></i>Home
+              </Link>
+              <Link
+                to="/programs"
+                onClick={() => { setActiveTab('programs'); setIsMenuOpen(false); }}
+                className={`block px-4 py-3 rounded-lg transition-colors ${activeTab === 'programs' ? 'bg-[#30d9fe] text-[#03325a]' : 'text-white hover:bg-white/10'}`}
+              >
+                <i className="fas fa-code mr-3 w-5"></i>Programs
+              </Link>
+              <Link
+                to="/events"
+                onClick={() => { setActiveTab('events'); setIsMenuOpen(false); }}
+                className={`block px-4 py-3 rounded-lg transition-colors ${activeTab === 'events' ? 'bg-[#30d9fe] text-[#03325a]' : 'text-white hover:bg-white/10'}`}
+              >
+                <i className="fas fa-calendar mr-3 w-5"></i>Events
+              </Link>
+              <Link
+                to="/about"
+                onClick={() => { setActiveTab('about'); setIsMenuOpen(false); }}
+                className={`block px-4 py-3 rounded-lg transition-colors ${activeTab === 'about' ? 'bg-[#30d9fe] text-[#03325a]' : 'text-white hover:bg-white/10'}`}
+              >
+                <i className="fas fa-info-circle mr-3 w-5"></i>About Us
+              </Link>
+              <Link
+                to="/contact"
+                onClick={() => { setActiveTab('contact'); setIsMenuOpen(false); }}
+                className={`block px-4 py-3 rounded-lg transition-colors ${activeTab === 'contact' ? 'bg-[#30d9fe] text-[#03325a]' : 'text-white hover:bg-white/10'}`}
+              >
+                <i className="fas fa-envelope mr-3 w-5"></i>Contact
+              </Link>
+
+              {/* Divider */}
+              <div className="border-t border-white/20 my-2"></div>
+
+              {/* Partner Buttons in Mobile */}
+              <button
+                type="button"
+                onClick={() => { handlePartnerSponsor(); setIsMenuOpen(false); }}
+                className="block px-4 py-3 text-left text-white hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <i className="fas fa-handshake mr-3 w-5"></i>Partner as Sponsor
+              </button>
+              <button
+                type="button"
+                onClick={() => { handleEducationPartner(); setIsMenuOpen(false); }}
+                className="block px-4 py-3 text-left text-white hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <i className="fas fa-university mr-3 w-5"></i>Education Partner
+              </button>
+
+              {/* Divider */}
+              <div className="border-t border-white/20 my-2"></div>
+
+              {/* Auth / User Section */}
+              {user ? (
+                <>
+                  <div className="px-4 py-3 flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#30d9fe] to-[#eec262] flex items-center justify-center text-[#03325a] font-bold text-sm overflow-hidden">
+                      {user.avatar ? (
+                        <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
                       ) : (
-                        <Link
-                          to="/learner-dashboard"
-                          onClick={() => setIsMenuOpen(false)}
-                          className="px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer"
-                        >
-                          My Dashboard
-                        </Link>
+                        getInitials(user)
                       )}
-                      <Link
-                        to="/profile"
-                        onClick={() => setIsMenuOpen(false)}
-                        className="px-4 py-2 text-white font-medium rounded-lg hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer"
-                      >
-                        Profile
-                      </Link>
-                      <button
-                        onClick={handleLogoutClick}
-                        className="px-4 py-2 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer"
-                      >
-                        Logout
-                      </button>
-                    </>
+                    </div>
+                    <div>
+                      <p className="text-white font-medium">{user.first_name || user.username}</p>
+                      <p className="text-gray-400 text-xs">{user.email}</p>
+                    </div>
+                  </div>
+
+                  {user.role === 'admin' ? (
+                    <Link
+                      to="/admin"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block px-4 py-3 text-purple-400 hover:bg-white/10 rounded-lg transition-colors"
+                    >
+                      <i className="fas fa-crown mr-3 w-5"></i>Admin Dashboard
+                    </Link>
+                  ) : user.role === 'mentor' ? (
+                    <Link
+                      to="/mentor-dashboard"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block px-4 py-3 text-teal-400 hover:bg-white/10 rounded-lg transition-colors"
+                    >
+                      <i className="fas fa-chalkboard-teacher mr-3 w-5"></i>Mentor Dashboard
+                    </Link>
                   ) : (
-                    <>
-                      <button
-                        onClick={() => { setIsLoginModalOpen(true); setIsMenuOpen(false); }}
-                        className="px-4 py-2 text-white font-medium rounded-lg hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer"
-                      >
-                        Login
-                      </button>
-                      <button
-                        onClick={() => { setIsSignupModalOpen(true); setIsMenuOpen(false); }}
-                        className="px-4 py-2 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer"
-                      >
-                        Sign Up
-                      </button>
-                    </>
+                    <Link
+                      to="/learner-dashboard"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block px-4 py-3 text-green-400 hover:bg-white/10 rounded-lg transition-colors"
+                    >
+                      <i className="fas fa-graduation-cap mr-3 w-5"></i>My Dashboard
+                    </Link>
                   )}
-                </div>
-                <div className="flex flex-col pt-2 space-y-2">
-                  <button
-                    type="button"
-                    onClick={() => { handlePartnerSponsor(); setIsMenuOpen(false); }}
-                    className="px-4 py-2 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap text-sm"
+
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block px-4 py-3 text-white hover:bg-white/10 rounded-lg transition-colors"
                   >
-                    Partner as Sponsor
+                    <i className="fas fa-user mr-3 w-5"></i>Profile
+                  </Link>
+
+                  <button
+                    onClick={handleLogoutClick}
+                    className="block w-full text-left px-4 py-3 text-red-400 hover:bg-white/10 rounded-lg transition-colors"
+                  >
+                    <i className="fas fa-sign-out-alt mr-3 w-5"></i>Logout
+                  </button>
+                </>
+              ) : (
+                <div className="flex flex-col space-y-2 px-4 py-2">
+                  <button
+                    onClick={() => { setIsLoginModalOpen(true); setIsMenuOpen(false); }}
+                    className="w-full py-3 text-white font-medium rounded-lg border-2 border-white/30 hover:bg-white/10 transition-colors"
+                  >
+                    Login
                   </button>
                   <button
-                    type="button"
-                    onClick={() => { handleEducationPartner(); setIsMenuOpen(false); }}
-                    className="px-4 py-2 border-2 border-[#30d9fe] text-white font-medium rounded-lg hover:bg-[#30d9fe] hover:text-[#03325a] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap text-sm"
+                    onClick={() => { setIsSignupModalOpen(true); setIsMenuOpen(false); }}
+                    className="w-full py-3 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-[#eec262] transition-colors"
                   >
-                    Education & Training Partner
+                    Sign Up
                   </button>
                 </div>
-              </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </nav>
+
       <main className="flex-1 w-full max-w-[100vw] overflow-x-hidden">{children}</main>
       {/* Footer */}
       <footer className="bg-[#03325a] text-white py-8 xs:py-10 sm:py-12 mt-auto w-full safe-area-inset">
@@ -433,7 +527,7 @@ const Layout = ({ children }) => {
         onClose={() => setIsLogoutModalOpen(false)}
         onConfirm={handleLogoutConfirm}
       />
-    </div>
+    </div >
   );
 };
 
