@@ -16,13 +16,13 @@ const Contact = () => {
     reason: '',
     message: ''
   });
-  
+
   const [formErrors, setFormErrors] = useState({
     name: false,
     email: false,
     message: false
   });
-  
+
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formFocused, setFormFocused] = useState({
     name: false,
@@ -40,7 +40,7 @@ const Contact = () => {
       try {
         const type = searchParams.get('type');
         let contactType = 'general';
-        
+
         if (type === 'sponsor') {
           contactType = 'sponsor';
         } else if (type === 'education' || type === 'education-partner') {
@@ -48,11 +48,11 @@ const Contact = () => {
         }
 
         const response = await fetch(`${API_BASE_URL}/admin/contact-settings/type/${contactType}/`);
-        
+
         if (response.ok) {
           const data = await response.json();
           setContactSettings(data);
-          
+
           // Pre-fill form with default values from settings
           if (data.default_subject || data.default_message) {
             setFormData(prev => ({
@@ -123,33 +123,57 @@ const Contact = () => {
       email: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email),
       message: formData.message.trim() === ''
     };
-    
+
     setFormErrors(errors);
     return !Object.values(errors).some(error => error);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
-      setFormSubmitted(true);
-      
-      setTimeout(() => {
-        setFormSubmitted(false);
-        setFormData({
-          name: '',
-          email: '',
-          subject: '',
-          reason: '',
-          message: ''
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/contact/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            subject: formData.subject,
+            message: formData.message,
+            contact_type: formData.reason || 'general',
+            // Phone is not in the form state but model has it, could add it if needed
+          }),
         });
-        setFormFocused({
-          name: false,
-          email: false,
-          subject: false,
-          message: false
-        });
-      }, 5000);
+
+        if (response.ok) {
+          setFormSubmitted(true);
+
+          setTimeout(() => {
+            setFormSubmitted(false);
+            setFormData({
+              name: '',
+              email: '',
+              subject: '',
+              reason: '',
+              message: ''
+            });
+            setFormFocused({
+              name: false,
+              email: false,
+              subject: false,
+              message: false
+            });
+          }, 5000);
+        } else {
+          console.error('Failed to submit contact form');
+          // Could add error handling UI here
+        }
+      } catch (error) {
+        console.error('Error submitting contact form:', error);
+      }
     }
   };
 
@@ -280,9 +304,8 @@ const Contact = () => {
                         onChange={handleInputChange}
                         onFocus={() => handleInputFocus('name')}
                         onBlur={() => handleInputBlur('name')}
-                        className={`w-full px-4 py-3 rounded-lg bg-[#03325a]/80 border-2 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] ${
-                          formFocused.name || formData.name ? 'border-[#30d9fe]' : 'border-[#30d9fe]/30'
-                        } ${formErrors.name ? 'border-red-400' : ''}`}
+                        className={`w-full px-4 py-3 rounded-lg bg-[#03325a]/80 border-2 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] ${formFocused.name || formData.name ? 'border-[#30d9fe]' : 'border-[#30d9fe]/30'
+                          } ${formErrors.name ? 'border-red-400' : ''}`}
                         placeholder="Your full name"
                       />
                       {formErrors.name && <p className="text-red-400 text-sm mt-1">Name is required</p>}
@@ -297,15 +320,14 @@ const Contact = () => {
                         onChange={handleInputChange}
                         onFocus={() => handleInputFocus('email')}
                         onBlur={() => handleInputBlur('email')}
-                        className={`w-full px-4 py-3 rounded-lg bg-[#03325a]/80 border-2 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] ${
-                          formFocused.email || formData.email ? 'border-[#30d9fe]' : 'border-[#30d9fe]/30'
-                        } ${formErrors.email ? 'border-red-400' : ''}`}
+                        className={`w-full px-4 py-3 rounded-lg bg-[#03325a]/80 border-2 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] ${formFocused.email || formData.email ? 'border-[#30d9fe]' : 'border-[#30d9fe]/30'
+                          } ${formErrors.email ? 'border-red-400' : ''}`}
                         placeholder="your.email@example.com"
                       />
                       {formErrors.email && <p className="text-red-400 text-sm mt-1">Valid email is required</p>}
                     </div>
                   </div>
-                  
+
                   <div>
                     <label htmlFor="subject" className="block text-sm font-medium mb-2">Subject</label>
                     <input
@@ -316,13 +338,12 @@ const Contact = () => {
                       onChange={handleInputChange}
                       onFocus={() => handleInputFocus('subject')}
                       onBlur={() => handleInputBlur('subject')}
-                      className={`w-full px-4 py-3 rounded-lg bg-[#03325a]/80 border-2 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] ${
-                        formFocused.subject || formData.subject ? 'border-[#30d9fe]' : 'border-[#30d9fe]/30'
-                      }`}
+                      className={`w-full px-4 py-3 rounded-lg bg-[#03325a]/80 border-2 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] ${formFocused.subject || formData.subject ? 'border-[#30d9fe]' : 'border-[#30d9fe]/30'
+                        }`}
                       placeholder="What's this about?"
                     />
                   </div>
-                  
+
                   <div>
                     <label htmlFor="reason" className="block text-sm font-medium mb-2">Reason for Contact</label>
                     <select
@@ -343,7 +364,7 @@ const Contact = () => {
                       <option value="other">Other</option>
                     </select>
                   </div>
-                  
+
                   <div>
                     <label htmlFor="message" className="block text-sm font-medium mb-2">Message *</label>
                     <textarea
@@ -354,14 +375,13 @@ const Contact = () => {
                       onFocus={() => handleInputFocus('message')}
                       onBlur={() => handleInputBlur('message')}
                       rows={6}
-                      className={`w-full px-4 py-3 rounded-lg bg-[#03325a]/80 border-2 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] resize-none ${
-                        formFocused.message || formData.message ? 'border-[#30d9fe]' : 'border-[#30d9fe]/30'
-                      } ${formErrors.message ? 'border-red-400' : ''}`}
+                      className={`w-full px-4 py-3 rounded-lg bg-[#03325a]/80 border-2 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] resize-none ${formFocused.message || formData.message ? 'border-[#30d9fe]' : 'border-[#30d9fe]/30'
+                        } ${formErrors.message ? 'border-red-400' : ''}`}
                       placeholder="Tell us more about your inquiry..."
                     />
                     {formErrors.message && <p className="text-red-400 text-sm mt-1">Message is required</p>}
                   </div>
-                  
+
                   <button
                     type="submit"
                     className="w-full bg-gradient-to-r from-[#30d9fe] to-[#00b8d4] text-[#03325a] font-bold py-4 px-8 rounded-lg hover:from-[#00b8d4] hover:to-[#30d9fe] transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] focus:ring-offset-2 focus:ring-offset-[#03325a] shadow-lg"
@@ -372,7 +392,7 @@ const Contact = () => {
                 </form>
               )}
             </div>
-            
+
             {/* Right Panel - Contact Information */}
             <div className="lg:w-2/5 w-full space-y-6">
               <div className="bg-[#03325a]/60 p-6 sm:p-8 rounded-2xl border border-[#30d9fe]/20 shadow-lg">
@@ -387,7 +407,7 @@ const Contact = () => {
                       <p className="text-sm opacity-90 whitespace-pre-line">{contactInfo.visitAddress}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start space-x-4">
                     <div className="text-[#30d9fe] text-xl mt-1">
                       <i className="fas fa-envelope"></i>
@@ -398,7 +418,7 @@ const Contact = () => {
                       {contactInfo.secondaryEmail && <p className="text-sm opacity-90">{contactInfo.secondaryEmail}</p>}
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start space-x-4">
                     <div className="text-[#30d9fe] text-xl mt-1">
                       <i className="fas fa-phone"></i>
@@ -411,7 +431,7 @@ const Contact = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="bg-[#03325a]/60 p-6 sm:p-8 rounded-2xl border border-[#30d9fe]/20 shadow-lg">
                 <h3 className="text-xl sm:text-2xl font-bold mb-6 text-[#30d9fe]">Quick Links</h3>
                 <div className="space-y-4">
@@ -424,7 +444,7 @@ const Contact = () => {
                     </div>
                     <i className="fas fa-chevron-right text-[#30d9fe] group-hover:translate-x-1 transition-transform duration-300"></i>
                   </Link>
-                  
+
                   <Link to="/events" className="flex items-center justify-between p-3 rounded-lg bg-[#03325a]/40 hover:bg-[#03325a]/60 transition-all duration-300 group">
                     <div className="flex items-center space-x-3">
                       <div className="text-[#30d9fe] group-hover:scale-110 transition-transform duration-300">
@@ -434,7 +454,7 @@ const Contact = () => {
                     </div>
                     <i className="fas fa-chevron-right text-[#30d9fe] group-hover:translate-x-1 transition-transform duration-300"></i>
                   </Link>
-                  
+
                   <Link to="/about" className="flex items-center justify-between p-3 rounded-lg bg-[#03325a]/40 hover:bg-[#03325a]/60 transition-all duration-300 group">
                     <div className="flex items-center space-x-3">
                       <div className="text-[#30d9fe] group-hover:scale-110 transition-transform duration-300">

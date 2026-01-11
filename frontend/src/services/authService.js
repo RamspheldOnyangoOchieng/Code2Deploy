@@ -115,6 +115,26 @@ class AuthService {
     }
   }
 
+  async resendConfirmation(email) {
+    try {
+      const response = await fetch(`${this.baseURL}/auth/resend-confirmation/`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Failed to resend confirmation email');
+      }
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async login(credentials) {
     try {
       // Clear any old token before attempting login

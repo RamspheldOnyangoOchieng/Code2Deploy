@@ -528,6 +528,7 @@ const Layout = ({ children }) => {
         onClose={closeModals}
         onLoginSuccess={login}
         onForgotPassword={openForgotPasswordModal}
+        onSignup={openSignupModal}
       />
 
       {/* Signup Modal */}
