@@ -2,28 +2,33 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import logo from '../assets/logo2-clear.png';
 import authService from '../services/authService';
+import { useAuth } from '../contexts/AuthContext';
 import SignupModal from './SignupModal';
 import LoginModal from './LoginModal';
 import ForgotPasswordModal from './ForgotPasswordModal';
 import LogoutModal from './LogoutModal';
 
 const Layout = ({ children }) => {
+  const {
+    user,
+    logout,
+    login,
+    signup,
+    isLoginModalOpen,
+    isSignupModalOpen,
+    isForgotPasswordModalOpen,
+    openLoginModal,
+    openSignupModal,
+    openForgotPasswordModal,
+    closeModals
+  } = useAuth();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('home');
-  const [user, setUser] = useState(null);
-  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-
-  useEffect(() => {
-    if (authService.isAuthenticated()) {
-      authService.getCurrentUser().then(setUser).catch(console.error);
-    }
-  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -47,7 +52,24 @@ const Layout = ({ children }) => {
     else if (path === '/events') setActiveTab('events');
     else if (path === '/about') setActiveTab('about');
     else if (path === '/contact') setActiveTab('contact');
-  }, [location]);
+    else if (path === '/contact') setActiveTab('contact');
+
+    // Check for showLogin state from navigation
+    if ((location.state?.showLogin || new URLSearchParams(location.search).get('login') === 'true') && !user) {
+      openLoginModal();
+      // Clear the state so it doesn't reopen on refresh/navigation if possible, 
+      // but modifying history state directly during render/effect needs care. 
+      // For now, opening it is sufficient.
+      // Better: navigate(location.pathname, { replace: true, state: {} }); 
+      // but that might trigger re-render loops if not careful.
+      // Let's just open it.
+      // If query param, remove it?
+      if (new URLSearchParams(location.search).get('login') === 'true') {
+        // Maybe clean up URL?
+      }
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, user, openLoginModal, navigate]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -58,8 +80,7 @@ const Layout = ({ children }) => {
   };
 
   const handleLogoutConfirm = () => {
-    authService.logout();
-    setUser(null);
+    logout();
     setIsLogoutModalOpen(false);
     navigate('/');
   };
@@ -151,22 +172,24 @@ const Layout = ({ children }) => {
             {/* Right Side Actions */}
             <div className="hidden xl:flex items-center space-x-3 flex-shrink-0">
               {/* Partner Buttons - Hidden on smaller xl screens */}
-              <div className="hidden 2xl:flex items-center space-x-2">
-                <button
-                  type="button"
-                  onClick={handlePartnerSponsor}
-                  className="px-4 py-2 bg-[#30d9fe] text-[#03325a] text-sm font-medium rounded-lg hover:bg-[#eec262] transition-all duration-300 whitespace-nowrap"
-                >
-                  Partner as Sponsor
-                </button>
-                <button
-                  type="button"
-                  onClick={handleEducationPartner}
-                  className="px-4 py-2 border-2 border-[#30d9fe] text-white text-sm font-medium rounded-lg hover:bg-[#30d9fe] hover:text-[#03325a] transition-all duration-300 whitespace-nowrap"
-                >
-                  Education Partner
-                </button>
-              </div>
+              {!user && (
+                <div className="hidden 2xl:flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={handlePartnerSponsor}
+                    className="px-4 py-2 bg-[#30d9fe] text-[#03325a] text-sm font-medium rounded-lg hover:bg-[#eec262] transition-all duration-300 whitespace-nowrap"
+                  >
+                    Partner as Sponsor
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleEducationPartner}
+                    className="px-4 py-2 border-2 border-[#30d9fe] text-white text-sm font-medium rounded-lg hover:bg-[#30d9fe] hover:text-[#03325a] transition-all duration-300 whitespace-nowrap"
+                  >
+                    Education Partner
+                  </button>
+                </div>
+              )}
 
               {/* User Profile / Auth Buttons */}
               {user ? (
@@ -322,24 +345,26 @@ const Layout = ({ children }) => {
                 <i className="fas fa-envelope mr-3 w-5"></i>Contact
               </Link>
 
-              {/* Divider */}
-              <div className="border-t border-white/20 my-2"></div>
-
-              {/* Partner Buttons in Mobile */}
-              <button
-                type="button"
-                onClick={() => { handlePartnerSponsor(); setIsMenuOpen(false); }}
-                className="block px-4 py-3 text-left text-white hover:bg-white/10 rounded-lg transition-colors"
-              >
-                <i className="fas fa-handshake mr-3 w-5"></i>Partner as Sponsor
-              </button>
-              <button
-                type="button"
-                onClick={() => { handleEducationPartner(); setIsMenuOpen(false); }}
-                className="block px-4 py-3 text-left text-white hover:bg-white/10 rounded-lg transition-colors"
-              >
-                <i className="fas fa-university mr-3 w-5"></i>Education Partner
-              </button>
+              {/* Divider and Partner Buttons in Mobile */}
+              {!user && (
+                <>
+                  <div className="border-t border-white/20 my-2"></div>
+                  <button
+                    type="button"
+                    onClick={() => { handlePartnerSponsor(); setIsMenuOpen(false); }}
+                    className="block px-4 py-3 text-left text-white hover:bg-white/10 rounded-lg transition-colors"
+                  >
+                    <i className="fas fa-handshake mr-3 w-5"></i>Partner as Sponsor
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { handleEducationPartner(); setIsMenuOpen(false); }}
+                    className="block px-4 py-3 text-left text-white hover:bg-white/10 rounded-lg transition-colors"
+                  >
+                    <i className="fas fa-university mr-3 w-5"></i>Education Partner
+                  </button>
+                </>
+              )}
 
               {/* Divider */}
               <div className="border-t border-white/20 my-2"></div>
@@ -500,25 +525,22 @@ const Layout = ({ children }) => {
       {/* Login Modal */}
       <LoginModal
         isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        onLoginSuccess={handleLoginSuccess}
-        onForgotPassword={() => {
-          setIsLoginModalOpen(false);
-          setIsForgotPasswordModalOpen(true);
-        }}
+        onClose={closeModals}
+        onLoginSuccess={login}
+        onForgotPassword={openForgotPasswordModal}
       />
 
       {/* Signup Modal */}
       <SignupModal
         isOpen={isSignupModalOpen}
-        onClose={() => setIsSignupModalOpen(false)}
-        onSignupSuccess={handleSignupSuccess}
+        onClose={closeModals}
+        onSignupSuccess={signup}
       />
 
       {/* Forgot Password Modal */}
       <ForgotPasswordModal
         isOpen={isForgotPasswordModalOpen}
-        onClose={() => setIsForgotPasswordModalOpen(false)}
+        onClose={closeModals}
       />
 
       {/* Logout Confirmation Modal */}

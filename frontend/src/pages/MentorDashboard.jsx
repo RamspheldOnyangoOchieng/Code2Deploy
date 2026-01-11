@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import authService from '../services/authService';
 import { API_BASE_URL } from '../config/api';
 import DashboardLayout from '../components/DashboardLayout';
@@ -23,9 +23,12 @@ import {
   UserCircleIcon,
   ArrowLeftOnRectangleIcon
 } from '@heroicons/react/24/outline';
+import { useToast } from '../contexts/ToastContext';
 
 const MentorDashboard = () => {
+  const toast = useToast();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
@@ -50,6 +53,18 @@ const MentorDashboard = () => {
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+    setSearchParams({ tab: tabId });
+  };
 
   const handleLogoutClick = () => {
     setIsLogoutModalOpen(true);
@@ -142,7 +157,7 @@ const MentorDashboard = () => {
           break;
       }
     } catch (err) {
-      setError('Failed to load data');
+      toast.error('Failed to load data');
     } finally {
       setLoading(false);
     }
@@ -818,14 +833,9 @@ const MentorDashboard = () => {
     <DashboardLayout
       sidebarItems={sidebarItems}
       activeTab={activeTab}
-      setActiveTab={setActiveTab}
+      setActiveTab={handleTabChange}
       title="Mentor Dashboard"
     >
-      {error && (
-        <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-          {error}
-        </div>
-      )}
       {renderContent()}
     </DashboardLayout>
   );

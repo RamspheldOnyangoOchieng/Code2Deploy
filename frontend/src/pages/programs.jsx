@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/layout';
 import authService from '../services/authService';
+import { useAuth } from '../contexts/AuthContext';
 import { API_BASE_URL } from '../config/api';
 
 const Programs = () => {
   const navigate = useNavigate();
+  const { openLoginModal } = useAuth();
   const [searchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [filters, setFilters] = useState({
@@ -88,7 +90,7 @@ const Programs = () => {
 
   const handleEnroll = () => {
     if (!authService.isAuthenticated()) {
-      alert('Please login to enroll in this program');
+      openLoginModal();
       return;
     }
 

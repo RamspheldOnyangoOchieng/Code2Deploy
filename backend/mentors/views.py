@@ -1,11 +1,16 @@
 from django.shortcuts import render
 from django.utils import timezone
 from django.db.models import Count, Q
+from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
+from django.conf import settings
 from rest_framework import generics, status, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.decorators import action
+import secrets
+import string
 from .models import (
     Mentor, MentorProgram, MentorMentee, MentorSession,
     SessionAttendee, SessionNote, MentorAvailability,
@@ -19,10 +24,126 @@ from .serializers import (
     MentorDashboardSerializer
 )
 
+User = get_user_model()
+
+
+def generate_temp_password(length=12):
+    """Generate a secure temporary password"""
+    alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
+
 
 class MentorListCreateView(generics.ListCreateAPIView):
     queryset = Mentor.objects.all().order_by('-created_at')
     serializer_class = MentorSerializer
+    
+    def create(self, request, *args, **kwargs):
+        """
+        Create a new mentor with user account and send temporary password.
+        Expected fields: first_name, last_name, email, phone, specialty, bio, 
+                        experience_years, hourly_rate, is_active
+        """
+        data = request.data
+        email = data.get('email')
+        first_name = data.get('first_name', '')
+        last_name = data.get('last_name', '')
+        phone = data.get('phone', '')
+        specialty = data.get('specialty', '')
+        bio = data.get('bio', '')
+        experience_years = data.get('experience_years', 0)
+        hourly_rate = data.get('hourly_rate', 0)
+        is_active = data.get('is_active', True)
+        
+        if not email:
+            return Response(
+                {'error': 'Email is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Check if user already exists
+        user = User.objects.filter(email=email).first()
+        temp_password = None
+        user_created = False
+        
+        if not user:
+            # Generate temporary password and create user
+            temp_password = generate_temp_password()
+            username = email.split('@')[0]
+            
+            # Ensure unique username
+            base_username = username
+            counter = 1
+            while User.objects.filter(username=username).exists():
+                username = f"{base_username}{counter}"
+                counter += 1
+            
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=temp_password,
+                first_name=first_name,
+                last_name=last_name,
+                role='mentor',
+                is_active=True
+            )
+            user_created = True
+        else:
+            # User exists - update role to mentor if not already
+            if user.role != 'mentor':
+                user.role = 'mentor'
+                user.save()
+        
+        # Check if mentor profile already exists for this user
+        mentor = Mentor.objects.filter(user=user).first()
+        if mentor:
+            return Response(
+                {'error': 'A mentor profile already exists for this user'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Create Mentor profile
+        mentor = Mentor.objects.create(
+            user=user,
+            name=f"{first_name} {last_name}".strip() or user.username,
+            bio=bio,
+            expertise=specialty,
+            phone=phone,
+            hourly_rate=float(hourly_rate) if hourly_rate else None,
+            years_experience=int(experience_years) if experience_years else 0,
+            is_active=is_active
+        )
+        
+        # Send welcome email with temporary password
+        if user_created and temp_password:
+            try:
+                send_mail(
+                    subject='Welcome to Code2Deploy - Your Mentor Account',
+                    message=f'''
+Hello {first_name or user.username},
+
+Welcome to Code2Deploy! Your mentor account has been created.
+
+Here are your login credentials:
+Email: {email}
+Temporary Password: {temp_password}
+
+Please log in and reset your password immediately for security.
+
+Login URL: {getattr(settings, 'FRONTEND_URL', 'https://code2deploy.com')}/login
+
+Best regards,
+The Code2Deploy Team
+                    ''',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[email],
+                    fail_silently=False,
+                )
+            except Exception as e:
+                # Log the error but don't fail the entire operation
+                print(f"Failed to send welcome email to {email}: {str(e)}")
+        
+        serializer = self.get_serializer(mentor)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class MentorRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):

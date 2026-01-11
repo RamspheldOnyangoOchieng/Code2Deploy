@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../../services/authService';
 import { API_BASE_URL } from '../../config/api';
+import { useToast } from '../../contexts/ToastContext';
 
 const AdminMentors = () => {
+  const toast = useToast();
   const [mentors, setMentors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -38,7 +40,7 @@ const AdminMentors = () => {
         page: currentPage,
         page_size: 20
       });
-      
+
       if (searchTerm) params.append('search', searchTerm);
       if (statusFilter) params.append('is_active', statusFilter);
       if (specialtyFilter) params.append('specialty', specialtyFilter);
@@ -66,6 +68,8 @@ const AdminMentors = () => {
 
   const handleCreateMentor = async () => {
     try {
+      setError(null);
+
       const response = await fetch(`${API_BASE_URL}/mentors/`, {
         method: 'POST',
         headers: {
@@ -74,6 +78,8 @@ const AdminMentors = () => {
         },
         body: JSON.stringify(editForm)
       });
+
+      const data = await response.json();
 
       if (response.ok) {
         setShowCreateModal(false);
@@ -88,12 +94,13 @@ const AdminMentors = () => {
           hourly_rate: '',
           is_active: true
         });
+        toast.success(`Mentor "${editForm.first_name} ${editForm.last_name}" created successfully! A welcome email with login credentials has been sent.`);
         fetchMentors();
       } else {
-        setError('Failed to create mentor');
+        toast.error(data.error || 'Failed to create mentor');
       }
     } catch (err) {
-      setError('Error creating mentor');
+      toast.error('Error creating mentor: ' + err.message);
     }
   };
 
@@ -126,12 +133,13 @@ const AdminMentors = () => {
 
       if (response.ok) {
         setShowEditModal(false);
+        toast.success('Mentor updated successfully!');
         fetchMentors();
       } else {
-        setError('Failed to update mentor');
+        toast.error('Failed to update mentor');
       }
     } catch (err) {
-      setError('Error updating mentor');
+      toast.error('Error updating mentor');
     }
   };
 
@@ -147,21 +155,21 @@ const AdminMentors = () => {
 
       if (response.ok) {
         setShowDeleteModal(false);
+        toast.success('Mentor deleted successfully!');
         fetchMentors();
       } else {
-        setError('Failed to delete mentor');
+        toast.error('Failed to delete mentor');
       }
     } catch (err) {
-      setError('Error deleting mentor');
+      toast.error('Error deleting mentor');
     }
   };
 
   const getStatusBadge = (isActive) => (
-    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-      isActive 
-        ? 'bg-green-100 text-green-800' 
-        : 'bg-red-100 text-red-800'
-    }`}>
+    <span className={`px-2 py-1 text-xs font-medium rounded-full ${isActive
+      ? 'bg-green-100 text-green-800'
+      : 'bg-red-100 text-red-800'
+      }`}>
       {isActive ? 'Active' : 'Inactive'}
     </span>
   );
@@ -175,7 +183,7 @@ const AdminMentors = () => {
       'ui-ux': 'bg-pink-100 text-pink-800',
       'devops': 'bg-orange-100 text-orange-800'
     };
-    
+
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${specialtyColors[specialty] || 'bg-gray-100 text-gray-800'}`}>
         {specialty}
@@ -188,7 +196,7 @@ const AdminMentors = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">Mentors Management</h2>
-        <button 
+        <button
           onClick={() => setShowCreateModal(true)}
           className="bg-[#30d9fe] text-white px-4 py-2 rounded-lg hover:bg-[#00b8d4] transition-colors"
         >
@@ -358,11 +366,10 @@ const AdminMentors = () => {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`px-3 py-2 text-sm font-medium rounded-md ${
-                  currentPage === page
-                    ? 'bg-[#30d9fe] text-white'
-                    : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                }`}
+                className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === page
+                  ? 'bg-[#30d9fe] text-white'
+                  : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                  }`}
               >
                 {page}
               </button>
@@ -393,7 +400,7 @@ const AdminMentors = () => {
                     <input
                       type="text"
                       value={editForm.first_name}
-                      onChange={(e) => setEditForm({...editForm, first_name: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, first_name: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     />
                   </div>
@@ -402,7 +409,7 @@ const AdminMentors = () => {
                     <input
                       type="text"
                       value={editForm.last_name}
-                      onChange={(e) => setEditForm({...editForm, last_name: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, last_name: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     />
                   </div>
@@ -412,7 +419,7 @@ const AdminMentors = () => {
                   <input
                     type="email"
                     value={editForm.email}
-                    onChange={(e) => setEditForm({...editForm, email: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
                 </div>
@@ -421,7 +428,7 @@ const AdminMentors = () => {
                   <input
                     type="tel"
                     value={editForm.phone}
-                    onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
                 </div>
@@ -429,7 +436,7 @@ const AdminMentors = () => {
                   <label className="block text-sm font-medium text-gray-700">Specialty</label>
                   <select
                     value={editForm.specialty}
-                    onChange={(e) => setEditForm({...editForm, specialty: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, specialty: e.target.value })}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   >
                     <option value="">Select Specialty</option>
@@ -445,7 +452,7 @@ const AdminMentors = () => {
                   <label className="block text-sm font-medium text-gray-700">Bio</label>
                   <textarea
                     value={editForm.bio}
-                    onChange={(e) => setEditForm({...editForm, bio: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
                     rows={3}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
@@ -456,7 +463,7 @@ const AdminMentors = () => {
                     <input
                       type="number"
                       value={editForm.experience_years}
-                      onChange={(e) => setEditForm({...editForm, experience_years: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, experience_years: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     />
                   </div>
@@ -465,7 +472,7 @@ const AdminMentors = () => {
                     <input
                       type="number"
                       value={editForm.hourly_rate}
-                      onChange={(e) => setEditForm({...editForm, hourly_rate: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, hourly_rate: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     />
                   </div>
@@ -474,7 +481,7 @@ const AdminMentors = () => {
                   <input
                     type="checkbox"
                     checked={editForm.is_active}
-                    onChange={(e) => setEditForm({...editForm, is_active: e.target.checked})}
+                    onChange={(e) => setEditForm({ ...editForm, is_active: e.target.checked })}
                     className="h-4 w-4 text-[#30d9fe] focus:ring-[#30d9fe] border-gray-300 rounded"
                   />
                   <label className="ml-2 block text-sm text-gray-900">Active</label>

@@ -32,16 +32,16 @@ class AuthService {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-      
+
       const response = await fetch(`${this.baseURL}/auth/register/`, {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify(userData),
         signal: controller.signal
       });
-      
+
       clearTimeout(timeoutId);
-      
+
       if (!response.ok) {
         let errorData;
         try {
@@ -61,7 +61,7 @@ class AuthService {
         }
         throw new Error(errorData.detail || 'Registration failed');
       }
-      
+
       return await response.json();
     } catch (error) {
       if (error.name === 'AbortError') {
@@ -83,12 +83,12 @@ class AuthService {
         headers: this.getHeaders(),
         body: JSON.stringify({ email }),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.detail || 'Failed to resend confirmation email');
       }
-      
+
       return await response.json();
     } catch (error) {
       throw error;
@@ -102,13 +102,13 @@ class AuthService {
         headers: this.getHeaders(),
         body: JSON.stringify({ uid, token }),
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.detail || 'Email confirmation failed');
       }
-      
+
       return data;
     } catch (error) {
       throw error;
@@ -119,18 +119,18 @@ class AuthService {
     try {
       // Clear any old token before attempting login
       this.removeToken();
-      
+
       const response = await fetch(`${this.baseURL}/auth/jwt/create/`, {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify(credentials),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.detail || 'Login failed');
       }
-      
+
       const data = await response.json();
       this.setToken(data.access);
       return data;
@@ -149,11 +149,11 @@ class AuthService {
         method: 'GET',
         headers: this.getHeaders(),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to get user profile');
       }
-      
+
       return await response.json();
     } catch (error) {
       throw error;
@@ -167,12 +167,12 @@ class AuthService {
         headers: this.getHeaders(),
         body: JSON.stringify(profileData),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.detail || 'Profile update failed');
       }
-      
+
       return await response.json();
     } catch (error) {
       throw error;
@@ -194,12 +194,12 @@ class AuthService {
         headers: headers,
         body: formData,
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.detail || 'Avatar upload failed');
       }
-      
+
       return await response.json();
     } catch (error) {
       throw error;
@@ -212,11 +212,11 @@ class AuthService {
         method: 'GET',
         headers: this.getHeaders(),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to get enrollments');
       }
-      
+
       return await response.json();
     } catch (error) {
       throw error;
@@ -229,11 +229,11 @@ class AuthService {
         method: 'GET',
         headers: this.getHeaders(),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to get event registrations');
       }
-      
+
       return await response.json();
     } catch (error) {
       throw error;
@@ -246,11 +246,11 @@ class AuthService {
         method: 'GET',
         headers: this.getHeaders(),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to get certificates');
       }
-      
+
       return await response.json();
     } catch (error) {
       throw error;
@@ -263,11 +263,11 @@ class AuthService {
         method: 'GET',
         headers: this.getHeaders(),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to get badges');
       }
-      
+
       return await response.json();
     } catch (error) {
       throw error;
@@ -280,12 +280,46 @@ class AuthService {
         method: 'GET',
         headers: this.getHeaders(),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to get notifications');
       }
-      
+
       return await response.json();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async markNotificationAsRead(notificationId) {
+    try {
+      const response = await fetch(`${this.baseURL}/notifications/${notificationId}/read/`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to mark notification as read');
+      }
+
+      return await response.json();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async deleteNotification(notificationId) {
+    try {
+      const response = await fetch(`${this.baseURL}/notifications/${notificationId}/`, {
+        method: 'DELETE',
+        headers: this.getHeaders(),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete notification');
+      }
+
+      return true;
     } catch (error) {
       throw error;
     }
@@ -297,12 +331,12 @@ class AuthService {
         method: 'POST',
         headers: this.getHeaders(),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.detail || 'Enrollment failed');
       }
-      
+
       return await response.json();
     } catch (error) {
       throw error;
@@ -315,12 +349,12 @@ class AuthService {
         method: 'POST',
         headers: this.getHeaders(),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.detail || 'Event registration failed');
       }
-      
+
       return await response.json();
     } catch (error) {
       throw error;
@@ -334,12 +368,12 @@ class AuthService {
         headers: this.getHeaders(),
         body: JSON.stringify({ email }),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.detail || 'Password reset request failed');
       }
-      
+
       return await response.json();
     } catch (error) {
       throw error;
@@ -352,11 +386,11 @@ class AuthService {
         method: 'GET',
         headers: this.getHeaders(),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to export user data');
       }
-      
+
       return await response.json();
     } catch (error) {
       throw error;
@@ -370,12 +404,12 @@ class AuthService {
         headers: this.getHeaders(),
         body: JSON.stringify({ password, confirmation_text: confirmationText }),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.detail || 'Account deletion failed');
       }
-      
+
       return await response.json();
     } catch (error) {
       throw error;
@@ -384,6 +418,23 @@ class AuthService {
 
   isAuthenticated() {
     return !!this.token;
+  }
+
+  getUserRole() {
+    // This is a helper to get the role from the token or local storage
+    // For now, we'll assume it's stored in the user object which we can fetch
+    // But as a quick fallback, we can decode the JWT if needed
+    // In this app, we usually fetch the user profile and store it
+    const userJson = localStorage.getItem('user');
+    if (userJson) {
+      try {
+        const user = JSON.parse(userJson);
+        return user.role;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
   }
 }
 

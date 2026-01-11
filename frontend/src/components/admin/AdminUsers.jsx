@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../../services/authService';
 import { API_BASE_URL } from '../../config/api';
+import { useToast } from '../../contexts/ToastContext';
 
 const AdminUsers = () => {
+  const toast = useToast();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,7 +36,7 @@ const AdminUsers = () => {
         page: currentPage,
         page_size: 20
       });
-      
+
       if (searchTerm) params.append('search', searchTerm);
       if (roleFilter) params.append('role', roleFilter);
       if (statusFilter) params.append('status', statusFilter);
@@ -95,12 +97,13 @@ const AdminUsers = () => {
 
       if (response.ok) {
         setShowEditModal(false);
+        toast.success('User updated successfully!');
         fetchUsers();
       } else {
-        setError('Failed to update user');
+        toast.error('Failed to update user');
       }
     } catch (err) {
-      setError('Error updating user');
+      toast.error('Error updating user');
     }
   };
 
@@ -116,21 +119,21 @@ const AdminUsers = () => {
 
       if (response.ok) {
         setShowDeleteModal(false);
+        toast.success('User deleted successfully!');
         fetchUsers();
       } else {
-        setError('Failed to delete user');
+        toast.error('Failed to delete user');
       }
     } catch (err) {
-      setError('Error deleting user');
+      toast.error('Error deleting user');
     }
   };
 
   const getStatusBadge = (isActive) => (
-    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-      isActive 
-        ? 'bg-green-100 text-green-800' 
+    <span className={`px-2 py-1 text-xs font-medium rounded-full ${isActive
+        ? 'bg-green-100 text-green-800'
         : 'bg-red-100 text-red-800'
-    }`}>
+      }`}>
       {isActive ? 'Active' : 'Inactive'}
     </span>
   );
@@ -141,7 +144,7 @@ const AdminUsers = () => {
       user: 'bg-blue-100 text-blue-800',
       mentor: 'bg-yellow-100 text-yellow-800'
     };
-    
+
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${roleColors[role] || 'bg-gray-100 text-gray-800'}`}>
         {role}
@@ -217,10 +220,6 @@ const AdminUsers = () => {
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#30d9fe]"></div>
-          </div>
-        ) : error ? (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800">{error}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -326,11 +325,10 @@ const AdminUsers = () => {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`px-3 py-2 text-sm font-medium rounded-md ${
-                  currentPage === page
+                className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === page
                     ? 'bg-[#30d9fe] text-white'
                     : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 {page}
               </button>
@@ -358,7 +356,7 @@ const AdminUsers = () => {
                   <input
                     type="text"
                     value={editForm.first_name}
-                    onChange={(e) => setEditForm({...editForm, first_name: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, first_name: e.target.value })}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
                 </div>
@@ -367,7 +365,7 @@ const AdminUsers = () => {
                   <input
                     type="text"
                     value={editForm.last_name}
-                    onChange={(e) => setEditForm({...editForm, last_name: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, last_name: e.target.value })}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
                 </div>
@@ -376,7 +374,7 @@ const AdminUsers = () => {
                   <input
                     type="email"
                     value={editForm.email}
-                    onChange={(e) => setEditForm({...editForm, email: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
                 </div>
@@ -384,7 +382,7 @@ const AdminUsers = () => {
                   <label className="block text-sm font-medium text-gray-700">Role</label>
                   <select
                     value={editForm.role}
-                    onChange={(e) => setEditForm({...editForm, role: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   >
                     <option value="user">User</option>
@@ -396,7 +394,7 @@ const AdminUsers = () => {
                   <input
                     type="checkbox"
                     checked={editForm.is_active}
-                    onChange={(e) => setEditForm({...editForm, is_active: e.target.checked})}
+                    onChange={(e) => setEditForm({ ...editForm, is_active: e.target.checked })}
                     className="h-4 w-4 text-[#30d9fe] focus:ring-[#30d9fe] border-gray-300 rounded"
                   />
                   <label className="ml-2 block text-sm text-gray-900">Active</label>

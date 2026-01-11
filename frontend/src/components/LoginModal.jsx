@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AuthService from '../services/authService';
+import { useToast } from '../contexts/ToastContext';
 
 const LoginModal = ({ isOpen, onClose, onLoginSuccess, onForgotPassword }) => {
+  const toast = useToast();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -10,6 +12,7 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess, onForgotPassword }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleChange = (e) => {
     setFormData({
@@ -26,26 +29,34 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess, onForgotPassword }) => {
     try {
       // Login and get tokens
       await AuthService.login({ username: formData.username, password: formData.password });
-      
+
       // Get user profile to check role
       const user = await AuthService.getCurrentUser();
-      
+
       // Call the success callback if provided
       if (onLoginSuccess) onLoginSuccess(user);
-      
+
       // Close the modal
       onClose();
-      
-      // Redirect based on user role
-      if (user.role === 'admin') {
-        navigate('/admin');
-      } else if (user.role === 'mentor') {
-        navigate('/mentor-dashboard');
+
+      toast.success(`Welcome back, ${user.first_name || user.username}!`);
+
+      // Redirect
+      const redirectPath = new URLSearchParams(location.search).get('redirect');
+      if (redirectPath) {
+        navigate(redirectPath);
       } else {
-        navigate('/learner-dashboard');
+        // Redirect based on user role
+        if (user.role === 'admin') {
+          navigate('/admin');
+        } else if (user.role === 'mentor') {
+          navigate('/mentor-dashboard');
+        } else {
+          navigate('/learner-dashboard');
+        }
       }
     } catch (err) {
-      setError(err.message || 'Invalid credentials');
+      toast.error(err.message || 'Invalid credentials');
     } finally {
       setLoading(false);
     }

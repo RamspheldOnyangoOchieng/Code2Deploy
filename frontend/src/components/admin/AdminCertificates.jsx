@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../../services/authService';
 import { API_BASE_URL } from '../../config/api';
+import { useToast } from '../../contexts/ToastContext';
 
 const AdminCertificates = () => {
+  const toast = useToast();
   const [certificates, setCertificates] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,7 +49,7 @@ const AdminCertificates = () => {
         page: currentPage,
         page_size: 20
       });
-      
+
       if (searchTerm) params.append('search', searchTerm);
       if (statusFilter) params.append('status', statusFilter);
       if (typeFilter) params.append('certificate_type', typeFilter);
@@ -114,12 +116,13 @@ const AdminCertificates = () => {
           skills_covered: '',
           is_active: true
         });
+        toast.success('Certificate created successfully!');
         fetchCertificates();
       } else {
-        setError('Failed to create certificate');
+        toast.error('Failed to create certificate');
       }
     } catch (err) {
-      setError('Error creating certificate');
+      toast.error('Error creating certificate');
     }
   };
 
@@ -151,12 +154,13 @@ const AdminCertificates = () => {
 
       if (response.ok) {
         setShowEditModal(false);
+        toast.success('Certificate updated successfully!');
         fetchCertificates();
       } else {
-        setError('Failed to update certificate');
+        toast.error('Failed to update certificate');
       }
     } catch (err) {
-      setError('Error updating certificate');
+      toast.error('Error updating certificate');
     }
   };
 
@@ -172,12 +176,13 @@ const AdminCertificates = () => {
 
       if (response.ok) {
         setShowDeleteModal(false);
+        toast.success('Certificate deleted successfully!');
         fetchCertificates();
       } else {
-        setError('Failed to delete certificate');
+        toast.error('Failed to delete certificate');
       }
     } catch (err) {
-      setError('Error deleting certificate');
+      toast.error('Error deleting certificate');
     }
   };
 
@@ -202,12 +207,13 @@ const AdminCertificates = () => {
           score: '',
           skills_covered: ''
         });
+        toast.success('Certificate awarded successfully!');
         fetchCertificates();
       } else {
-        setError('Failed to award certificate');
+        toast.error('Failed to award certificate');
       }
     } catch (err) {
-      setError('Error awarding certificate');
+      toast.error('Error awarding certificate');
     }
   };
 
@@ -218,7 +224,7 @@ const AdminCertificates = () => {
       expired: 'bg-red-100 text-red-800',
       revoked: 'bg-gray-100 text-gray-800'
     };
-    
+
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[status] || 'bg-gray-100 text-gray-800'}`}>
         {status}
@@ -233,7 +239,7 @@ const AdminCertificates = () => {
       skill: 'bg-green-100 text-green-800',
       professional: 'bg-orange-100 text-orange-800'
     };
-    
+
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${typeColors[type] || 'bg-gray-100 text-gray-800'}`}>
         {type}
@@ -247,13 +253,13 @@ const AdminCertificates = () => {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">Certificates Management</h2>
         <div className="flex space-x-3">
-          <button 
+          <button
             onClick={() => setShowAwardModal(true)}
             className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
           >
             🏆 Award Certificate
           </button>
-          <button 
+          <button
             onClick={() => setShowEditModal(true)}
             className="bg-[#30d9fe] text-white px-4 py-2 rounded-lg hover:bg-[#00b8d4] transition-colors"
           >
@@ -319,10 +325,6 @@ const AdminCertificates = () => {
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#30d9fe]"></div>
-          </div>
-        ) : error ? (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800">{error}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -437,11 +439,10 @@ const AdminCertificates = () => {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`px-3 py-2 text-sm font-medium rounded-md ${
-                  currentPage === page
+                className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === page
                     ? 'bg-[#30d9fe] text-white'
                     : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 {page}
               </button>
@@ -471,7 +472,7 @@ const AdminCertificates = () => {
                   <input
                     type="text"
                     value={editForm.title}
-                    onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
                 </div>
@@ -479,7 +480,7 @@ const AdminCertificates = () => {
                   <label className="block text-sm font-medium text-gray-700">Description</label>
                   <textarea
                     value={editForm.description}
-                    onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                     rows={3}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
@@ -489,7 +490,7 @@ const AdminCertificates = () => {
                     <label className="block text-sm font-medium text-gray-700">Type</label>
                     <select
                       value={editForm.certificate_type}
-                      onChange={(e) => setEditForm({...editForm, certificate_type: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, certificate_type: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     >
                       <option value="">Select Type</option>
@@ -503,7 +504,7 @@ const AdminCertificates = () => {
                     <label className="block text-sm font-medium text-gray-700">Status</label>
                     <select
                       value={editForm.status}
-                      onChange={(e) => setEditForm({...editForm, status: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     >
                       <option value="pending">Pending</option>
@@ -519,7 +520,7 @@ const AdminCertificates = () => {
                     <input
                       type="number"
                       value={editForm.score}
-                      onChange={(e) => setEditForm({...editForm, score: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, score: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     />
                   </div>
@@ -528,7 +529,7 @@ const AdminCertificates = () => {
                     <input
                       type="text"
                       value={editForm.issued_by}
-                      onChange={(e) => setEditForm({...editForm, issued_by: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, issued_by: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     />
                   </div>
@@ -538,7 +539,7 @@ const AdminCertificates = () => {
                   <input
                     type="text"
                     value={editForm.skills_covered}
-                    onChange={(e) => setEditForm({...editForm, skills_covered: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, skills_covered: e.target.value })}
                     placeholder="e.g., JavaScript, React, Node.js"
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
@@ -547,7 +548,7 @@ const AdminCertificates = () => {
                   <input
                     type="checkbox"
                     checked={editForm.is_active}
-                    onChange={(e) => setEditForm({...editForm, is_active: e.target.checked})}
+                    onChange={(e) => setEditForm({ ...editForm, is_active: e.target.checked })}
                     className="h-4 w-4 text-[#30d9fe] focus:ring-[#30d9fe] border-gray-300 rounded"
                   />
                   <label className="ml-2 block text-sm text-gray-900">Active</label>
@@ -586,7 +587,7 @@ const AdminCertificates = () => {
                   <label className="block text-sm font-medium text-gray-700">User</label>
                   <select
                     value={awardForm.user_id}
-                    onChange={(e) => setAwardForm({...awardForm, user_id: e.target.value})}
+                    onChange={(e) => setAwardForm({ ...awardForm, user_id: e.target.value })}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   >
                     <option value="">Select User</option>
@@ -602,7 +603,7 @@ const AdminCertificates = () => {
                   <input
                     type="text"
                     value={awardForm.title}
-                    onChange={(e) => setAwardForm({...awardForm, title: e.target.value})}
+                    onChange={(e) => setAwardForm({ ...awardForm, title: e.target.value })}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
                 </div>
@@ -610,7 +611,7 @@ const AdminCertificates = () => {
                   <label className="block text-sm font-medium text-gray-700">Description</label>
                   <textarea
                     value={awardForm.description}
-                    onChange={(e) => setAwardForm({...awardForm, description: e.target.value})}
+                    onChange={(e) => setAwardForm({ ...awardForm, description: e.target.value })}
                     rows={3}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
@@ -620,7 +621,7 @@ const AdminCertificates = () => {
                     <label className="block text-sm font-medium text-gray-700">Type</label>
                     <select
                       value={awardForm.certificate_type}
-                      onChange={(e) => setAwardForm({...awardForm, certificate_type: e.target.value})}
+                      onChange={(e) => setAwardForm({ ...awardForm, certificate_type: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     >
                       <option value="">Select Type</option>
@@ -635,7 +636,7 @@ const AdminCertificates = () => {
                     <input
                       type="number"
                       value={awardForm.score}
-                      onChange={(e) => setAwardForm({...awardForm, score: e.target.value})}
+                      onChange={(e) => setAwardForm({ ...awardForm, score: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     />
                   </div>
@@ -645,7 +646,7 @@ const AdminCertificates = () => {
                   <input
                     type="text"
                     value={awardForm.skills_covered}
-                    onChange={(e) => setAwardForm({...awardForm, skills_covered: e.target.value})}
+                    onChange={(e) => setAwardForm({ ...awardForm, skills_covered: e.target.value })}
                     placeholder="e.g., JavaScript, React, Node.js"
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />

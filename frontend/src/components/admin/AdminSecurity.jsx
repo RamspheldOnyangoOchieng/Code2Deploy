@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../../services/authService';
 import { API_BASE_URL } from '../../config/api';
-import { 
-  ShieldCheckIcon, 
-  ClipboardDocumentListIcon, 
+import {
+  ShieldCheckIcon,
+  ClipboardDocumentListIcon,
   ExclamationTriangleIcon,
   ArrowPathIcon,
   DocumentArrowDownIcon,
@@ -11,8 +11,10 @@ import {
   NoSymbolIcon,
   HeartIcon
 } from '@heroicons/react/24/outline';
+import { useToast } from '../../contexts/ToastContext';
 
 const AdminSecurity = () => {
+  const toast = useToast();
   const [securityStats, setSecurityStats] = useState(null);
   const [auditLogs, setAuditLogs] = useState([]);
   const [securityEvents, setSecurityEvents] = useState([]);
@@ -46,10 +48,10 @@ const AdminSecurity = () => {
         const data = await response.json();
         setSecurityStats(data);
       } else {
-        setError('Failed to fetch security stats');
+        toast.error('Failed to fetch security stats');
       }
     } catch (err) {
-      setError('Error fetching security stats');
+      toast.error('Error fetching security stats');
     } finally {
       setLoading(false);
     }
@@ -75,10 +77,10 @@ const AdminSecurity = () => {
         setAuditLogs(data.results || []);
         setTotalPages(Math.ceil((data.count || 0) / 20));
       } else {
-        setError('Failed to fetch audit logs');
+        toast.error('Failed to fetch audit logs');
       }
     } catch (err) {
-      setError('Error fetching audit logs');
+      toast.error('Error fetching audit logs');
     } finally {
       setLoading(false);
     }
@@ -104,10 +106,10 @@ const AdminSecurity = () => {
         setSecurityEvents(data.results || []);
         setTotalPages(Math.ceil((data.count || 0) / 20));
       } else {
-        setError('Failed to fetch security events');
+        toast.error('Failed to fetch security events');
       }
     } catch (err) {
-      setError('Error fetching security events');
+      toast.error('Error fetching security events');
     } finally {
       setLoading(false);
     }
@@ -120,9 +122,9 @@ const AdminSecurity = () => {
       high: { bg: 'bg-gradient-to-r from-red-100 to-rose-200', text: 'text-red-800', icon: '⚠️' },
       critical: { bg: 'bg-gradient-to-r from-purple-100 to-pink-200', text: 'text-purple-800', icon: '🚨' }
     };
-    
+
     const config = severityConfig[severity] || { bg: 'bg-gray-100', text: 'text-gray-800', icon: '•' };
-    
+
     return (
       <span className={`inline-flex items-center space-x-1 px-3 py-1.5 text-xs font-bold rounded-full ${config.bg} ${config.text} shadow-sm`}>
         <span>{config.icon}</span>
@@ -140,9 +142,9 @@ const AdminSecurity = () => {
       delete: { bg: 'bg-gradient-to-r from-red-100 to-rose-200', text: 'text-red-800', icon: '🗑️' },
       view: { bg: 'bg-gradient-to-r from-purple-100 to-indigo-200', text: 'text-purple-800', icon: '👁️' }
     };
-    
+
     const config = actionConfig[actionType] || { bg: 'bg-gray-100', text: 'text-gray-800', icon: '•' };
-    
+
     return (
       <span className={`inline-flex items-center space-x-1 px-3 py-1.5 text-xs font-bold rounded-full ${config.bg} ${config.text} shadow-sm`}>
         <span>{config.icon}</span>
@@ -156,13 +158,6 @@ const AdminSecurity = () => {
       {loading ? (
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#30d9fe] border-t-transparent"></div>
-        </div>
-      ) : error ? (
-        <div className="bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 rounded-xl p-6 shadow-sm">
-          <div className="flex items-center">
-            <ExclamationTriangleIcon className="h-6 w-6 text-red-600 mr-3" />
-            <p className="text-red-800 font-medium">{error}</p>
-          </div>
         </div>
       ) : securityStats ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -283,14 +278,12 @@ const AdminSecurity = () => {
             {securityStats.recent_activity.map((activity, index) => (
               <div key={index} className="group flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-blue-50 hover:to-blue-100 rounded-xl transition-all duration-300 border border-transparent hover:border-blue-200">
                 <div className="flex items-center space-x-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    activity.severity === 'high' ? 'bg-red-100' : 
-                    activity.severity === 'medium' ? 'bg-yellow-100' : 'bg-green-100'
-                  }`}>
-                    <div className={`w-4 h-4 rounded-full ${
-                      activity.severity === 'high' ? 'bg-red-500' : 
-                      activity.severity === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
-                    }`}></div>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${activity.severity === 'high' ? 'bg-red-100' :
+                      activity.severity === 'medium' ? 'bg-yellow-100' : 'bg-green-100'
+                    }`}>
+                    <div className={`w-4 h-4 rounded-full ${activity.severity === 'high' ? 'bg-red-500' :
+                        activity.severity === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                      }`}></div>
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-gray-900 group-hover:text-[#03325a] transition-colors">{activity.title}</p>
@@ -315,13 +308,6 @@ const AdminSecurity = () => {
           <div className="flex flex-col justify-center items-center h-64">
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#30d9fe] border-t-transparent mb-4"></div>
             <p className="text-gray-600 font-medium">Loading audit logs...</p>
-          </div>
-        ) : error ? (
-          <div className="m-4 bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 rounded-xl p-6 shadow-sm">
-            <div className="flex items-center">
-              <ExclamationTriangleIcon className="h-6 w-6 text-red-600 mr-3" />
-              <p className="text-red-800 font-medium">{error}</p>
-            </div>
           </div>
         ) : auditLogs.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 text-gray-500">
@@ -398,13 +384,6 @@ const AdminSecurity = () => {
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#30d9fe] border-t-transparent mb-4"></div>
             <p className="text-gray-600 font-medium">Loading security events...</p>
           </div>
-        ) : error ? (
-          <div className="m-4 bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 rounded-xl p-6 shadow-sm">
-            <div className="flex items-center">
-              <ExclamationTriangleIcon className="h-6 w-6 text-red-600 mr-3" />
-              <p className="text-red-800 font-medium">{error}</p>
-            </div>
-          </div>
         ) : securityEvents.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 text-gray-500">
             <ShieldCheckIcon className="h-16 w-16 mb-4 text-gray-300" />
@@ -438,16 +417,14 @@ const AdminSecurity = () => {
                   <tr key={event.id} className="hover:bg-gradient-to-r hover:from-yellow-50 hover:to-yellow-100 transition-all duration-200">
                     <td className="px-6 py-4">
                       <div className="flex items-start">
-                        <div className={`mt-1 p-2 rounded-lg ${
-                          event.severity === 'critical' ? 'bg-purple-100' :
-                          event.severity === 'high' ? 'bg-red-100' :
-                          event.severity === 'medium' ? 'bg-yellow-100' : 'bg-green-100'
-                        }`}>
-                          <ExclamationTriangleIcon className={`h-5 w-5 ${
-                            event.severity === 'critical' ? 'text-purple-600' :
-                            event.severity === 'high' ? 'text-red-600' :
-                            event.severity === 'medium' ? 'text-yellow-600' : 'text-green-600'
-                          }`} />
+                        <div className={`mt-1 p-2 rounded-lg ${event.severity === 'critical' ? 'bg-purple-100' :
+                            event.severity === 'high' ? 'bg-red-100' :
+                              event.severity === 'medium' ? 'bg-yellow-100' : 'bg-green-100'
+                          }`}>
+                          <ExclamationTriangleIcon className={`h-5 w-5 ${event.severity === 'critical' ? 'text-purple-600' :
+                              event.severity === 'high' ? 'text-red-600' :
+                                event.severity === 'medium' ? 'text-yellow-600' : 'text-green-600'
+                            }`} />
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-semibold text-gray-900">{event.title}</div>
@@ -498,7 +475,7 @@ const AdminSecurity = () => {
           <p className="text-sm text-gray-600 mt-1">Monitor and manage your system security</p>
         </div>
         <div className="flex space-x-6">
-          <button 
+          <button
             onClick={fetchSecurityStats}
             className="flex items-center space-x-2 bg-[#30d9fe] text-[#03325a] px-6 py-3 rounded-xl hover:bg-[#eec262] font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
           >
@@ -521,11 +498,10 @@ const AdminSecurity = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-3 px-8 py-4 text-sm font-semibold whitespace-nowrap border-b-3 transition-all duration-300 ${
-                  activeTab === tab.id
+                className={`flex items-center space-x-3 px-8 py-4 text-sm font-semibold whitespace-nowrap border-b-3 transition-all duration-300 ${activeTab === tab.id
                     ? 'border-b-4 border-[#30d9fe] text-[#03325a] bg-gradient-to-t from-blue-50 to-transparent'
                     : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 <Icon className="h-5 w-5" />
                 <span>{tab.label}</span>
@@ -568,11 +544,10 @@ const AdminSecurity = () => {
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ${
-                    currentPage === page
+                  className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ${currentPage === page
                       ? 'bg-[#30d9fe] text-[#03325a] shadow-lg transform scale-110'
                       : 'text-gray-700 bg-white border border-gray-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 hover:border-blue-300'
-                  }`}
+                    }`}
                 >
                   {page}
                 </button>

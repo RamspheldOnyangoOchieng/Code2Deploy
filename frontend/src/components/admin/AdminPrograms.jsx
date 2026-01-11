@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../../services/authService';
 import { API_BASE_URL } from '../../config/api';
+import { useToast } from '../../contexts/ToastContext';
 
 const AdminPrograms = () => {
+  const toast = useToast();
   const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -43,7 +45,7 @@ const AdminPrograms = () => {
         page: currentPage,
         page_size: 20
       });
-      
+
       if (searchTerm) params.append('search', searchTerm);
       if (levelFilter) params.append('level', levelFilter);
 
@@ -83,7 +85,7 @@ const AdminPrograms = () => {
   const handleCreateProgram = async () => {
     try {
       const formData = new FormData();
-      
+
       // Add all fields to FormData
       formData.append('title', editForm.title);
       formData.append('description', editForm.description);
@@ -96,7 +98,7 @@ const AdminPrograms = () => {
       formData.append('scholarship_available', editForm.scholarship_available);
       formData.append('prerequisites', editForm.prerequisites || '');
       formData.append('modules', editForm.modules || '');
-      
+
       // Add image file if selected, otherwise add URL if provided
       if (imageFile) {
         formData.append('image', imageFile);
@@ -131,13 +133,13 @@ const AdminPrograms = () => {
         });
         setImageFile(null);
         setImagePreview('');
+        toast.success('Program created successfully!');
         fetchPrograms();
       } else {
-        const errorData = await response.json();
-        setError(errorData.detail || 'Failed to create program');
+        toast.error('Failed to create program');
       }
     } catch (err) {
-      setError('Error creating program: ' + err.message);
+      toast.error('Error creating program');
     }
   };
 
@@ -177,7 +179,7 @@ const AdminPrograms = () => {
   const handleUpdateProgram = async () => {
     try {
       const formData = new FormData();
-      
+
       // Add all fields to FormData
       formData.append('title', editForm.title);
       formData.append('description', editForm.description);
@@ -190,7 +192,7 @@ const AdminPrograms = () => {
       formData.append('scholarship_available', editForm.scholarship_available);
       formData.append('prerequisites', editForm.prerequisites || '');
       formData.append('modules', editForm.modules || '');
-      
+
       // Add image file if new file selected, otherwise keep existing
       if (imageFile) {
         formData.append('image', imageFile);
@@ -200,7 +202,7 @@ const AdminPrograms = () => {
       }
 
       const response = await fetch(`${API_BASE_URL}/programs/${selectedProgram.id}/`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
           // Don't set Content-Type - browser will set it with boundary
@@ -212,13 +214,13 @@ const AdminPrograms = () => {
         setShowEditModal(false);
         setImageFile(null);
         setImagePreview('');
+        toast.success('Program updated successfully!');
         fetchPrograms();
       } else {
-        const errorData = await response.json();
-        setError(errorData.detail || 'Failed to update program');
+        toast.error('Failed to update program');
       }
     } catch (err) {
-      setError('Error updating program: ' + err.message);
+      toast.error('Error updating program');
     }
   };
 
@@ -234,21 +236,21 @@ const AdminPrograms = () => {
 
       if (response.ok) {
         setShowDeleteModal(false);
+        toast.success('Program deleted successfully!');
         fetchPrograms();
       } else {
-        setError('Failed to delete program');
+        toast.error('Failed to delete program');
       }
     } catch (err) {
-      setError('Error deleting program');
+      toast.error('Error deleting program');
     }
   };
 
   const getStatusBadge = (isActive) => (
-    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-      isActive 
-        ? 'bg-green-100 text-green-800' 
+    <span className={`px-2 py-1 text-xs font-medium rounded-full ${isActive
+        ? 'bg-green-100 text-green-800'
         : 'bg-red-100 text-red-800'
-    }`}>
+      }`}>
       {isActive ? 'Active' : 'Inactive'}
     </span>
   );
@@ -259,7 +261,7 @@ const AdminPrograms = () => {
       'Intermediate': 'bg-yellow-100 text-yellow-800',
       'Advanced': 'bg-red-100 text-red-800'
     };
-    
+
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${levelColors[level] || 'bg-gray-100 text-gray-800'}`}>
         {level}
@@ -273,7 +275,7 @@ const AdminPrograms = () => {
       'Hybrid': 'bg-purple-100 text-purple-800',
       'On-site': 'bg-gray-100 text-gray-800'
     };
-    
+
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${modeColors[mode] || 'bg-gray-100 text-gray-800'}`}>
         {mode}
@@ -286,7 +288,7 @@ const AdminPrograms = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <h2 className="text-xl md:text-2xl font-bold text-gray-900">Programs Management</h2>
-        <button 
+        <button
           onClick={() => setShowCreateModal(true)}
           className="w-full sm:w-auto bg-[#30d9fe] text-white px-4 py-2 rounded-lg hover:bg-[#00b8d4] transition-colors text-sm md:text-base"
         >
@@ -339,12 +341,8 @@ const AdminPrograms = () => {
       {/* Programs Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         {loading ? (
-          <div className="flex justify-center items-center h-48 md:h-64">
-            <div className="animate-spin rounded-full h-10 w-10 md:h-12 md:w-12 border-b-2 border-[#30d9fe]"></div>
-          </div>
-        ) : error ? (
-          <div className="p-3 md:p-4 bg-red-50 border border-red-200 rounded-lg m-3 md:m-4">
-            <p className="text-sm md:text-base text-red-800">{error}</p>
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#30d9fe]"></div>
           </div>
         ) : (
           <>
@@ -370,93 +368,93 @@ const AdminPrograms = () => {
                     </th>
                     <th className="hidden xl:table-cell px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Features
-                  </th>
-                  <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Enrollments
-                  </th>
-                  <th className="px-3 md:px-6 py-2 md:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {programs.map((program) => (
-                  <tr key={program.id} className="hover:bg-gray-50">
-                    <td className="px-3 md:px-6 py-3 md:py-4">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-12 w-12">
-                          <img
-                            className="h-12 w-12 rounded-lg object-cover"
-                            src={program.image || 'https://via.placeholder.com/48'}
-                            alt=""
-                          />
-                        </div>
-                        <div className="ml-4 min-w-0 flex-1">
-                          <div className="text-sm font-medium text-gray-900 truncate">
-                            {program.title}
-                          </div>
-                          <div className="text-sm text-gray-500 truncate max-w-xs">
-                            {program.description}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
-                      {getLevelBadge(program.level)}
-                    </td>
-                    <td className="hidden lg:table-cell px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-sm text-gray-500">
-                      {program.duration}
-                    </td>
-                    <td className="hidden lg:table-cell px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
-                      {getModeBadge(program.mode)}
-                    </td>
-                    <td className="hidden xl:table-cell px-3 md:px-6 py-3 md:py-4">
-                      <div className="text-sm text-gray-900 max-w-xs truncate">
-                        {program.technologies}
-                      </div>
-                    </td>
-                    <td className="hidden xl:table-cell px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
-                      <div className="flex space-x-1">
-                        {program.has_certification && (
-                          <span className="text-yellow-500" title="Certification">
-                            <i className="fas fa-certificate"></i>
-                          </span>
-                        )}
-                        {program.scholarship_available && (
-                          <span className="text-green-500" title="Scholarship">
-                            <i className="fas fa-hand-holding-usd"></i>
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-sm text-gray-500">
-                      {program.enrollment_count || 0}
-                    </td>
-                    <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          onClick={() => handleEditProgram(program)}
-                          className="text-[#30d9fe] hover:text-[#00b8d4]"
-                          title="Edit"
-                        >
-                          <i className="fas fa-edit mr-1"></i>Edit
-                        </button>
-                        <button
-                          onClick={() => {
-                            setSelectedProgram(program);
-                            setShowDeleteModal(true);
-                          }}
-                          className="text-red-600 hover:text-red-900"
-                          title="Delete"
-                        >
-                          <i className="fas fa-trash mr-1"></i>Delete
-                        </button>
-                      </div>
-                    </td>
+                    </th>
+                    <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Enrollments
+                    </th>
+                    <th className="px-3 md:px-6 py-2 md:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {programs.map((program) => (
+                    <tr key={program.id} className="hover:bg-gray-50">
+                      <td className="px-3 md:px-6 py-3 md:py-4">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-12 w-12">
+                            <img
+                              className="h-12 w-12 rounded-lg object-cover"
+                              src={program.image || 'https://via.placeholder.com/48'}
+                              alt=""
+                            />
+                          </div>
+                          <div className="ml-4 min-w-0 flex-1">
+                            <div className="text-sm font-medium text-gray-900 truncate">
+                              {program.title}
+                            </div>
+                            <div className="text-sm text-gray-500 truncate max-w-xs">
+                              {program.description}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                        {getLevelBadge(program.level)}
+                      </td>
+                      <td className="hidden lg:table-cell px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-sm text-gray-500">
+                        {program.duration}
+                      </td>
+                      <td className="hidden lg:table-cell px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                        {getModeBadge(program.mode)}
+                      </td>
+                      <td className="hidden xl:table-cell px-3 md:px-6 py-3 md:py-4">
+                        <div className="text-sm text-gray-900 max-w-xs truncate">
+                          {program.technologies}
+                        </div>
+                      </td>
+                      <td className="hidden xl:table-cell px-3 md:px-6 py-3 md:py-4 whitespace-nowrap">
+                        <div className="flex space-x-1">
+                          {program.has_certification && (
+                            <span className="text-yellow-500" title="Certification">
+                              <i className="fas fa-certificate"></i>
+                            </span>
+                          )}
+                          {program.scholarship_available && (
+                            <span className="text-green-500" title="Scholarship">
+                              <i className="fas fa-hand-holding-usd"></i>
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-sm text-gray-500">
+                        {program.enrollment_count || 0}
+                      </td>
+                      <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => handleEditProgram(program)}
+                            className="text-[#30d9fe] hover:text-[#00b8d4]"
+                            title="Edit"
+                          >
+                            <i className="fas fa-edit mr-1"></i>Edit
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedProgram(program);
+                              setShowDeleteModal(true);
+                            }}
+                            className="text-red-600 hover:text-red-900"
+                            title="Delete"
+                          >
+                            <i className="fas fa-trash mr-1"></i>Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
             {/* Mobile Card View */}
@@ -476,7 +474,7 @@ const AdminPrograms = () => {
                       <p className="text-xs text-gray-500 line-clamp-2 mb-2">
                         {program.description}
                       </p>
-                      
+
                       {/* Badges */}
                       <div className="flex flex-wrap gap-2 mb-3">
                         {getLevelBadge(program.level)}
@@ -537,7 +535,7 @@ const AdminPrograms = () => {
                 </div>
               ))}
             </div>
-            
+
             {/* Empty state */}
             {programs.length === 0 && !loading && !error && (
               <div className="text-center py-8 md:py-12 px-4">
@@ -571,11 +569,10 @@ const AdminPrograms = () => {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`px-3 py-2 text-xs md:text-sm font-medium rounded-md ${
-                  currentPage === page
+                className={`px-3 py-2 text-xs md:text-sm font-medium rounded-md ${currentPage === page
                     ? 'bg-[#30d9fe] text-white'
                     : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 {page}
               </button>
@@ -612,7 +609,7 @@ const AdminPrograms = () => {
                   <i className="fas fa-times text-xl"></i>
                 </button>
               </h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-4">
                 {/* Left Column */}
                 <div className="space-y-3 md:space-y-4">
@@ -623,7 +620,7 @@ const AdminPrograms = () => {
                     <input
                       type="text"
                       value={editForm.title}
-                      onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
                       placeholder="e.g., Full-Stack Web Development"
                       className="w-full px-3 md:px-4 py-2 text-sm md:text-base bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe] placeholder-gray-400"
                       required
@@ -636,7 +633,7 @@ const AdminPrograms = () => {
                     </label>
                     <textarea
                       value={editForm.description}
-                      onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                       rows={3}
                       placeholder="Describe what students will learn..."
                       className="w-full px-3 md:px-4 py-2 text-sm md:text-base bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe] placeholder-gray-400"
@@ -652,7 +649,7 @@ const AdminPrograms = () => {
                       <input
                         type="text"
                         value={editForm.duration}
-                        onChange={(e) => setEditForm({...editForm, duration: e.target.value})}
+                        onChange={(e) => setEditForm({ ...editForm, duration: e.target.value })}
                         placeholder="e.g., 12 Weeks"
                         className="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe] placeholder-gray-400"
                         required
@@ -664,7 +661,7 @@ const AdminPrograms = () => {
                       </label>
                       <select
                         value={editForm.level}
-                        onChange={(e) => setEditForm({...editForm, level: e.target.value})}
+                        onChange={(e) => setEditForm({ ...editForm, level: e.target.value })}
                         className="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                         required
                       >
@@ -682,7 +679,7 @@ const AdminPrograms = () => {
                     <input
                       type="text"
                       value={editForm.technologies}
-                      onChange={(e) => setEditForm({...editForm, technologies: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, technologies: e.target.value })}
                       placeholder="e.g., HTML, CSS, JavaScript, React"
                       className="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe] placeholder-gray-400"
                       required
@@ -695,7 +692,7 @@ const AdminPrograms = () => {
                     </label>
                     <select
                       value={editForm.mode}
-                      onChange={(e) => setEditForm({...editForm, mode: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, mode: e.target.value })}
                       className="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     >
                       <option value="Online">Online</option>
@@ -711,7 +708,7 @@ const AdminPrograms = () => {
                     <input
                       type="number"
                       value={editForm.sessions_per_week}
-                      onChange={(e) => setEditForm({...editForm, sessions_per_week: parseInt(e.target.value) || 0})}
+                      onChange={(e) => setEditForm({ ...editForm, sessions_per_week: parseInt(e.target.value) || 0 })}
                       min="1"
                       max="7"
                       className="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
@@ -735,7 +732,7 @@ const AdminPrograms = () => {
                     <input
                       type="url"
                       value={editForm.image}
-                      onChange={(e) => setEditForm({...editForm, image: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, image: e.target.value })}
                       placeholder="https://example.com/image.jpg"
                       className="mt-2 w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe] placeholder-gray-400"
                     />
@@ -756,7 +753,7 @@ const AdminPrograms = () => {
                     </label>
                     <textarea
                       value={editForm.modules}
-                      onChange={(e) => setEditForm({...editForm, modules: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, modules: e.target.value })}
                       rows={3}
                       placeholder="e.g., Introduction, HTML Basics, CSS Fundamentals"
                       className="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe] placeholder-gray-400"
@@ -769,7 +766,7 @@ const AdminPrograms = () => {
                     </label>
                     <textarea
                       value={editForm.prerequisites}
-                      onChange={(e) => setEditForm({...editForm, prerequisites: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, prerequisites: e.target.value })}
                       rows={3}
                       placeholder="e.g., Basic computer knowledge"
                       className="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe] placeholder-gray-400"
@@ -781,7 +778,7 @@ const AdminPrograms = () => {
                       <input
                         type="checkbox"
                         checked={editForm.has_certification}
-                        onChange={(e) => setEditForm({...editForm, has_certification: e.target.checked})}
+                        onChange={(e) => setEditForm({ ...editForm, has_certification: e.target.checked })}
                         className="h-5 w-5 text-[#30d9fe] focus:ring-[#30d9fe] border-gray-300 rounded"
                         id="has_certification"
                       />
@@ -794,7 +791,7 @@ const AdminPrograms = () => {
                       <input
                         type="checkbox"
                         checked={editForm.scholarship_available}
-                        onChange={(e) => setEditForm({...editForm, scholarship_available: e.target.checked})}
+                        onChange={(e) => setEditForm({ ...editForm, scholarship_available: e.target.checked })}
                         className="h-5 w-5 text-[#30d9fe] focus:ring-[#30d9fe] border-gray-300 rounded"
                         id="scholarship_available"
                       />

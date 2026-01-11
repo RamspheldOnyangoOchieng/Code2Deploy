@@ -1,4 +1,6 @@
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { ToastProvider } from './contexts/ToastContext';
+import { AuthProvider } from './contexts/AuthContext';
 import About from './pages/about';
 import Contact from './pages/contact';
 import Events from './pages/events';
@@ -24,27 +26,31 @@ import 'swiper/css/pagination';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/events" element={<Events />} />
-        <Route path="/programs" element={<Programs />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/learner-dashboard" element={<LearnerDashboard />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/mentor-dashboard" element={<MentorDashboard />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/confirmed" element={<Confirmed />} />
-        <Route path="/confirm-email" element={<ConfirmEmail />} />
-        {/* Payment routes */}
-        <Route path="/enroll" element={<ProgramEnrollment />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/payment/success" element={<PaymentSuccess />} />
-        <Route path="/payment/cancel" element={<PaymentCancel />} />
-      </Routes>
-    </Router>
+    <ToastProvider>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/programs" element={<Programs />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/learner-dashboard" element={<LearnerDashboard />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/mentor-dashboard" element={<MentorDashboard />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/confirmed" element={<Confirmed />} />
+            <Route path="/confirm-email" element={<ConfirmEmail />} />
+            {/* Payment routes */}
+            <Route path="/enroll" element={<ProgramEnrollment />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/payment/success" element={<PaymentSuccess />} />
+            <Route path="/payment/cancel" element={<PaymentCancel />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ToastProvider>
   );
 }
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import authService from '../services/authService';
 import LogoutModal from './LogoutModal';
+import NotificationPopover from './NotificationPopover';
 import logo from '../assets/logo2-clear.png';
 import {
     UserCircleIcon,
@@ -19,6 +20,8 @@ const DashboardLayout = ({ children, sidebarItems = [], activeTab, setActiveTab,
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -28,6 +31,12 @@ const DashboardLayout = ({ children, sidebarItems = [], activeTab, setActiveTab,
             return;
         }
         authService.getCurrentUser().then(setUser).catch(console.error);
+
+        // Fetch unread count
+        authService.getUserNotifications().then(data => {
+            const notifications = data.results || data || [];
+            setUnreadCount(notifications.filter(n => !n.is_read).length);
+        }).catch(console.error);
     }, [navigate]);
 
     // Close dropdown when clicking outside
@@ -90,10 +99,21 @@ const DashboardLayout = ({ children, sidebarItems = [], activeTab, setActiveTab,
                     {/* Right Side - Notifications, Settings, Profile */}
                     <div className="flex items-center space-x-2 sm:space-x-4">
                         {/* Notifications */}
-                        <button className="relative p-2 text-gray-300 hover:text-[#30d9fe] transition-colors">
-                            <BellIcon className="w-6 h-6" />
-                            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                        </button>
+                        <div className="relative">
+                            <button
+                                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                                className="relative p-2 text-gray-300 hover:text-[#30d9fe] transition-colors"
+                            >
+                                <BellIcon className="w-6 h-6" />
+                                {unreadCount > 0 && (
+                                    <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                )}
+                            </button>
+                            <NotificationPopover
+                                isOpen={isNotificationOpen}
+                                onClose={() => setIsNotificationOpen(false)}
+                            />
+                        </div>
 
                         {/* Settings */}
                         <Link to="/profile" className="p-2 text-gray-300 hover:text-[#30d9fe] transition-colors">

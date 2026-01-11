@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import AuthService from '../services/authService';
+import { useToast } from '../contexts/ToastContext';
 
 const SignupModal = ({ isOpen, onClose, onSignupSuccess }) => {
+  const toast = useToast();
   const [formData, setFormData] = useState({
     email: '',
     username: '',
@@ -30,15 +32,15 @@ const SignupModal = ({ isOpen, onClose, onSignupSuccess }) => {
 
   const handleResendConfirmation = async () => {
     if (!registeredEmail) return;
-    
+
     setResendLoading(true);
     setResendMessage('');
-    
+
     try {
       const response = await AuthService.resendConfirmationEmail(registeredEmail);
-      setResendMessage(response.detail || 'Confirmation email sent! Check your inbox.');
+      toast.success(response.detail || 'Confirmation email sent! Check your inbox.');
     } catch (error) {
-      setResendMessage(error.message || 'Failed to resend email. Please try again.');
+      toast.error(error.message || 'Failed to resend email. Please try again.');
     } finally {
       setResendLoading(false);
     }
@@ -81,13 +83,13 @@ const SignupModal = ({ isOpen, onClose, onSignupSuccess }) => {
     try {
       // Register the user
       const response = await AuthService.signup(formData);
-      
+
       // Show success message - user needs to confirm email before logging in
       setSuccess(true);
       setSuccessMessage(response.detail || '🎉 Signup successful! Please check your email and click the confirmation link to activate your account.');
       setRegisteredEmail(formData.email);
       setShowResendOption(true);
-      
+
       // Clear form
       setFormData({
         email: '',
@@ -99,17 +101,18 @@ const SignupModal = ({ isOpen, onClose, onSignupSuccess }) => {
       });
     } catch (error) {
       // Handle different types of errors
+      let errorMsg = error.message || 'Registration failed. Please try again.';
       if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-        setError('Network error. Please check your internet connection and try again.');
+        errorMsg = 'Network error. Please check your internet connection and try again.';
       } else if (error.message.includes('NetworkError')) {
-        setError('Network error. Please check your internet connection and try again.');
+        errorMsg = 'Network error. Please check your internet connection and try again.';
       } else if (error.message.includes('email')) {
-        setError('This email is already in use.');
+        errorMsg = 'This email is already in use.';
       } else if (error.message.includes('username')) {
-        setError('This username is already taken.');
-      } else {
-        setError(error.message || 'Registration failed. Please try again.');
+        errorMsg = 'This username is already taken.';
       }
+      toast.error(errorMsg);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -139,7 +142,7 @@ const SignupModal = ({ isOpen, onClose, onSignupSuccess }) => {
             <p className="text-sm text-gray-500 mb-6">
               Click the confirmation link in your email to activate your account, then you can log in.
             </p>
-            
+
             {/* Resend confirmation email option */}
             {showResendOption && (
               <div className="mb-6 p-4 bg-gray-50 rounded-lg">
@@ -158,7 +161,7 @@ const SignupModal = ({ isOpen, onClose, onSignupSuccess }) => {
                 </button>
               </div>
             )}
-            
+
             <button
               onClick={handleClose}
               className="w-full bg-[#30d9fe] text-[#03325a] font-medium py-2 px-4 rounded-md hover:bg-opacity-90 transition-all duration-300"

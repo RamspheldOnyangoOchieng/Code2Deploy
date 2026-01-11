@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../../services/authService';
 import { API_BASE_URL } from '../../config/api';
+import { useToast } from '../../contexts/ToastContext';
 
 const AdminEvents = () => {
+  const toast = useToast();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -39,7 +41,7 @@ const AdminEvents = () => {
         page: currentPage,
         page_size: 20
       });
-      
+
       if (searchTerm) params.append('search', searchTerm);
       if (categoryFilter) params.append('category', categoryFilter);
       if (statusFilter) params.append('status', statusFilter);
@@ -99,12 +101,13 @@ const AdminEvents = () => {
           price: '',
           is_active: true
         });
+        toast.success('Event created successfully!');
         fetchEvents();
       } else {
-        setError('Failed to create event');
+        toast.error('Failed to create event');
       }
     } catch (err) {
-      setError('Error creating event');
+      toast.error('Error creating event');
     }
   };
 
@@ -137,12 +140,13 @@ const AdminEvents = () => {
 
       if (response.ok) {
         setShowEditModal(false);
+        toast.success('Event updated successfully!');
         fetchEvents();
       } else {
-        setError('Failed to update event');
+        toast.error('Failed to update event');
       }
     } catch (err) {
-      setError('Error updating event');
+      toast.error('Error updating event');
     }
   };
 
@@ -158,21 +162,21 @@ const AdminEvents = () => {
 
       if (response.ok) {
         setShowDeleteModal(false);
+        toast.success('Event deleted successfully!');
         fetchEvents();
       } else {
-        setError('Failed to delete event');
+        toast.error('Failed to delete event');
       }
     } catch (err) {
-      setError('Error deleting event');
+      toast.error('Error deleting event');
     }
   };
 
   const getStatusBadge = (isActive) => (
-    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-      isActive 
-        ? 'bg-green-100 text-green-800' 
+    <span className={`px-2 py-1 text-xs font-medium rounded-full ${isActive
+        ? 'bg-green-100 text-green-800'
         : 'bg-red-100 text-red-800'
-    }`}>
+      }`}>
       {isActive ? 'Active' : 'Inactive'}
     </span>
   );
@@ -180,7 +184,7 @@ const AdminEvents = () => {
   const getDateStatus = (eventDate) => {
     const now = new Date();
     const eventDateObj = new Date(eventDate);
-    
+
     if (eventDateObj < now) {
       return <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">Past</span>;
     } else if (eventDateObj.getTime() - now.getTime() < 7 * 24 * 60 * 60 * 1000) {
@@ -195,7 +199,7 @@ const AdminEvents = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">Events Management</h2>
-        <button 
+        <button
           onClick={() => setShowCreateModal(true)}
           className="bg-[#30d9fe] text-white px-4 py-2 rounded-lg hover:bg-[#00b8d4] transition-colors"
         >
@@ -258,10 +262,6 @@ const AdminEvents = () => {
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#30d9fe]"></div>
-          </div>
-        ) : error ? (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800">{error}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -381,11 +381,10 @@ const AdminEvents = () => {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`px-3 py-2 text-sm font-medium rounded-md ${
-                  currentPage === page
+                className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === page
                     ? 'bg-[#30d9fe] text-white'
                     : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 {page}
               </button>
@@ -415,7 +414,7 @@ const AdminEvents = () => {
                   <input
                     type="text"
                     value={editForm.title}
-                    onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
                 </div>
@@ -423,7 +422,7 @@ const AdminEvents = () => {
                   <label className="block text-sm font-medium text-gray-700">Description</label>
                   <textarea
                     value={editForm.description}
-                    onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                     rows={3}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
@@ -433,7 +432,7 @@ const AdminEvents = () => {
                     <label className="block text-sm font-medium text-gray-700">Category</label>
                     <select
                       value={editForm.category}
-                      onChange={(e) => setEditForm({...editForm, category: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     >
                       <option value="">Select Category</option>
@@ -448,7 +447,7 @@ const AdminEvents = () => {
                     <input
                       type="date"
                       value={editForm.date}
-                      onChange={(e) => setEditForm({...editForm, date: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     />
                   </div>
@@ -459,7 +458,7 @@ const AdminEvents = () => {
                     <input
                       type="time"
                       value={editForm.time}
-                      onChange={(e) => setEditForm({...editForm, time: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, time: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     />
                   </div>
@@ -468,7 +467,7 @@ const AdminEvents = () => {
                     <input
                       type="number"
                       value={editForm.capacity}
-                      onChange={(e) => setEditForm({...editForm, capacity: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, capacity: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     />
                   </div>
@@ -478,7 +477,7 @@ const AdminEvents = () => {
                   <input
                     type="text"
                     value={editForm.location}
-                    onChange={(e) => setEditForm({...editForm, location: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
                 </div>
@@ -487,7 +486,7 @@ const AdminEvents = () => {
                   <input
                     type="number"
                     value={editForm.price}
-                    onChange={(e) => setEditForm({...editForm, price: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
                     placeholder="0.00"
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
@@ -496,7 +495,7 @@ const AdminEvents = () => {
                   <input
                     type="checkbox"
                     checked={editForm.is_active}
-                    onChange={(e) => setEditForm({...editForm, is_active: e.target.checked})}
+                    onChange={(e) => setEditForm({ ...editForm, is_active: e.target.checked })}
                     className="h-4 w-4 text-[#30d9fe] focus:ring-[#30d9fe] border-gray-300 rounded"
                   />
                   <label className="ml-2 block text-sm text-gray-900">Active</label>

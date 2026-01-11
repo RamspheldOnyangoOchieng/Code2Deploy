@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../../services/authService';
 import { API_BASE_URL } from '../../config/api';
+import { useToast } from '../../contexts/ToastContext';
 
 const AdminBadges = () => {
+  const toast = useToast();
   const [badges, setBadges] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,7 +48,7 @@ const AdminBadges = () => {
         page: currentPage,
         page_size: 20
       });
-      
+
       if (searchTerm) params.append('search', searchTerm);
       if (typeFilter) params.append('badge_type', typeFilter);
 
@@ -111,12 +113,13 @@ const AdminBadges = () => {
           criteria: '',
           is_active: true
         });
+        toast.success('Badge created successfully!');
         fetchBadges();
       } else {
-        setError('Failed to create badge');
+        toast.error('Failed to create badge');
       }
     } catch (err) {
-      setError('Error creating badge');
+      toast.error('Error creating badge');
     }
   };
 
@@ -147,12 +150,13 @@ const AdminBadges = () => {
 
       if (response.ok) {
         setShowEditModal(false);
+        toast.success('Badge updated successfully!');
         fetchBadges();
       } else {
-        setError('Failed to update badge');
+        toast.error('Failed to update badge');
       }
     } catch (err) {
-      setError('Error updating badge');
+      toast.error('Error updating badge');
     }
   };
 
@@ -168,12 +172,13 @@ const AdminBadges = () => {
 
       if (response.ok) {
         setShowDeleteModal(false);
+        toast.success('Badge deleted successfully!');
         fetchBadges();
       } else {
-        setError('Failed to delete badge');
+        toast.error('Failed to delete badge');
       }
     } catch (err) {
-      setError('Error deleting badge');
+      toast.error('Error deleting badge');
     }
   };
 
@@ -199,12 +204,13 @@ const AdminBadges = () => {
           color: '#30d9fe',
           criteria: ''
         });
+        toast.success('Badge awarded successfully!');
         fetchBadges();
       } else {
-        setError('Failed to award badge');
+        toast.error('Failed to award badge');
       }
     } catch (err) {
-      setError('Error awarding badge');
+      toast.error('Error awarding badge');
     }
   };
 
@@ -216,7 +222,7 @@ const AdminBadges = () => {
       special: 'bg-orange-100 text-orange-800',
       community: 'bg-pink-100 text-pink-800'
     };
-    
+
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${typeColors[type] || 'bg-gray-100 text-gray-800'}`}>
         {type}
@@ -230,13 +236,13 @@ const AdminBadges = () => {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">Badges Management</h2>
         <div className="flex space-x-3">
-          <button 
+          <button
             onClick={() => setShowAwardModal(true)}
             className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
           >
             🎖️ Award Badge
           </button>
-          <button 
+          <button
             onClick={() => setShowEditModal(true)}
             className="bg-[#30d9fe] text-white px-4 py-2 rounded-lg hover:bg-[#00b8d4] transition-colors"
           >
@@ -290,10 +296,6 @@ const AdminBadges = () => {
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#30d9fe]"></div>
           </div>
-        ) : error ? (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800">{error}</p>
-          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -325,7 +327,7 @@ const AdminBadges = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-12 w-12">
-                          <div 
+                          <div
                             className="h-12 w-12 rounded-lg flex items-center justify-center text-white font-bold"
                             style={{ backgroundColor: badge.color || '#30d9fe' }}
                           >
@@ -401,11 +403,10 @@ const AdminBadges = () => {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`px-3 py-2 text-sm font-medium rounded-md ${
-                  currentPage === page
+                className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === page
                     ? 'bg-[#30d9fe] text-white'
                     : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 {page}
               </button>
@@ -435,7 +436,7 @@ const AdminBadges = () => {
                   <input
                     type="text"
                     value={editForm.title}
-                    onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
                 </div>
@@ -443,7 +444,7 @@ const AdminBadges = () => {
                   <label className="block text-sm font-medium text-gray-700">Description</label>
                   <textarea
                     value={editForm.description}
-                    onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                     rows={3}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
@@ -453,7 +454,7 @@ const AdminBadges = () => {
                     <label className="block text-sm font-medium text-gray-700">Type</label>
                     <select
                       value={editForm.badge_type}
-                      onChange={(e) => setEditForm({...editForm, badge_type: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, badge_type: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     >
                       <option value="">Select Type</option>
@@ -469,7 +470,7 @@ const AdminBadges = () => {
                     <input
                       type="number"
                       value={editForm.points}
-                      onChange={(e) => setEditForm({...editForm, points: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, points: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     />
                   </div>
@@ -479,7 +480,7 @@ const AdminBadges = () => {
                   <input
                     type="color"
                     value={editForm.color}
-                    onChange={(e) => setEditForm({...editForm, color: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, color: e.target.value })}
                     className="mt-1 w-full h-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
                 </div>
@@ -487,7 +488,7 @@ const AdminBadges = () => {
                   <label className="block text-sm font-medium text-gray-700">Criteria</label>
                   <textarea
                     value={editForm.criteria}
-                    onChange={(e) => setEditForm({...editForm, criteria: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, criteria: e.target.value })}
                     rows={2}
                     placeholder="e.g., Complete 5 courses, Score 90%+ on final exam"
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
@@ -497,7 +498,7 @@ const AdminBadges = () => {
                   <input
                     type="checkbox"
                     checked={editForm.is_active}
-                    onChange={(e) => setEditForm({...editForm, is_active: e.target.checked})}
+                    onChange={(e) => setEditForm({ ...editForm, is_active: e.target.checked })}
                     className="h-4 w-4 text-[#30d9fe] focus:ring-[#30d9fe] border-gray-300 rounded"
                   />
                   <label className="ml-2 block text-sm text-gray-900">Active</label>
@@ -536,7 +537,7 @@ const AdminBadges = () => {
                   <label className="block text-sm font-medium text-gray-700">User</label>
                   <select
                     value={awardForm.user_id}
-                    onChange={(e) => setAwardForm({...awardForm, user_id: e.target.value})}
+                    onChange={(e) => setAwardForm({ ...awardForm, user_id: e.target.value })}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   >
                     <option value="">Select User</option>
@@ -552,7 +553,7 @@ const AdminBadges = () => {
                   <input
                     type="text"
                     value={awardForm.title}
-                    onChange={(e) => setAwardForm({...awardForm, title: e.target.value})}
+                    onChange={(e) => setAwardForm({ ...awardForm, title: e.target.value })}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
                 </div>
@@ -560,7 +561,7 @@ const AdminBadges = () => {
                   <label className="block text-sm font-medium text-gray-700">Description</label>
                   <textarea
                     value={awardForm.description}
-                    onChange={(e) => setAwardForm({...awardForm, description: e.target.value})}
+                    onChange={(e) => setAwardForm({ ...awardForm, description: e.target.value })}
                     rows={3}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
@@ -570,7 +571,7 @@ const AdminBadges = () => {
                     <label className="block text-sm font-medium text-gray-700">Type</label>
                     <select
                       value={awardForm.badge_type}
-                      onChange={(e) => setAwardForm({...awardForm, badge_type: e.target.value})}
+                      onChange={(e) => setAwardForm({ ...awardForm, badge_type: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     >
                       <option value="">Select Type</option>
@@ -586,7 +587,7 @@ const AdminBadges = () => {
                     <input
                       type="number"
                       value={awardForm.points}
-                      onChange={(e) => setAwardForm({...awardForm, points: e.target.value})}
+                      onChange={(e) => setAwardForm({ ...awardForm, points: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     />
                   </div>
@@ -596,7 +597,7 @@ const AdminBadges = () => {
                   <input
                     type="color"
                     value={awardForm.color}
-                    onChange={(e) => setAwardForm({...awardForm, color: e.target.value})}
+                    onChange={(e) => setAwardForm({ ...awardForm, color: e.target.value })}
                     className="mt-1 w-full h-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
                 </div>
@@ -604,7 +605,7 @@ const AdminBadges = () => {
                   <label className="block text-sm font-medium text-gray-700">Criteria</label>
                   <textarea
                     value={awardForm.criteria}
-                    onChange={(e) => setAwardForm({...awardForm, criteria: e.target.value})}
+                    onChange={(e) => setAwardForm({ ...awardForm, criteria: e.target.value })}
                     rows={2}
                     placeholder="e.g., Complete 5 courses, Score 90%+ on final exam"
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"

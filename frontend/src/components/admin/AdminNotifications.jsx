@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../../services/authService';
 import { API_BASE_URL } from '../../config/api';
+import { useToast } from '../../contexts/ToastContext';
 
 const AdminNotifications = () => {
+  const toast = useToast();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,7 +36,7 @@ const AdminNotifications = () => {
         page: currentPage,
         page_size: 20
       });
-      
+
       if (searchTerm) params.append('search', searchTerm);
       if (typeFilter) params.append('notification_type', typeFilter);
       if (priorityFilter) params.append('priority', priorityFilter);
@@ -80,12 +82,13 @@ const AdminNotifications = () => {
           priority: 'medium',
           is_active: true
         });
+        toast.success('Notification sent successfully!');
         fetchNotifications();
       } else {
-        setError('Failed to create notification');
+        toast.error('Failed to create notification');
       }
     } catch (err) {
-      setError('Error creating notification');
+      toast.error('Error creating notification');
     }
   };
 
@@ -114,12 +117,13 @@ const AdminNotifications = () => {
 
       if (response.ok) {
         setShowEditModal(false);
+        toast.success('Notification updated successfully!');
         fetchNotifications();
       } else {
-        setError('Failed to update notification');
+        toast.error('Failed to update notification');
       }
     } catch (err) {
-      setError('Error updating notification');
+      toast.error('Error updating notification');
     }
   };
 
@@ -135,12 +139,13 @@ const AdminNotifications = () => {
 
       if (response.ok) {
         setShowDeleteModal(false);
+        toast.success('Notification deleted successfully!');
         fetchNotifications();
       } else {
-        setError('Failed to delete notification');
+        toast.error('Failed to delete notification');
       }
     } catch (err) {
-      setError('Error deleting notification');
+      toast.error('Error deleting notification');
     }
   };
 
@@ -151,7 +156,7 @@ const AdminNotifications = () => {
       high: 'bg-red-100 text-red-800',
       urgent: 'bg-purple-100 text-purple-800'
     };
-    
+
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${priorityColors[priority] || 'bg-gray-100 text-gray-800'}`}>
         {priority}
@@ -168,7 +173,7 @@ const AdminNotifications = () => {
       badge: 'bg-pink-100 text-pink-800',
       announcement: 'bg-orange-100 text-orange-800'
     };
-    
+
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${typeColors[type] || 'bg-gray-100 text-gray-800'}`}>
         {type}
@@ -182,7 +187,7 @@ const AdminNotifications = () => {
       read: 'bg-green-100 text-green-800',
       archived: 'bg-gray-100 text-gray-800'
     };
-    
+
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[status] || 'bg-gray-100 text-gray-800'}`}>
         {status}
@@ -195,7 +200,7 @@ const AdminNotifications = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">Notifications Management</h2>
-        <button 
+        <button
           onClick={() => setShowCreateModal(true)}
           className="bg-[#30d9fe] text-white px-4 py-2 rounded-lg hover:bg-[#00b8d4] transition-colors"
         >
@@ -366,11 +371,10 @@ const AdminNotifications = () => {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`px-3 py-2 text-sm font-medium rounded-md ${
-                  currentPage === page
-                    ? 'bg-[#30d9fe] text-white'
-                    : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                }`}
+                className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === page
+                  ? 'bg-[#30d9fe] text-white'
+                  : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                  }`}
               >
                 {page}
               </button>
@@ -400,7 +404,7 @@ const AdminNotifications = () => {
                   <input
                     type="text"
                     value={editForm.title}
-                    onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
                 </div>
@@ -408,7 +412,7 @@ const AdminNotifications = () => {
                   <label className="block text-sm font-medium text-gray-700">Message</label>
                   <textarea
                     value={editForm.message}
-                    onChange={(e) => setEditForm({...editForm, message: e.target.value})}
+                    onChange={(e) => setEditForm({ ...editForm, message: e.target.value })}
                     rows={4}
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
@@ -418,7 +422,7 @@ const AdminNotifications = () => {
                     <label className="block text-sm font-medium text-gray-700">Type</label>
                     <select
                       value={editForm.notification_type}
-                      onChange={(e) => setEditForm({...editForm, notification_type: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, notification_type: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     >
                       <option value="">Select Type</option>
@@ -434,7 +438,7 @@ const AdminNotifications = () => {
                     <label className="block text-sm font-medium text-gray-700">Priority</label>
                     <select
                       value={editForm.priority}
-                      onChange={(e) => setEditForm({...editForm, priority: e.target.value})}
+                      onChange={(e) => setEditForm({ ...editForm, priority: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                     >
                       <option value="low">Low</option>
@@ -448,7 +452,7 @@ const AdminNotifications = () => {
                   <input
                     type="checkbox"
                     checked={editForm.is_active}
-                    onChange={(e) => setEditForm({...editForm, is_active: e.target.checked})}
+                    onChange={(e) => setEditForm({ ...editForm, is_active: e.target.checked })}
                     className="h-4 w-4 text-[#30d9fe] focus:ring-[#30d9fe] border-gray-300 rounded"
                   />
                   <label className="ml-2 block text-sm text-gray-900">Active</label>

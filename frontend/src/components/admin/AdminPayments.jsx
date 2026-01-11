@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import paymentService from '../../services/paymentService';
+import { useToast } from '../../contexts/ToastContext';
 
 const AdminPayments = () => {
+    const toast = useToast();
     const [activeTab, setActiveTab] = useState('orders');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -46,7 +48,7 @@ const AdminPayments = () => {
                 setCoupons(couponsData.results || couponsData || []);
             }
         } catch (err) {
-            setError(err.message || 'Failed to fetch data');
+            toast.error(err.message || 'Failed to fetch data');
         } finally {
             setLoading(false);
         }
@@ -96,8 +98,8 @@ const AdminPayments = () => {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${activeTab === tab.id
-                                ? 'bg-[#30d9fe] text-white'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            ? 'bg-[#30d9fe] text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                             }`}
                     >
                         <i className={`fas ${tab.icon} mr-2`}></i>
@@ -105,13 +107,6 @@ const AdminPayments = () => {
                     </button>
                 ))}
             </div>
-
-            {/* Error */}
-            {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <p className="text-red-800"><i className="fas fa-exclamation-circle mr-2"></i>{error}</p>
-                </div>
-            )}
 
             {/* Loading */}
             {loading ? (
@@ -353,8 +348,8 @@ const AdminPayments = () => {
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${coupon.is_active && coupon.is_valid
-                                                                ? 'bg-green-100 text-green-800'
-                                                                : 'bg-gray-100 text-gray-800'
+                                                            ? 'bg-green-100 text-green-800'
+                                                            : 'bg-gray-100 text-gray-800'
                                                             }`}>
                                                             {coupon.is_active && coupon.is_valid ? 'Active' : 'Inactive'}
                                                         </span>
