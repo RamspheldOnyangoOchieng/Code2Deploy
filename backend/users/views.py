@@ -32,9 +32,9 @@ logger = logging.getLogger(__name__)
 def is_email_configured():
     """Check if email is properly configured for sending."""
     backend = settings.EMAIL_BACKEND
-    # Console backend is for development only
+    # Console backend is valid for development
     if 'console' in backend.lower():
-        return False
+        return True
     # Check if SMTP credentials are set
     if 'smtp' in backend.lower():
         return bool(settings.EMAIL_HOST_USER and settings.EMAIL_HOST_PASSWORD)
@@ -125,11 +125,18 @@ class RegisterView(APIView):
                 html_message=html_message
             )
             
-            return Response({
+            # Prepare response data
+            response_data = {
                 'detail': '🎉 Signup successful! Please check your email and click the confirmation link to activate your account.',
                 'email_sent': True,
                 'requires_confirmation': True
-            }, status=status.HTTP_201_CREATED)
+            }
+            
+            # If in debug mode, include the link for easier testing
+            if settings.DEBUG:
+                response_data['debug_confirm_url'] = confirm_url
+                
+            return Response(response_data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ConfirmEmailView(APIView):
@@ -211,7 +218,15 @@ class ResendConfirmationEmailView(APIView):
             html_message=html_message
         )
         
-        return Response({'detail': 'A new confirmation email has been sent! Please check your inbox.'}, status=status.HTTP_200_OK)
+        # Prepare response
+        response_data = {
+            'detail': 'A new confirmation email has been sent! Please check your inbox.'
+        }
+        
+        if settings.DEBUG:
+            response_data['debug_confirm_url'] = confirm_url
+            
+        return Response(response_data, status=status.HTTP_200_OK)
 
 class LoginRateThrottle(AnonRateThrottle):
     rate = '10/hour'
@@ -289,9 +304,12 @@ class CustomPasswordResetView(APIView):
                 fail_silently=False,
                 html_message=html_message
             )
-            return Response({
+            response_data = {
                 'detail': '✅ Password reset link sent! Please check your email (and spam folder).'
-            }, status=status.HTTP_200_OK)
+            }
+            if settings.DEBUG:
+                response_data['debug_reset_url'] = frontend_reset_url
+            return Response(response_data, status=status.HTTP_200_OK)
         except Exception as e:
             # For development, show the reset link in the response
             if settings.DEBUG:
@@ -395,9 +413,14 @@ class UserAccountDeletionView(APIView):
             html_message=html_message
         )
         
-        return Response({
+        response_data = {
             'detail': 'Account deletion confirmation email sent. Please check your inbox and click the confirmation link to permanently delete your account.'
-        }, status=status.HTTP_200_OK)
+        }
+        
+        if settings.DEBUG:
+            response_data['debug_deletion_url'] = deletion_url
+            
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 class ConfirmAccountDeletionView(APIView):
