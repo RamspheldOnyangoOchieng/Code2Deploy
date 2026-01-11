@@ -11,6 +11,9 @@ import MentorDashboard from './pages/MentorDashboard';
 import ResetPassword from './pages/ResetPassword';
 import Confirmed from './pages/Confirmed';
 import ConfirmEmail from './pages/ConfirmEmail';
+import Checkout from './pages/Checkout';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentCancel from './pages/PaymentCancel';
 
 // Import Tailwind CSS
 import './index.css';
@@ -34,6 +37,10 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/confirmed" element={<Confirmed />} />
         <Route path="/confirm-email" element={<ConfirmEmail />} />
+        {/* Payment routes */}
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/payment/success" element={<PaymentSuccess />} />
+        <Route path="/payment/cancel" element={<PaymentCancel />} />
       </Routes>
     </Router>
   );

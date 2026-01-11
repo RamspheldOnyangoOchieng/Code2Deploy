@@ -50,7 +50,7 @@ const Layout = ({ children }) => {
   }, [location]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  
+
   const handleLogoutClick = () => {
     setIsLogoutModalOpen(true);
     setIsUserDropdownOpen(false);
@@ -96,18 +96,18 @@ const Layout = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen font-sans text-gray-800 bg-white flex flex-col">
+    <div className="min-h-screen min-h-[100dvh] font-sans text-gray-800 bg-white flex flex-col overflow-x-hidden">
       {/* Navigation */}
-      <nav className="bg-gradient-to-b from-[#0A0F2C] to-[#0A0F2C] sticky top-0 z-50 text-white w-full" aria-label="Main Navigation">
-        <div className="w-full px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-          <div className="flex items-center justify-between w-full">
+      <nav className="bg-gradient-to-b from-[#0A0F2C] to-[#0A0F2C] sticky top-0 z-50 text-white w-full safe-area-inset" aria-label="Main Navigation">
+        <div className="w-full px-3 xs:px-4 sm:px-6 lg:px-8 py-2 xs:py-3 sm:py-4 max-w-[100vw]">
+          <div className="flex items-center justify-between w-full gap-2">
             {/* Logo - Far Left */}
             <div className="flex items-center flex-shrink-0">
               <Link to="/" className="flex items-center" aria-label="Home">
-                <img src={logo} alt="Code2Deploy Logo" className="h-10 sm:h-12 w-auto" />
+                <img src={logo} alt="Code2Deploy Logo" className="h-8 xs:h-9 sm:h-10 md:h-12 w-auto max-w-[100px] xs:max-w-[120px] sm:max-w-none" />
               </Link>
             </div>
-            
+
             {/* Navigation Links - Centered with better spacing */}
             <div className="hidden lg:flex items-center justify-center flex-1 space-x-8 xl:space-x-12 mx-8">
               <Link to="/" className={`text-base font-medium hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-colors duration-300 ${activeTab === 'home' ? 'text-[#30d9fe]' : 'text-white'} cursor-pointer whitespace-nowrap`}>Home</Link>
@@ -116,24 +116,24 @@ const Layout = ({ children }) => {
               <Link to="/about" className={`text-base font-medium hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-colors duration-300 ${activeTab === 'about' ? 'text-[#30d9fe]' : 'text-white'} cursor-pointer whitespace-nowrap`}>About Us</Link>
               <Link to="/contact" className={`text-base font-medium hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-colors duration-300 ${activeTab === 'contact' ? 'text-[#30d9fe]' : 'text-white'} cursor-pointer whitespace-nowrap`}>Contact</Link>
             </div>
-            
+
             {/* Right Side - Partner Buttons & User Profile - Far Right */}
-            <div className="items-center hidden lg:flex space-x-3 flex-shrink-0">
-              <button 
+            <div className="items-center hidden lg:flex space-x-2 xl:space-x-3 flex-shrink-0">
+              <button
                 type="button"
                 onClick={handlePartnerSponsor}
-                className="px-4 py-2 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer whitespace-nowrap text-sm"
+                className="px-3 xl:px-4 py-2 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer whitespace-nowrap text-xs xl:text-sm"
               >
                 Partner as Sponsor
               </button>
-              <button 
+              <button
                 type="button"
                 onClick={handleEducationPartner}
-                className="px-4 py-2 border-2 border-[#30d9fe] text-white font-medium rounded-lg hover:bg-[#30d9fe] hover:text-[#03325a] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer whitespace-nowrap text-sm"
+                className="px-3 xl:px-4 py-2 border-2 border-[#30d9fe] text-white font-medium rounded-lg hover:bg-[#30d9fe] hover:text-[#03325a] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer whitespace-nowrap text-xs xl:text-sm"
               >
                 Education & Training Partner
               </button>
-              
+
               {/* User Profile Dropdown */}
               {user ? (
                 <div className="relative user-dropdown">
@@ -147,7 +147,7 @@ const Layout = ({ children }) => {
                     </div>
                     <i className={`fas fa-chevron-down text-xs transition-transform duration-300 ${isUserDropdownOpen ? 'rotate-180' : ''}`}></i>
                   </button>
-                  
+
                   {/* Dropdown Menu */}
                   {isUserDropdownOpen && (
                     <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-200">
@@ -160,7 +160,7 @@ const Layout = ({ children }) => {
                           </span>
                         )}
                       </div>
-                      
+
                       {/* Dashboard Link - Role Based */}
                       {user.role === 'admin' ? (
                         <Link
@@ -190,7 +190,7 @@ const Layout = ({ children }) => {
                           My Dashboard
                         </Link>
                       )}
-                      
+
                       <Link
                         to="/profile"
                         onClick={() => setIsUserDropdownOpen(false)}
@@ -199,9 +199,9 @@ const Layout = ({ children }) => {
                         <i className="fas fa-user mr-2"></i>
                         Profile
                       </Link>
-                      
+
                       <div className="border-t border-gray-200 my-1"></div>
-                      
+
                       <button
                         onClick={handleLogoutClick}
                         className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
@@ -214,13 +214,13 @@ const Layout = ({ children }) => {
                 </div>
               ) : (
                 <div className="flex items-center space-x-2 ml-2">
-                  <button 
+                  <button
                     onClick={() => setIsLoginModalOpen(true)}
                     className="px-4 py-2 text-white font-medium rounded-lg hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer whitespace-nowrap"
                   >
                     Login
                   </button>
-                  <button 
+                  <button
                     onClick={() => setIsSignupModalOpen(true)}
                     className="px-4 py-2 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer whitespace-nowrap"
                   >
@@ -229,18 +229,18 @@ const Layout = ({ children }) => {
                 </div>
               )}
             </div>
-            
+
             {/* Hamburger (mobile) */}
-            <div className="lg:hidden">
-              <button onClick={toggleMenu} className="text-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#30d9fe]">
-                <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars'} text-2xl`}></i>
+            <div className="lg:hidden flex-shrink-0">
+              <button onClick={toggleMenu} className="text-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#30d9fe] p-2 min-w-[44px] min-h-[44px] flex items-center justify-center">
+                <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars'} text-xl xs:text-2xl`}></i>
               </button>
             </div>
           </div>
           {/* Mobile Menu */}
           {isMenuOpen && (
-            <div className="pb-4 mt-4 lg:hidden">
-              <div className="flex flex-col space-y-4">
+            <div className="pb-4 mt-3 xs:mt-4 lg:hidden max-h-[calc(100vh-80px)] overflow-y-auto">
+              <div className="flex flex-col space-y-3 xs:space-y-4">
                 <Link to="/" onClick={() => { setActiveTab('home'); setIsMenuOpen(false); }} className={`hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-colors duration-300 ${activeTab === 'home' ? 'text-[#30d9fe]' : ''} cursor-pointer`}>Home</Link>
                 <Link to="/programs" onClick={() => { setActiveTab('programs'); setIsMenuOpen(false); }} className={`hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-colors duration-300 ${activeTab === 'programs' ? 'text-[#30d9fe]' : ''} cursor-pointer`}>Programs</Link>
                 <Link to="/events" onClick={() => { setActiveTab('events'); setIsMenuOpen(false); }} className={`hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-colors duration-300 ${activeTab === 'events' ? 'text-[#30d9fe]' : ''} cursor-pointer`}>Events</Link>
@@ -253,7 +253,7 @@ const Layout = ({ children }) => {
                       <span className="text-sm text-gray-300">Welcome, {user.first_name || user.username}!</span>
                       {/* Dashboard Link - Role Based */}
                       {user.role === 'admin' ? (
-                        <Link 
+                        <Link
                           to="/admin"
                           onClick={() => setIsMenuOpen(false)}
                           className="px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer"
@@ -261,7 +261,7 @@ const Layout = ({ children }) => {
                           Admin Dashboard
                         </Link>
                       ) : user.role === 'mentor' ? (
-                        <Link 
+                        <Link
                           to="/mentor-dashboard"
                           onClick={() => setIsMenuOpen(false)}
                           className="px-4 py-2 bg-teal-600 text-white font-medium rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer"
@@ -269,7 +269,7 @@ const Layout = ({ children }) => {
                           Mentor Dashboard
                         </Link>
                       ) : (
-                        <Link 
+                        <Link
                           to="/learner-dashboard"
                           onClick={() => setIsMenuOpen(false)}
                           className="px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer"
@@ -277,14 +277,14 @@ const Layout = ({ children }) => {
                           My Dashboard
                         </Link>
                       )}
-                      <Link 
+                      <Link
                         to="/profile"
                         onClick={() => setIsMenuOpen(false)}
                         className="px-4 py-2 text-white font-medium rounded-lg hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer"
                       >
                         Profile
                       </Link>
-                      <button 
+                      <button
                         onClick={handleLogoutClick}
                         className="px-4 py-2 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer"
                       >
@@ -293,13 +293,13 @@ const Layout = ({ children }) => {
                     </>
                   ) : (
                     <>
-                      <button 
+                      <button
                         onClick={() => { setIsLoginModalOpen(true); setIsMenuOpen(false); }}
                         className="px-4 py-2 text-white font-medium rounded-lg hover:text-[#30d9fe] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer"
                       >
                         Login
                       </button>
-                      <button 
+                      <button
                         onClick={() => { setIsSignupModalOpen(true); setIsMenuOpen(false); }}
                         className="px-4 py-2 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 cursor-pointer"
                       >
@@ -309,14 +309,14 @@ const Layout = ({ children }) => {
                   )}
                 </div>
                 <div className="flex flex-col pt-2 space-y-2">
-                  <button 
+                  <button
                     type="button"
                     onClick={() => { handlePartnerSponsor(); setIsMenuOpen(false); }}
                     className="px-4 py-2 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap text-sm"
                   >
                     Partner as Sponsor
                   </button>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => { handleEducationPartner(); setIsMenuOpen(false); }}
                     className="px-4 py-2 border-2 border-[#30d9fe] text-white font-medium rounded-lg hover:bg-[#30d9fe] hover:text-[#03325a] focus:outline-none focus:ring-2 focus:ring-[#30d9fe] transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap text-sm"
@@ -329,14 +329,14 @@ const Layout = ({ children }) => {
           )}
         </div>
       </nav>
-      <main className="flex-1 w-full">{children}</main>
+      <main className="flex-1 w-full max-w-[100vw] overflow-x-hidden">{children}</main>
       {/* Footer */}
-      <footer className="bg-[#03325a] text-white py-10 sm:py-12 mt-auto w-full">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+      <footer className="bg-[#03325a] text-white py-8 xs:py-10 sm:py-12 mt-auto w-full safe-area-inset">
+        <div className="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6">
+          <div className="grid grid-cols-1 gap-6 xs:gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <Link to="/" aria-label="Home">
-                <img src={logo} alt="Code2Deploy Logo" className="h-8 w-auto sm:h-10 md:h-12 max-w-[120px] sm:max-w-[140px] mb-4" />
+                <img src={logo} alt="Code2Deploy Logo" className="h-7 xs:h-8 w-auto sm:h-10 md:h-12 max-w-[100px] xs:max-w-[120px] sm:max-w-[140px] mb-3 xs:mb-4" />
               </Link>
               <p className="mb-4 text-sm sm:text-base">Empowering African youth with the skills to build and deploy technology solutions.</p>
               <div className="flex space-x-4">
@@ -404,7 +404,7 @@ const Layout = ({ children }) => {
       </footer>
 
       {/* Login Modal */}
-      <LoginModal 
+      <LoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         onLoginSuccess={handleLoginSuccess}
@@ -415,14 +415,14 @@ const Layout = ({ children }) => {
       />
 
       {/* Signup Modal */}
-      <SignupModal 
+      <SignupModal
         isOpen={isSignupModalOpen}
         onClose={() => setIsSignupModalOpen(false)}
         onSignupSuccess={handleSignupSuccess}
       />
 
       {/* Forgot Password Modal */}
-      <ForgotPasswordModal 
+      <ForgotPasswordModal
         isOpen={isForgotPasswordModalOpen}
         onClose={() => setIsForgotPasswordModalOpen(false)}
       />

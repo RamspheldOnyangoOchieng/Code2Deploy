@@ -3,6 +3,7 @@ from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework import status
 from .models import Program, Enrollment
 from .serializers import ProgramSerializer, EnrollmentSerializer, MessageSerializer, ProgramStatsSerializer
@@ -12,10 +13,12 @@ from .serializers import ProgramSerializer, EnrollmentSerializer, MessageSeriali
 class ProgramListCreateView(generics.ListCreateAPIView):
     queryset = Program.objects.all().order_by('-created_at')
     serializer_class = ProgramSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
 class ProgramRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Program.objects.all()
     serializer_class = ProgramSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
 class EnrollInProgramView(APIView):
     permission_classes = [IsAuthenticated]

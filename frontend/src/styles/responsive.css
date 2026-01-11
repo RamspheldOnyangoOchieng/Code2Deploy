@@ -1,0 +1,762 @@
+/* ==========================================================================
+   RESPONSIVE DESIGN SYSTEM - Code2Deploy
+   Comprehensive viewport handling for all devices
+   ========================================================================== */
+
+/* ==========================================================================
+   CSS Custom Properties for Responsive Design
+   ========================================================================== */
+:root {
+  /* Base spacing units - mobile first */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+  
+  /* Typography scale - mobile first */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-5xl: 3rem;
+  --font-size-6xl: 3.75rem;
+  
+  /* Container max widths */
+  --container-sm: 100%;
+  --container-md: 720px;
+  --container-lg: 960px;
+  --container-xl: 1140px;
+  --container-2xl: 1320px;
+  
+  /* Navigation height */
+  --nav-height: 60px;
+  --footer-height: auto;
+}
+
+/* ==========================================================================
+   Base Responsive Container
+   ========================================================================== */
+.responsive-container {
+  width: 100%;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--spacing-md);
+  padding-right: var(--spacing-md);
+}
+
+/* ==========================================================================
+   Extra Small Devices (phones, 0px - 479px)
+   ========================================================================== */
+@media screen and (max-width: 479px) {
+  :root {
+    --font-size-base: 0.875rem;
+    --font-size-lg: 1rem;
+    --font-size-xl: 1.125rem;
+    --font-size-2xl: 1.25rem;
+    --font-size-3xl: 1.5rem;
+    --font-size-4xl: 1.75rem;
+    --font-size-5xl: 2rem;
+    --font-size-6xl: 2.5rem;
+    --spacing-md: 0.75rem;
+    --spacing-lg: 1rem;
+    --spacing-xl: 1.5rem;
+  }
+  
+  .responsive-container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  
+  /* Hero section adjustments */
+  .hero-section {
+    min-height: 50vh !important;
+    padding: 1.5rem 0 !important;
+  }
+  
+  .hero-title {
+    font-size: 1.75rem !important;
+    line-height: 1.2 !important;
+  }
+  
+  .hero-subtitle {
+    font-size: 0.875rem !important;
+    line-height: 1.5 !important;
+  }
+  
+  /* Navigation adjustments */
+  .nav-container {
+    padding: 0.5rem 0.75rem !important;
+  }
+  
+  .nav-logo {
+    height: 32px !important;
+  }
+  
+  /* Card adjustments */
+  .card-responsive {
+    padding: 1rem !important;
+  }
+  
+  /* Button adjustments */
+  .btn-responsive {
+    padding: 0.625rem 1rem !important;
+    font-size: 0.8rem !important;
+  }
+  
+  /* Grid adjustments - single column on mobile */
+  .grid-responsive {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  
+  /* Text size adjustments */
+  h1, .text-5xl, .text-6xl, .text-7xl {
+    font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
+  }
+  
+  h2, .text-3xl, .text-4xl {
+    font-size: clamp(1.25rem, 5vw, 2rem) !important;
+  }
+  
+  h3, .text-xl, .text-2xl {
+    font-size: clamp(1rem, 4vw, 1.5rem) !important;
+  }
+  
+  p, .text-base {
+    font-size: clamp(0.8rem, 3.5vw, 1rem) !important;
+  }
+  
+  /* Footer adjustments */
+  footer {
+    padding: 2rem 0.75rem !important;
+  }
+  
+  footer .grid {
+    gap: 1.5rem !important;
+  }
+}
+
+/* ==========================================================================
+   Small Devices (phones landscape, small tablets, 480px - 639px)
+   ========================================================================== */
+@media screen and (min-width: 480px) and (max-width: 639px) {
+  :root {
+    --font-size-5xl: 2.5rem;
+    --font-size-6xl: 3rem;
+  }
+  
+  .responsive-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .hero-section {
+    min-height: 55vh !important;
+  }
+  
+  .hero-title {
+    font-size: 2rem !important;
+  }
+  
+  .grid-responsive {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1rem !important;
+  }
+  
+  h1, .text-5xl, .text-6xl, .text-7xl {
+    font-size: clamp(1.75rem, 6vw, 3rem) !important;
+  }
+  
+  h2, .text-3xl, .text-4xl {
+    font-size: clamp(1.5rem, 5vw, 2.25rem) !important;
+  }
+}
+
+/* ==========================================================================
+   Medium Devices (tablets, 640px - 767px)
+   ========================================================================== */
+@media screen and (min-width: 640px) and (max-width: 767px) {
+  :root {
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+  }
+  
+  .responsive-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    max-width: 100%;
+  }
+  
+  .hero-section {
+    min-height: 60vh !important;
+    padding: 2rem 0 !important;
+  }
+  
+  .hero-title {
+    font-size: 2.5rem !important;
+  }
+  
+  .grid-responsive {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.25rem !important;
+  }
+  
+  /* Two-column layout for cards */
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ==========================================================================
+   Large Devices (landscape tablets, 768px - 1023px)
+   ========================================================================== */
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+  :root {
+    --spacing-xl: 2.5rem;
+    --spacing-2xl: 3rem;
+    --nav-height: 70px;
+  }
+  
+  .responsive-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+    max-width: 720px;
+  }
+  
+  .hero-section {
+    min-height: 65vh !important;
+  }
+  
+  .hero-title {
+    font-size: 3rem !important;
+  }
+  
+  .grid-responsive {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.5rem !important;
+  }
+  
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  /* Show desktop nav items on tablets */
+  .nav-desktop {
+    display: flex !important;
+  }
+  
+  .nav-mobile-toggle {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   Extra Large Devices (laptops/desktops, 1024px - 1279px)
+   ========================================================================== */
+@media screen and (min-width: 1024px) and (max-width: 1279px) {
+  :root {
+    --spacing-xl: 3rem;
+    --spacing-2xl: 4rem;
+    --nav-height: 80px;
+  }
+  
+  .responsive-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+    max-width: 960px;
+  }
+  
+  .hero-section {
+    min-height: 70vh !important;
+  }
+  
+  .hero-title {
+    font-size: 3.5rem !important;
+  }
+  
+  .grid-responsive {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 1.5rem !important;
+  }
+  
+  .card-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+/* ==========================================================================
+   2XL Devices (large desktops, 1280px - 1535px)
+   ========================================================================== */
+@media screen and (min-width: 1280px) and (max-width: 1535px) {
+  :root {
+    --spacing-xl: 3.5rem;
+    --spacing-2xl: 5rem;
+  }
+  
+  .responsive-container {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+    max-width: 1200px;
+  }
+  
+  .hero-section {
+    min-height: 75vh !important;
+  }
+  
+  .hero-title {
+    font-size: 4rem !important;
+  }
+  
+  .grid-responsive {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 2rem !important;
+  }
+  
+  .card-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+/* ==========================================================================
+   3XL Devices (1536px - 1919px)
+   ========================================================================== */
+@media screen and (min-width: 1536px) and (max-width: 1919px) {
+  :root {
+    --spacing-xl: 4rem;
+    --spacing-2xl: 6rem;
+  }
+  
+  .responsive-container {
+    padding-left: 3rem;
+    padding-right: 3rem;
+    max-width: 1400px;
+  }
+  
+  .hero-title {
+    font-size: 4.5rem !important;
+  }
+  
+  .grid-responsive {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 2rem !important;
+  }
+}
+
+/* ==========================================================================
+   4XL+ Devices (1920px and up - 4K, ultrawide)
+   ========================================================================== */
+@media screen and (min-width: 1920px) {
+  :root {
+    --spacing-xl: 5rem;
+    --spacing-2xl: 7rem;
+    --font-size-base: 1.125rem;
+    --font-size-lg: 1.25rem;
+  }
+  
+  .responsive-container {
+    padding-left: 4rem;
+    padding-right: 4rem;
+    max-width: 1800px;
+  }
+  
+  .hero-section {
+    min-height: 80vh !important;
+  }
+  
+  .hero-title {
+    font-size: 5rem !important;
+  }
+  
+  .grid-responsive {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 2.5rem !important;
+  }
+  
+  .card-grid {
+    grid-template-columns: repeat(5, 1fr) !important;
+  }
+  
+  /* Increase base font sizes for better readability on large screens */
+  body {
+    font-size: 1.125rem;
+  }
+  
+  h1, .text-5xl, .text-6xl, .text-7xl {
+    font-size: clamp(3.5rem, 5vw, 6rem) !important;
+  }
+  
+  h2, .text-3xl, .text-4xl {
+    font-size: clamp(2.5rem, 4vw, 4rem) !important;
+  }
+  
+  p, .text-base, .text-lg {
+    font-size: clamp(1rem, 1.5vw, 1.25rem) !important;
+  }
+}
+
+/* ==========================================================================
+   5XL+ Devices (2560px and up - 4K monitors)
+   ========================================================================== */
+@media screen and (min-width: 2560px) {
+  .responsive-container {
+    max-width: 2200px;
+  }
+  
+  .hero-title {
+    font-size: 6rem !important;
+  }
+  
+  .grid-responsive {
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 3rem !important;
+  }
+  
+  .card-grid {
+    grid-template-columns: repeat(6, 1fr) !important;
+  }
+}
+
+/* ==========================================================================
+   Device-Specific Breakpoints
+   ========================================================================== */
+
+/* iPhone SE */
+@media screen and (max-width: 375px) {
+  .responsive-container {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  .btn-responsive {
+    width: 100% !important;
+    padding: 0.75rem !important;
+  }
+  
+  .nav-buttons {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+}
+
+/* Galaxy Fold (folded) */
+@media screen and (max-width: 280px) {
+  .responsive-container {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  
+  .hero-title {
+    font-size: 1.25rem !important;
+  }
+  
+  .nav-logo {
+    height: 24px !important;
+  }
+  
+  .btn-responsive {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.7rem !important;
+  }
+}
+
+/* iPad Mini / Air */
+@media screen and (min-width: 768px) and (max-width: 820px) and (orientation: portrait) {
+  .hero-section {
+    min-height: 50vh !important;
+  }
+  
+  .hero-content {
+    flex-direction: column !important;
+  }
+  
+  .hero-text, .hero-image {
+    width: 100% !important;
+  }
+}
+
+/* iPad Pro */
+@media screen and (min-width: 1024px) and (max-width: 1366px) and (orientation: portrait) {
+  .hero-section {
+    min-height: 55vh !important;
+  }
+  
+  .grid-responsive {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ==========================================================================
+   Orientation-Based Adjustments
+   ========================================================================== */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  .hero-section {
+    min-height: 100vh !important;
+    padding: 1rem 0 !important;
+  }
+  
+  .hero-title {
+    font-size: 1.75rem !important;
+  }
+  
+  .nav-container {
+    padding: 0.25rem 1rem !important;
+  }
+}
+
+/* ==========================================================================
+   Touch Device Optimizations
+   ========================================================================== */
+@media (hover: none) and (pointer: coarse) {
+  /* Increase touch targets for mobile */
+  .btn-responsive,
+  button,
+  a,
+  input,
+  select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Remove hover effects on touch devices */
+  .hover-effect:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* Add active states instead */
+  .btn-responsive:active,
+  button:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+@media print {
+  .no-print,
+  nav,
+  footer,
+  .mobile-menu,
+  button {
+    display: none !important;
+  }
+  
+  body {
+    font-size: 12pt;
+    line-height: 1.5;
+    color: #000;
+    background: #fff;
+  }
+  
+  .responsive-container {
+    max-width: 100%;
+    padding: 0;
+  }
+}
+
+/* ==========================================================================
+   Accessibility - Reduced Motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   High DPI / Retina Display Optimizations
+   ========================================================================== */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Ensure sharp rendering on high DPI displays */
+  img {
+    image-rendering: -webkit-optimize-contrast;
+  }
+  
+  /* Thin borders look better on retina */
+  .border-thin {
+    border-width: 0.5px;
+  }
+}
+
+/* ==========================================================================
+   Utility Classes for Responsive Visibility
+   ========================================================================== */
+
+/* Show/hide based on breakpoints */
+.xs-only { display: block; }
+.sm-only, .md-only, .lg-only, .xl-only { display: none; }
+
+@media screen and (min-width: 640px) {
+  .xs-only { display: none; }
+  .sm-only { display: block; }
+}
+
+@media screen and (min-width: 768px) {
+  .sm-only { display: none; }
+  .md-only { display: block; }
+}
+
+@media screen and (min-width: 1024px) {
+  .md-only { display: none; }
+  .lg-only { display: block; }
+}
+
+@media screen and (min-width: 1280px) {
+  .lg-only { display: none; }
+  .xl-only { display: block; }
+}
+
+/* Hide on small screens */
+.hide-xs { display: none; }
+@media screen and (min-width: 480px) { .hide-xs { display: block; } }
+
+.hide-sm { display: block; }
+@media screen and (max-width: 639px) { .hide-sm { display: none; } }
+
+.hide-md { display: block; }
+@media screen and (max-width: 767px) { .hide-md { display: none; } }
+
+.hide-lg { display: block; }
+@media screen and (max-width: 1023px) { .hide-lg { display: none; } }
+
+/* ==========================================================================
+   Responsive Text Utilities
+   ========================================================================== */
+.text-responsive-sm {
+  font-size: clamp(0.75rem, 2vw, 0.875rem);
+}
+
+.text-responsive-base {
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+
+.text-responsive-lg {
+  font-size: clamp(1rem, 3vw, 1.25rem);
+}
+
+.text-responsive-xl {
+  font-size: clamp(1.25rem, 3.5vw, 1.5rem);
+}
+
+.text-responsive-2xl {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+.text-responsive-3xl {
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+}
+
+.text-responsive-4xl {
+  font-size: clamp(2rem, 6vw, 3rem);
+}
+
+.text-responsive-5xl {
+  font-size: clamp(2.5rem, 7vw, 4rem);
+}
+
+.text-responsive-hero {
+  font-size: clamp(2rem, 8vw, 5rem);
+  line-height: 1.1;
+}
+
+/* ==========================================================================
+   Responsive Spacing Utilities
+   ========================================================================== */
+.py-responsive-sm {
+  padding-top: clamp(0.5rem, 2vw, 1rem);
+  padding-bottom: clamp(0.5rem, 2vw, 1rem);
+}
+
+.py-responsive-md {
+  padding-top: clamp(1rem, 3vw, 2rem);
+  padding-bottom: clamp(1rem, 3vw, 2rem);
+}
+
+.py-responsive-lg {
+  padding-top: clamp(1.5rem, 4vw, 3rem);
+  padding-bottom: clamp(1.5rem, 4vw, 3rem);
+}
+
+.py-responsive-xl {
+  padding-top: clamp(2rem, 5vw, 5rem);
+  padding-bottom: clamp(2rem, 5vw, 5rem);
+}
+
+.px-responsive-sm {
+  padding-left: clamp(0.5rem, 2vw, 1rem);
+  padding-right: clamp(0.5rem, 2vw, 1rem);
+}
+
+.px-responsive-md {
+  padding-left: clamp(1rem, 3vw, 2rem);
+  padding-right: clamp(1rem, 3vw, 2rem);
+}
+
+.px-responsive-lg {
+  padding-left: clamp(1.5rem, 4vw, 3rem);
+  padding-right: clamp(1.5rem, 4vw, 3rem);
+}
+
+.gap-responsive {
+  gap: clamp(0.75rem, 2vw, 2rem);
+}
+
+/* ==========================================================================
+   Responsive Image Container
+   ========================================================================== */
+.img-responsive-container {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  overflow: hidden;
+}
+
+.img-responsive-container img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.img-responsive-container.aspect-square {
+  padding-bottom: 100%;
+}
+
+.img-responsive-container.aspect-4-3 {
+  padding-bottom: 75%;
+}
+
+.img-responsive-container.aspect-3-2 {
+  padding-bottom: 66.67%;
+}
+
+/* ==========================================================================
+   Safe Area Insets (for notched devices)
+   ========================================================================== */
+@supports (padding: max(0px)) {
+  .safe-area-inset {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-top: max(0px, env(safe-area-inset-top));
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+}
