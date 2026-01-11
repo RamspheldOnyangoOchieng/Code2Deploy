@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/layout';
 import authService from '../services/authService';
 import { API_BASE_URL } from '../config/api';
 
 const Programs = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [filters, setFilters] = useState({
     duration: '',
     difficulty: '',
@@ -84,42 +86,14 @@ const Programs = () => {
     setEnrollmentSuccess(false);
   };
 
-  const handleEnroll = async () => {
-    const user = authService.getCurrentUser();
-    if (!user) {
+  const handleEnroll = () => {
+    if (!authService.isAuthenticated()) {
       alert('Please login to enroll in this program');
-      window.location.href = '/';
       return;
     }
 
-    try {
-      setEnrolling(true);
-      const response = await fetch(`${API_BASE_URL}/programs/enroll/`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${authService.getToken()}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          program_id: selectedProgram.id
-        })
-      });
-
-      if (response.ok) {
-        setEnrollmentSuccess(true);
-        setTimeout(() => {
-          closeModal();
-        }, 2000);
-      } else {
-        const data = await response.json();
-        alert(data.detail || 'Failed to enroll. You may already be enrolled.');
-      }
-    } catch (err) {
-      console.error('Error enrolling:', err);
-      alert('Failed to enroll in program');
-    } finally {
-      setEnrolling(false);
-    }
+    // Navigate to enrollment page with program data
+    navigate('/enroll', { state: { program: selectedProgram } });
   };
 
   // Filter programs based on search term and filters
@@ -197,7 +171,7 @@ const Programs = () => {
               {/* Duration Filter */}
               <select
                 value={filters.duration}
-                onChange={(e) => setFilters({...filters, duration: e.target.value})}
+                onChange={(e) => setFilters({ ...filters, duration: e.target.value })}
                 className="appearance-none w-full sm:w-auto py-2 sm:py-3 px-4 pr-8 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] bg-white text-sm"
               >
                 <option value="">Duration (All)</option>
@@ -211,7 +185,7 @@ const Programs = () => {
               {/* Difficulty Filter */}
               <select
                 value={filters.difficulty}
-                onChange={(e) => setFilters({...filters, difficulty: e.target.value})}
+                onChange={(e) => setFilters({ ...filters, difficulty: e.target.value })}
                 className="appearance-none w-full sm:w-auto py-2 sm:py-3 px-4 pr-8 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] bg-white text-sm"
               >
                 <option value="">Difficulty (All)</option>
@@ -289,7 +263,7 @@ const Programs = () => {
                         <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">+{getTechnologies(program.technologies).length - 4}</span>
                       )}
                     </div>
-                    <button 
+                    <button
                       onClick={() => openModal(program)}
                       className="w-full py-2 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-[#eec262] transition-all duration-300 whitespace-nowrap mt-auto text-xs sm:text-base"
                     >
@@ -435,24 +409,35 @@ const Programs = () => {
                 </div>
 
                 {/* Scholarship */}
-                <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 p-5 rounded-xl border border-yellow-200">
+                <div className={`bg-gradient-to-br ${selectedProgram?.scholarship_available ? 'from-green-50 to-green-100 border-green-200' : 'from-yellow-50 to-yellow-100 border-yellow-200'} p-5 rounded-xl border`}>
                   <h4 className="font-bold text-[#03325a] mb-3 flex items-center">
-                    <i className="fas fa-hand-holding-usd text-yellow-600 mr-2"></i>
-                    Scholarship & Pricing
+                    <i className={`fas ${selectedProgram?.scholarship_available ? 'fa-gift text-green-600' : 'fa-hand-holding-usd text-yellow-600'} mr-2`}></i>
+                    {selectedProgram?.scholarship_available ? 'Scholarship Program' : 'Pricing'}
                   </h4>
                   <div className="space-y-2 text-sm">
                     <p className="flex justify-between">
-                      <span className="text-gray-600">Scholarships:</span>
-                      <span className="font-semibold text-green-600">Available</span>
+                      <span className="text-gray-600">Type:</span>
+                      <span className={`font-semibold ${selectedProgram?.scholarship_available ? 'text-green-600' : 'text-blue-600'}`}>
+                        {selectedProgram?.scholarship_available ? 'FREE (Scholarship)' : 'Paid Program'}
+                      </span>
                     </p>
-                    <p className="flex justify-between">
-                      <span className="text-gray-600">Payment Plans:</span>
-                      <span className="font-semibold text-gray-800">Flexible</span>
-                    </p>
-                    <p className="flex justify-between">
-                      <span className="text-gray-600">Financial Aid:</span>
-                      <span className="font-semibold text-gray-800">Contact Us</span>
-                    </p>
+                    {selectedProgram?.scholarship_available ? (
+                      <p className="flex justify-between">
+                        <span className="text-gray-600">Requirements:</span>
+                        <span className="font-semibold text-gray-800">Application Form</span>
+                      </p>
+                    ) : (
+                      <>
+                        <p className="flex justify-between">
+                          <span className="text-gray-600">Payment Plans:</span>
+                          <span className="font-semibold text-gray-800">Flexible</span>
+                        </p>
+                        <p className="flex justify-between">
+                          <span className="text-gray-600">Financial Aid:</span>
+                          <span className="font-semibold text-gray-800">Contact Us</span>
+                        </p>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -483,16 +468,12 @@ const Programs = () => {
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={handleEnroll}
-                  disabled={enrolling || enrollmentSuccess}
-                  className="flex-1 bg-gradient-to-r from-[#30d9fe] to-blue-500 text-white py-4 rounded-xl font-bold text-lg hover:from-[#eec262] hover:to-[#d4a952] transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-gradient-to-r from-[#30d9fe] to-blue-500 text-white py-4 rounded-xl font-bold text-lg hover:from-[#eec262] hover:to-[#d4a952] transition-all duration-300 shadow-lg hover:shadow-xl"
                 >
-                  {enrolling ? (
-                    <span><i className="fas fa-spinner fa-spin mr-2"></i>Enrolling...</span>
-                  ) : enrollmentSuccess ? (
-                    <span><i className="fas fa-check mr-2"></i>Enrolled Successfully!</span>
-                  ) : (
-                    <span><i className="fas fa-user-plus mr-2"></i>Enroll Now</span>
-                  )}
+                  <span>
+                    <i className="fas fa-arrow-right mr-2"></i>
+                    {selectedProgram?.scholarship_available ? 'Apply Now (Free)' : 'Enroll Now'}
+                  </span>
                 </button>
                 <button
                   onClick={closeModal}

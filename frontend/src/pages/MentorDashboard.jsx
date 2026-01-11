@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import Layout from '../components/layout';
 import authService from '../services/authService';
 import { API_BASE_URL } from '../config/api';
-import LogoutModal from '../components/LogoutModal';
+import DashboardLayout from '../components/DashboardLayout';
 import {
   HomeIcon,
   UsersIcon,
@@ -31,7 +30,7 @@ const MentorDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // Dashboard data states
   const [dashboardStats, setDashboardStats] = useState(null);
   const [mentees, setMentees] = useState([]);
@@ -62,12 +61,12 @@ const MentorDashboard = () => {
     navigate('/');
   };
 
-  const tabs = [
+  const sidebarItems = [
     { id: 'overview', name: 'Overview', icon: HomeIcon },
     { id: 'mentees', name: 'My Mentees', icon: UsersIcon },
     { id: 'sessions', name: 'Sessions', icon: CalendarDaysIcon },
     { id: 'programs', name: 'Programs', icon: AcademicCapIcon },
-    { id: 'assignments', name: 'Assignments & Reviews', icon: ClipboardDocumentListIcon },
+    { id: 'assignments', name: 'Assignments & Reviews', icon: ClipboardDocumentListIcon, badge: pendingReviews.length > 0 ? pendingReviews.length : null },
     { id: 'resources', name: 'Resources', icon: FolderIcon },
     { id: 'messages', name: 'Messages', icon: ChatBubbleLeftRightIcon },
     { id: 'schedule', name: 'Schedule', icon: ClockIcon },
@@ -261,9 +260,8 @@ const MentorDashboard = () => {
                     <p className="font-medium text-gray-800">{session.title}</p>
                     <p className="text-sm text-gray-500">{new Date(session.scheduled_at).toLocaleString()}</p>
                   </div>
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    session.status === 'scheduled' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
-                  }`}>
+                  <span className={`px-2 py-1 text-xs rounded-full ${session.status === 'scheduled' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                    }`}>
                     {session.status}
                   </span>
                 </div>
@@ -305,7 +303,7 @@ const MentorDashboard = () => {
         <h2 className="text-2xl font-bold text-gray-800">My Mentees</h2>
         <span className="text-gray-500">{mentees.length} total</span>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {mentees.map((mentee) => (
           <div key={mentee.id} className="bg-white rounded-xl shadow-lg p-6">
@@ -336,7 +334,7 @@ const MentorDashboard = () => {
           </div>
         ))}
       </div>
-      
+
       {mentees.length === 0 && (
         <div className="text-center py-12 bg-white rounded-xl shadow">
           <UsersIcon className="w-16 h-16 mx-auto text-gray-400" />
@@ -350,7 +348,7 @@ const MentorDashboard = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-800">Sessions</h2>
-        <button 
+        <button
           onClick={() => setShowSessionModal(true)}
           className="flex items-center px-4 py-2 bg-[#30d9fe] text-[#03325a] rounded-lg hover:bg-opacity-80"
         >
@@ -424,7 +422,7 @@ const MentorDashboard = () => {
   const renderPrograms = () => (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-800">My Programs</h2>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {programs.map((program) => (
           <div key={program.id} className="bg-white rounded-xl shadow-lg overflow-hidden">
@@ -435,9 +433,8 @@ const MentorDashboard = () => {
               <h3 className="font-semibold text-gray-800">{program.program_title}</h3>
               <p className="text-sm text-gray-500 mt-1">Role: {program.role}</p>
               <div className="mt-4 flex justify-between items-center">
-                <span className={`px-2 py-1 text-xs rounded-full ${
-                  program.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                }`}>
+                <span className={`px-2 py-1 text-xs rounded-full ${program.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                  }`}>
                   {program.is_active ? 'Active' : 'Inactive'}
                 </span>
                 <button className="text-[#30d9fe] text-sm hover:underline">View Details</button>
@@ -446,7 +443,7 @@ const MentorDashboard = () => {
           </div>
         ))}
       </div>
-      
+
       {programs.length === 0 && (
         <div className="text-center py-12 bg-white rounded-xl shadow">
           <AcademicCapIcon className="w-16 h-16 mx-auto text-gray-400" />
@@ -463,7 +460,7 @@ const MentorDashboard = () => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold text-gray-800">Pending Reviews ({pendingReviews.length})</h2>
         </div>
-        
+
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           <table className="w-full">
             <thead className="bg-yellow-50">
@@ -507,7 +504,7 @@ const MentorDashboard = () => {
       <div>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold text-gray-800">My Assignments</h2>
-          <button 
+          <button
             onClick={() => setShowAssignmentModal(true)}
             className="flex items-center px-4 py-2 bg-[#30d9fe] text-[#03325a] rounded-lg hover:bg-opacity-80"
           >
@@ -515,7 +512,7 @@ const MentorDashboard = () => {
             Create Assignment
           </button>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {assignments.map((assignment) => (
             <div key={assignment.id} className="bg-white rounded-xl shadow-lg p-6">
@@ -541,7 +538,7 @@ const MentorDashboard = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-800">Resources</h2>
-        <button 
+        <button
           onClick={() => setShowResourceModal(true)}
           className="flex items-center px-4 py-2 bg-[#30d9fe] text-[#03325a] rounded-lg hover:bg-opacity-80"
         >
@@ -549,7 +546,7 @@ const MentorDashboard = () => {
           Add Resource
         </button>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {resources.map((resource) => (
           <div key={resource.id} className="bg-white rounded-xl shadow-lg p-6">
@@ -563,17 +560,16 @@ const MentorDashboard = () => {
                   <p className="text-sm text-gray-500">{resource.resource_type}</p>
                 </div>
               </div>
-              <span className={`px-2 py-1 text-xs rounded-full ${
-                resource.is_public ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-              }`}>
+              <span className={`px-2 py-1 text-xs rounded-full ${resource.is_public ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                }`}>
                 {resource.is_public ? 'Public' : 'Private'}
               </span>
             </div>
             <p className="text-sm text-gray-600 mt-3 line-clamp-2">{resource.description}</p>
             <div className="mt-4 flex space-x-2">
               {resource.url && (
-                <a href={resource.url} target="_blank" rel="noopener noreferrer" 
-                   className="flex-1 px-3 py-2 bg-[#30d9fe] text-[#03325a] text-sm text-center rounded-lg hover:bg-opacity-80">
+                <a href={resource.url} target="_blank" rel="noopener noreferrer"
+                  className="flex-1 px-3 py-2 bg-[#30d9fe] text-[#03325a] text-sm text-center rounded-lg hover:bg-opacity-80">
                   Open
                 </a>
               )}
@@ -584,7 +580,7 @@ const MentorDashboard = () => {
           </div>
         ))}
       </div>
-      
+
       {resources.length === 0 && (
         <div className="text-center py-12 bg-white rounded-xl shadow">
           <FolderIcon className="w-16 h-16 mx-auto text-gray-400" />
@@ -598,7 +594,7 @@ const MentorDashboard = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-800">Messages</h2>
-        <button 
+        <button
           onClick={() => setShowMessageModal(true)}
           className="flex items-center px-4 py-2 bg-[#30d9fe] text-[#03325a] rounded-lg hover:bg-opacity-80"
         >
@@ -606,7 +602,7 @@ const MentorDashboard = () => {
           New Message
         </button>
       </div>
-      
+
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="divide-y divide-gray-200">
           {messages.map((message) => (
@@ -643,7 +639,7 @@ const MentorDashboard = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-800">My Schedule & Availability</h2>
-        <button 
+        <button
           onClick={() => setShowAvailabilityModal(true)}
           className="flex items-center px-4 py-2 bg-[#30d9fe] text-[#03325a] rounded-lg hover:bg-opacity-80"
         >
@@ -651,7 +647,7 @@ const MentorDashboard = () => {
           Add Slot
         </button>
       </div>
-      
+
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h3 className="font-semibold text-gray-800 mb-4">Weekly Availability</h3>
         <div className="space-y-3">
@@ -663,9 +659,8 @@ const MentorDashboard = () => {
                 <div className="flex-1 flex flex-wrap gap-2">
                   {daySlots.length > 0 ? (
                     daySlots.map((slot) => (
-                      <span key={slot.id} className={`px-3 py-1 rounded-full text-sm ${
-                        slot.is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
+                      <span key={slot.id} className={`px-3 py-1 rounded-full text-sm ${slot.is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
                         {slot.start_time} - {slot.end_time}
                       </span>
                     ))
@@ -684,7 +679,7 @@ const MentorDashboard = () => {
   const renderReports = () => (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-800">Performance Reports</h2>
-      
+
       {reports && (
         <>
           {/* Session Stats */}
@@ -761,69 +756,19 @@ const MentorDashboard = () => {
   };
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-gray-100">
-        <div className="flex">
-          {/* Sidebar */}
-          <div className="w-64 bg-[#03325a] min-h-screen fixed left-0 top-0 pt-20">
-            <div className="p-4 flex flex-col h-[calc(100vh-5rem)]">
-              <h2 className="text-white text-lg font-semibold mb-6">Mentor Dashboard</h2>
-              <nav className="space-y-2 flex-1">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                      activeTab === tab.id
-                        ? 'bg-[#30d9fe] text-[#03325a]'
-                        : 'text-gray-300 hover:bg-[#0a4a7a]'
-                    }`}
-                  >
-                    <tab.icon className="w-5 h-5" />
-                    <span className="text-sm font-medium">{tab.name}</span>
-                  </button>
-                ))}
-              </nav>
-              
-              {/* Profile & Logout Section */}
-              <div className="pt-4 border-t border-[#30d9fe]/30 space-y-2">
-                <Link
-                  to="/profile"
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-gray-300 hover:bg-[#0a4a7a]"
-                >
-                  <UserCircleIcon className="w-5 h-5" />
-                  <span className="text-sm font-medium">Profile</span>
-                </Link>
-                <button
-                  onClick={handleLogoutClick}
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-red-300 hover:bg-red-500/20"
-                >
-                  <ArrowLeftOnRectangleIcon className="w-5 h-5" />
-                  <span className="text-sm font-medium">Logout</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="flex-1 ml-64 p-8 pt-24">
-            {error && (
-              <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-                {error}
-              </div>
-            )}
-            {renderContent()}
-          </div>
+    <DashboardLayout
+      sidebarItems={sidebarItems}
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+      title="Mentor Dashboard"
+    >
+      {error && (
+        <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+          {error}
         </div>
-      </div>
-
-      {/* Logout Confirmation Modal */}
-      <LogoutModal
-        isOpen={isLogoutModalOpen}
-        onClose={() => setIsLogoutModalOpen(false)}
-        onConfirm={handleLogoutConfirm}
-      />
-    </Layout>
+      )}
+      {renderContent()}
+    </DashboardLayout>
   );
 };
 

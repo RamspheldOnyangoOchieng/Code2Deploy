@@ -1,4 +1,4 @@
-                                                                        import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Autoplay, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -11,11 +11,13 @@ const Home = () => {
   const [activeTab, setActiveTab] = useState('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [pageSettings, setPageSettings] = useState(null);
+  const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   useEffect(() => {
     fetchPageSettings();
+    fetchPrograms();
   }, []);
 
   const fetchPageSettings = async () => {
@@ -30,6 +32,23 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchPrograms = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/programs/`);
+      if (response.ok) {
+        const data = await response.json();
+        setPrograms(data.results || data);
+      }
+    } catch (error) {
+      console.error('Error fetching programs:', error);
+    }
+  };
+
+  const getTechnologies = (techString) => {
+    if (!techString) return [];
+    return techString.split(',').map(tech => tech.trim());
   };
 
   return (
@@ -198,114 +217,52 @@ const Home = () => {
                 }}
                 className="program-swiper"
               >
-                {/* Web Development */}
-                <SwiperSlide>
-                  <div className="bg-white rounded-xl overflow-hidden shadow-lg h-full transition-transform duration-300 hover:scale-[1.02]">
-                    <div className="h-32 sm:h-40 md:h-48 overflow-hidden">
-                      <img
-                        src="https://readdy.ai/api/search-image?query=Modern%20web%20development%20workspace%20with%20code%20on%20screen%2C%20showing%20HTML%2C%20CSS%2C%20and%20JavaScript.%20Clean%2C%20professional%20setup%20with%20a%20minimalist%20design.%20The%20image%20has%20a%20blue-tinted%20tech%20aesthetic%20that%20matches%20the%20websites%20color%20scheme%2C%20with%20clean%20lines%20and%20a%20professional%20look&width=400&height=250&seq=3&orientation=landscape"
-                        alt="Web Development"
-                        className="object-cover object-top w-full h-full"
-                      />
-                    </div>
-                    <div className="p-4 md:p-6">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="bg-[#03325a] text-[#30d9fe] text-xs font-bold px-3 py-1 rounded-full">12 Weeks</span>
-                        <span className="bg-[#eec262] text-[#03325a] text-xs font-bold px-3 py-1 rounded-full">Beginner</span>
+                {programs.length > 0 ? (
+                  programs.map((program) => (
+                    <SwiperSlide key={program.id}>
+                      <div className="bg-white rounded-xl overflow-hidden shadow-lg h-full transition-transform duration-300 hover:scale-[1.02] flex flex-col">
+                        <div className="h-32 sm:h-40 md:h-48 overflow-hidden bg-slate-200">
+                          {program.image ? (
+                            <img
+                              src={program.image}
+                              alt={program.title}
+                              className="object-cover object-top w-full h-full"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-slate-400">
+                              <i className="fas fa-graduation-cap text-4xl"></i>
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-4 md:p-6 flex-1 flex flex-col">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="bg-[#03325a] text-[#30d9fe] text-xs font-bold px-3 py-1 rounded-full">{program.duration}</span>
+                            <span className="bg-[#eec262] text-[#03325a] text-xs font-bold px-3 py-1 rounded-full">{program.level}</span>
+                          </div>
+                          <h3 className="text-lg md:text-xl font-bold mb-2 text-[#03325a] line-clamp-1">{program.title}</h3>
+                          <p className="mb-3 text-gray-600 text-sm md:text-base line-clamp-2">{program.description}</p>
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {getTechnologies(program.technologies).slice(0, 3).map((tech, idx) => (
+                              <span key={idx} className="px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded">{tech}</span>
+                            ))}
+                          </div>
+                          <Link to={`/programs?search=${encodeURIComponent(program.title)}`} className="mt-auto">
+                            <button className="w-full py-2 text-sm md:text-base bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap">
+                              View Details
+                            </button>
+                          </Link>
+                        </div>
                       </div>
-                      <h3 className="text-lg md:text-xl font-bold mb-2 text-[#03325a]">Full-Stack Web Development</h3>
-                      <p className="mb-3 text-gray-600 text-sm md:text-base">Learn HTML, CSS, JavaScript, React, Node.js, and MongoDB to build complete web applications.</p>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        <span className="px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded">HTML/CSS</span>
-                        <span className="px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded">JavaScript</span>
-                        <span className="px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded">React</span>
-                        <span className="px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded">Node.js</span>
-                      </div>
-                      <button className="w-full py-2 text-sm md:text-base bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap">View Details</button>
+                    </SwiperSlide>
+                  ))
+                ) : (
+                  // Fallback or Loading Placeholder slides could go here
+                  <SwiperSlide>
+                    <div className="bg-white rounded-xl overflow-hidden shadow-lg h-full p-6 text-center text-gray-400">
+                      Loading programs...
                     </div>
-                  </div>
-                </SwiperSlide>
-                {/* Data Science */}
-                <SwiperSlide>
-                  <div className="bg-white rounded-xl overflow-hidden shadow-lg h-full transition-transform duration-300 hover:scale-[1.02]">
-                    <div className="h-32 sm:h-40 md:h-48 overflow-hidden">
-                      <img
-                        src="https://readdy.ai/api/search-image?query=Data%20science%20visualization%20with%20charts%2C%20graphs%2C%20and%20Python%20code%20on%20screen.%20The%20image%20shows%20data%20analysis%20in%20progress%20with%20colorful%20data%20visualizations.%20Modern%2C%20clean%20workspace%20with%20a%20professional%20look.%20The%20color%20scheme%20includes%20blues%20that%20match%20the%20websites%20color%20palette%2C%20creating%20a%20cohesive%20visual%20experience&width=400&height=250&seq=4&orientation=landscape"
-                        alt="Data Science"
-                        className="object-cover object-top w-full h-full"
-                      />
-                    </div>
-                    <div className="p-4 md:p-6">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="bg-[#03325a] text-[#30d9fe] text-xs font-bold px-3 py-1 rounded-full">16 Weeks</span>
-                        <span className="bg-[#eec262] text-[#03325a] text-xs font-bold px-3 py-1 rounded-full">Intermediate</span>
-                      </div>
-                      <h3 className="text-lg md:text-xl font-bold mb-2 text-[#03325a]">Data Science & Analytics</h3>
-                      <p className="mb-3 text-gray-600 text-sm md:text-base">Master data analysis, visualization, and machine learning with Python and its powerful libraries.</p>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        <span className="px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded">Python</span>
-                        <span className="px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded">Pandas</span>
-                        <span className="px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded">NumPy</span>
-                        <span className="px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded">Scikit-learn</span>
-                      </div>
-                      <button className="w-full py-2 text-sm md:text-base bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap">View Details</button>
-                    </div>
-                  </div>
-                </SwiperSlide>
-                {/* Mobile Development */}
-                <SwiperSlide>
-                  <div className="bg-white rounded-xl overflow-hidden shadow-lg h-full transition-transform duration-300 hover:scale-[1.02]">
-                    <div className="h-32 sm:h-40 md:h-48 overflow-hidden">
-                      <img
-                        src="https://readdy.ai/api/search-image?query=Mobile%20app%20development%20workspace%20with%20smartphone%20mockups%20and%20React%20Native%20code%20on%20screen.%20The%20image%20shows%20a%20professional%20development%20environment%20with%20mobile%20UI%20designs%20visible.%20Clean%2C%20modern%20aesthetic%20with%20blue%20tones%20that%20match%20the%20websites%20color%20scheme%2C%20creating%20a%20cohesive%20visual%20experience&width=400&height=250&seq=5&orientation=landscape"
-                        alt="Mobile Development"
-                        className="object-cover object-top w-full h-full"
-                      />
-                    </div>
-                    <div className="p-4 md:p-6">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="bg-[#03325a] text-[#30d9fe] text-xs font-bold px-3 py-1 rounded-full">14 Weeks</span>
-                        <span className="bg-[#eec262] text-[#03325a] text-xs font-bold px-3 py-1 rounded-full">Intermediate</span>
-                      </div>
-                      <h3 className="text-lg md:text-xl font-bold mb-2 text-[#03325a]">Mobile App Development</h3>
-                      <p className="mb-3 text-gray-600 text-sm md:text-base">Build cross-platform mobile applications using React Native for iOS and Android devices.</p>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        <span className="px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded">JavaScript</span>
-                        <span className="px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded">React Native</span>
-                        <span className="px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded">Redux</span>
-                        <span className="px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded">Firebase</span>
-                      </div>
-                      <button className="w-full py-2 text-sm md:text-base bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap">View Details</button>
-                    </div>
-                  </div>
-                </SwiperSlide>
-                {/* AI & Machine Learning */}
-                <SwiperSlide>
-                  <div className="bg-white rounded-xl overflow-hidden shadow-lg h-full transition-transform duration-300 hover:scale-[1.02]">
-                    <div className="h-32 sm:h-40 md:h-48 overflow-hidden">
-                      <img
-                        src="https://readdy.ai/api/search-image?query=Artificial%20intelligence%20and%20machine%20learning%20workspace%20with%20neural%20network%20visualizations%20and%20Python%20code.%20The%20image%20shows%20AI%20models%20being%20trained%20with%20data%20flowing%20through%20network%20nodes.%20Professional%2C%20clean%20aesthetic%20with%20blue%20tones%20that%20match%20the%20websites%20color%20scheme%2C%20creating%20a%20cohesive%20visual%20experience&width=400&height=250&seq=6&orientation=landscape"
-                        alt="AI & Machine Learning"
-                        className="object-cover object-top w-full h-full"
-                      />
-                    </div>
-                    <div className="p-4 md:p-6">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="bg-[#03325a] text-[#30d9fe] text-xs font-bold px-3 py-1 rounded-full">20 Weeks</span>
-                        <span className="bg-[#eec262] text-[#03325a] text-xs font-bold px-3 py-1 rounded-full">Advanced</span>
-                      </div>
-                      <h3 className="text-lg md:text-xl font-bold mb-2 text-[#03325a]">AI & Machine Learning</h3>
-                      <p className="mb-3 text-gray-600 text-sm md:text-base">Dive deep into artificial intelligence, neural networks, and advanced machine learning algorithms.</p>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        <span className="px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded">Python</span>
-                        <span className="px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded">TensorFlow</span>
-                        <span className="px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded">PyTorch</span>
-                        <span className="px-2 py-1 text-xs text-gray-800 bg-gray-100 rounded">Keras</span>
-                      </div>
-                      <button className="w-full py-2 text-sm md:text-base bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap">View Details</button>
-                    </div>
-                  </div>
-                </SwiperSlide>
+                  </SwiperSlide>
+                )}
               </Swiper>
             </div>
             <div className="mt-8 text-center">

@@ -11,7 +11,20 @@ import AdminMentors from '../components/admin/AdminMentors';
 import AdminNotifications from '../components/admin/AdminNotifications';
 import AdminSecurity from '../components/admin/AdminSecurity';
 import AdminPages from '../components/admin/AdminPages';
-import LogoutModal from '../components/LogoutModal';
+import DashboardLayout from '../components/DashboardLayout';
+import {
+  ChartBarIcon,
+  DocumentIcon,
+  UsersIcon,
+  AcademicCapIcon,
+  CalendarDaysIcon,
+  TrophyIcon,
+  ShieldCheckIcon,
+  UserGroupIcon,
+  DocumentTextIcon,
+  BellIcon,
+  LockClosedIcon
+} from '@heroicons/react/24/outline';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -59,7 +72,7 @@ const AdminDashboard = () => {
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setStats(data);
@@ -73,18 +86,18 @@ const AdminDashboard = () => {
     }
   };
 
-  const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { id: 'pages', label: 'Pages', icon: '📄' },
-    { id: 'users', label: 'Users', icon: '👥' },
-    { id: 'programs', label: 'Programs', icon: '📚' },
-    { id: 'events', label: 'Events', icon: '🎫' },
-    { id: 'certificates', label: 'Certificates', icon: '🏆' },
-    { id: 'badges', label: 'Badges', icon: '🎖️' },
-    { id: 'mentors', label: 'Mentors', icon: '👨‍🏫' },
-    { id: 'applications', label: 'Applications', icon: '📝' },
-    { id: 'notifications', label: 'Notifications', icon: '🔔' },
-    { id: 'security', label: 'Security', icon: '🔒' }
+  const sidebarItems = [
+    { id: 'dashboard', name: 'Dashboard', icon: ChartBarIcon },
+    { id: 'pages', name: 'Pages', icon: DocumentIcon },
+    { id: 'users', name: 'Users', icon: UsersIcon },
+    { id: 'programs', name: 'Programs', icon: AcademicCapIcon },
+    { id: 'events', name: 'Events', icon: CalendarDaysIcon },
+    { id: 'certificates', name: 'Certificates', icon: TrophyIcon },
+    { id: 'badges', name: 'Badges', icon: ShieldCheckIcon },
+    { id: 'mentors', name: 'Mentors', icon: UserGroupIcon },
+    { id: 'applications', name: 'Applications', icon: DocumentTextIcon },
+    { id: 'notifications', name: 'Notifications', icon: BellIcon },
+    { id: 'security', name: 'Security', icon: LockClosedIcon }
   ];
 
   const renderDashboard = () => (
@@ -203,142 +216,26 @@ const AdminDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-[#03325a] to-[#0A0F2C] shadow-lg sticky top-0 z-30">
-        <div className="px-3 sm:px-4 lg:px-8">
-          <div className="flex justify-between items-center py-4 md:py-6">
-            <div className="flex items-center space-x-2 md:space-x-4">
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
-              >
-                <i className={`fas fa-${sidebarOpen ? 'times' : 'bars'} text-xl`}></i>
-              </button>
-              <button
-                onClick={() => {
-                  setActiveTab('dashboard');
-                  setSidebarOpen(false);
-                }}
-                className="text-lg md:text-2xl font-bold text-white hover:text-[#30d9fe] transition-colors flex items-center group"
-              >
-                <i className="fas fa-chart-line mr-2 text-[#30d9fe] group-hover:scale-110 transition-transform"></i>
-                Admin Dashboard
-              </button>
-              <span className="hidden sm:inline-block bg-[#30d9fe] text-[#03325a] text-xs font-bold px-2 md:px-3 py-1 md:py-1.5 rounded-full shadow-md">
-                Admin Panel
-              </span>
-            </div>
-            <button
-              onClick={() => navigate('/')}
-              className="bg-[#30d9fe] text-[#03325a] px-3 md:px-6 py-2 md:py-2.5 text-xs md:text-sm rounded-lg hover:bg-[#eec262] font-semibold transition-all duration-300 shadow-md hover:shadow-lg"
-            >
-              <i className="fas fa-arrow-left mr-1 md:mr-2"></i>
-              <span className="hidden sm:inline">Back to Site</span>
-              <span className="sm:hidden">Back</span>
-            </button>
-          </div>
-        </div>
+    <DashboardLayout
+      sidebarItems={sidebarItems}
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+      title="Admin Dashboard"
+    >
+      <div className="bg-white rounded-lg md:rounded-xl shadow-lg border border-gray-200 p-4 md:p-6 lg:p-8">
+        {activeTab === 'dashboard' && renderDashboard()}
+        {activeTab === 'pages' && <AdminPages />}
+        {activeTab === 'users' && <AdminUsers />}
+        {activeTab === 'programs' && <AdminPrograms />}
+        {activeTab === 'events' && <AdminEvents />}
+        {activeTab === 'certificates' && <AdminCertificates />}
+        {activeTab === 'badges' && <AdminBadges />}
+        {activeTab === 'mentors' && <AdminMentors />}
+        {activeTab === 'applications' && <div className="text-center py-8 text-sm md:text-base text-gray-500">Applications Management - Coming Soon</div>}
+        {activeTab === 'notifications' && <AdminNotifications />}
+        {activeTab === 'security' && <AdminSecurity />}
       </div>
-
-      <div className="flex relative">
-        {/* Mobile Overlay */}
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          ></div>
-        )}
-
-        {/* Left Sidebar Navigation - Fixed */}
-        <div className={`
-          fixed top-0 left-0 h-screen pt-20
-          w-64 bg-white shadow-xl border-r border-gray-200
-          transform transition-transform duration-300 ease-in-out z-20
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          overflow-y-auto
-        `}>
-          <div className="p-3 md:p-4">
-            <div className="flex justify-between items-center mb-4 lg:hidden">
-              <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3">
-                Navigation
-              </h2>
-              <button
-                onClick={() => setSidebarOpen(false)}
-                className="text-gray-500 hover:text-gray-700 p-2"
-              >
-                <i className="fas fa-times"></i>
-              </button>
-            </div>
-            <h2 className="hidden lg:block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4 px-3">
-              Navigation
-            </h2>
-            <nav className="space-y-1">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    setActiveTab(tab.id);
-                    setSidebarOpen(false);
-                  }}
-                  className={`w-full flex items-center space-x-3 px-3 md:px-4 py-2.5 md:py-3 text-xs md:text-sm font-medium rounded-lg transition-all duration-300 ${
-                    activeTab === tab.id
-                      ? 'bg-gradient-to-r from-[#30d9fe] to-[#30d9fe]/80 text-white shadow-md'
-                      : 'text-gray-700 hover:bg-gray-100 hover:text-[#03325a]'
-                  }`}
-                >
-                  <span className="text-lg md:text-xl">{tab.icon}</span>
-                  <span>{tab.label}</span>
-                </button>
-              ))}
-            </nav>
-            
-            {/* Profile & Logout Section */}
-            <div className="mt-8 pt-4 border-t border-gray-200 space-y-2">
-              <Link
-                to="/profile"
-                className="w-full flex items-center space-x-3 px-3 md:px-4 py-2.5 md:py-3 text-xs md:text-sm font-medium rounded-lg transition-all duration-300 text-gray-700 hover:bg-gray-100 hover:text-[#03325a]"
-              >
-                <span className="text-lg md:text-xl">👤</span>
-                <span>Profile</span>
-              </Link>
-              <button
-                onClick={handleLogoutClick}
-                className="w-full flex items-center space-x-3 px-3 md:px-4 py-2.5 md:py-3 text-xs md:text-sm font-medium rounded-lg transition-all duration-300 text-red-600 hover:bg-red-50"
-              >
-                <span className="text-lg md:text-xl">🚪</span>
-                <span>Logout</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content Area */}
-        <div className="flex-1 lg:ml-64 p-3 md:p-6 lg:p-8">
-          <div className="bg-white rounded-lg md:rounded-xl shadow-lg border border-gray-200 p-4 md:p-6 lg:p-8">
-            {activeTab === 'dashboard' && renderDashboard()}
-            {activeTab === 'pages' && <AdminPages />}
-            {activeTab === 'users' && <AdminUsers />}
-            {activeTab === 'programs' && <AdminPrograms />}
-            {activeTab === 'events' && <AdminEvents />}
-            {activeTab === 'certificates' && <AdminCertificates />}
-            {activeTab === 'badges' && <AdminBadges />}
-            {activeTab === 'mentors' && <AdminMentors />}
-            {activeTab === 'applications' && <div className="text-center py-8 text-sm md:text-base text-gray-500">Applications Management - Coming Soon</div>}
-            {activeTab === 'notifications' && <AdminNotifications />}
-            {activeTab === 'security' && <AdminSecurity />}
-          </div>
-        </div>
-      </div>
-
-      {/* Logout Confirmation Modal */}
-      <LogoutModal
-        isOpen={isLogoutModalOpen}
-        onClose={() => setIsLogoutModalOpen(false)}
-        onConfirm={handleLogoutConfirm}
-      />
-    </div>
+    </DashboardLayout>
   );
 };
 
