@@ -35,6 +35,56 @@ class EnrollInProgramView(APIView):
         serializer = EnrollmentSerializer(enrollment)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+
+class EnrollInProgramBodyView(APIView):
+    """
+    Enrollment endpoint that accepts program_id in request body.
+    Also accepts optional enrollment_details for additional data.
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        user = request.user
+        program_id = request.data.get('program_id')
+        enrollment_details = request.data.get('enrollment_details', {})
+        
+        if not program_id:
+            return Response({'detail': 'program_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            program = Program.objects.get(pk=program_id)
+        except Program.DoesNotExist:
+            return Response({'detail': 'Program not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check if already enrolled
+        existing_enrollment = Enrollment.objects.filter(user=user, program=program).first()
+        if existing_enrollment:
+            return Response({'detail': 'Already enrolled in this program.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create enrollment
+        enrollment = Enrollment.objects.create(
+            user=user,
+            program=program,
+            status='ongoing',
+            progress=0.0
+        )
+        
+        # Store enrollment details as JSON if provided (you may want to add a JSONField to your model)
+        # For now, we'll just log them or you can extend the Enrollment model
+        if enrollment_details:
+            # You could store these in a separate model or add fields to Enrollment
+            # For now, we'll just include them in the response
+            pass
+        
+        serializer = EnrollmentSerializer(enrollment)
+        response_data = serializer.data
+        response_data['enrollment_details'] = enrollment_details
+        response_data['program_title'] = program.title
+        response_data['scholarship'] = program.scholarship_available
+        
+        return Response(response_data, status=status.HTTP_201_CREATED)
+
+
 from users.views import UserEnrollmentsView
 class UserEnrollmentsViewWithFilter(UserEnrollmentsView):
     def get_queryset(self):
@@ -53,3 +103,4 @@ class UserProgramStatsView(APIView):
         ongoing = Enrollment.objects.filter(user=user, status='ongoing').count()
         completed = Enrollment.objects.filter(user=user, status='completed').count()
         return Response({'total': total, 'ongoing': ongoing, 'completed': completed})
+
