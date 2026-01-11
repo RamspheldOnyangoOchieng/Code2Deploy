@@ -36,6 +36,9 @@ def generate_temp_password(length=12):
 class MentorListCreateView(generics.ListCreateAPIView):
     queryset = Mentor.objects.all().order_by('-created_at')
     serializer_class = MentorSerializer
+    permission_classes = [AllowAny]
+    search_fields = ['name', 'expertise', 'bio']
+    filterset_fields = ['is_active', 'years_experience', 'expertise']
     
     def create(self, request, *args, **kwargs):
         """
