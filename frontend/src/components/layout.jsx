@@ -278,13 +278,13 @@ const Layout = ({ children }) => {
               ) : (
                 <div className="flex items-center space-x-2">
                   <button
-                    onClick={() => setIsLoginModalOpen(true)}
+                    onClick={() => openLoginModal()}
                     className="px-4 py-2 text-white text-sm font-medium rounded-lg hover:text-[#30d9fe] transition-all duration-300"
                   >
                     Login
                   </button>
                   <button
-                    onClick={() => setIsSignupModalOpen(true)}
+                    onClick={() => openSignupModal()}
                     className="px-4 py-2 bg-[#30d9fe] text-[#03325a] text-sm font-medium rounded-lg hover:bg-[#eec262] transition-all duration-300"
                   >
                     Sign Up
@@ -430,13 +430,13 @@ const Layout = ({ children }) => {
               ) : (
                 <div className="flex flex-col space-y-2 px-4 py-2">
                   <button
-                    onClick={() => { setIsLoginModalOpen(true); setIsMenuOpen(false); }}
+                    onClick={() => { openLoginModal(); setIsMenuOpen(false); }}
                     className="w-full py-3 text-white font-medium rounded-lg border-2 border-white/30 hover:bg-white/10 transition-colors"
                   >
                     Login
                   </button>
                   <button
-                    onClick={() => { setIsSignupModalOpen(true); setIsMenuOpen(false); }}
+                    onClick={() => { openSignupModal(); setIsMenuOpen(false); }}
                     className="w-full py-3 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-[#eec262] transition-colors"
                   >
                     Sign Up
