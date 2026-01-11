@@ -43,7 +43,7 @@ const AdminMentors = () => {
 
       if (searchTerm) params.append('search', searchTerm);
       if (statusFilter) params.append('is_active', statusFilter);
-      if (specialtyFilter) params.append('specialty', specialtyFilter);
+      if (specialtyFilter) params.append('expertise', specialtyFilter);
 
       const response = await fetch(`${API_BASE_URL}/mentors/?${params}`, {
         headers: {
