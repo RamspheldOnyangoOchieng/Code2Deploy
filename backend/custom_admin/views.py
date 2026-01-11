@@ -170,8 +170,8 @@ class AdminUserManagementView(APIView):
         page = int(request.query_params.get('page', 1))
         page_size = int(request.query_params.get('page_size', 20))
         
-        # Build queryset
-        users = User.objects.all()
+        # Build queryset with consistent ordering for pagination
+        users = User.objects.all().order_by('-date_joined')
         
         # Apply filters
         if search:
