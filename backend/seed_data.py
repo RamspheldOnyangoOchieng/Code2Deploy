@@ -42,9 +42,17 @@ def upload_image_from_url(model_instance, field_name, url, filename):
 def seed_page_settings():
     print("\n--- Seeding Page Settings ---")
     
+    def is_invalid_image(img_val):
+        if not img_val: return True
+        img_str = str(img_val)
+        # Check if it's a truncated Unsplash URL
+        if img_str.startswith("https://images.unsplash") and len(img_str) < 50:
+            return True
+        return False
+
     # Home Page
     home, created = HomePageSettings.objects.get_or_create(id=1)
-    if created or not home.hero_image:
+    if created or is_invalid_image(home.hero_image):
         home.hero_title_line1 = "From"
         home.hero_title_highlight1 = "Hello World"
         home.hero_title_line2 = "to"
@@ -55,7 +63,7 @@ def seed_page_settings():
     
     # About Page
     about, created = AboutPageSettings.objects.get_or_create(id=1)
-    if created or not about.hero_image:
+    if created or is_invalid_image(about.hero_image):
         about.hero_title = "About Code2Deploy"
         about.hero_subtitle = "Empowering African youth with cutting-edge tech skills"
         about.save()
@@ -63,7 +71,7 @@ def seed_page_settings():
         
     # Programs Page
     prog, created = ProgramsPageSettings.objects.get_or_create(id=1)
-    if created or not prog.hero_image:
+    if created or is_invalid_image(prog.hero_image):
         prog.hero_title = "Our Programs"
         prog.hero_subtitle = "Discover world-class technology programs designed for African youth"
         prog.save()
@@ -71,7 +79,7 @@ def seed_page_settings():
         
     # Events Page
     ev_page, created = EventsPageSettings.objects.get_or_create(id=1)
-    if created or not ev_page.hero_image:
+    if created or is_invalid_image(ev_page.hero_image):
         ev_page.hero_title = "Upcoming Events"
         ev_page.hero_subtitle = "Discover workshops, webinars, and tech meetups to enhance your skills"
         ev_page.save()
