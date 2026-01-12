@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import authService from '../services/authService';
 import LogoutModal from '../components/LogoutModal';
 import {
@@ -30,6 +31,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 const ProfilePage = () => {
+  const { logout } = useAuth();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -100,7 +102,7 @@ const ProfilePage = () => {
   };
 
   const handleLogoutConfirm = () => {
-    authService.logout();
+    logout();
     setIsLogoutModalOpen(false);
     navigate('/');
   };
@@ -193,22 +195,22 @@ const ProfilePage = () => {
       <div className="bg-gradient-to-r from-[#03325a] via-[#0a4d7a] to-[#03325a] border-b border-[#30d9fe]/20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Back Button */}
-          <Link 
-            to={getDashboardPath()} 
+          <Link
+            to={getDashboardPath()}
             className="inline-flex items-center text-gray-400 hover:text-white mb-6 transition-colors"
           >
             <ArrowLeftIcon className="w-5 h-5 mr-2" />
             Back to Dashboard
           </Link>
-          
+
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
             {/* Avatar Section */}
             <div className="relative group">
               <div className="w-28 h-28 sm:w-32 sm:h-32 bg-gradient-to-r from-[#30d9fe] to-[#eec262] rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-2xl ring-4 ring-[#30d9fe]/30 overflow-hidden">
                 {user?.avatar ? (
-                  <img 
-                    src={user.avatar} 
-                    alt="Profile" 
+                  <img
+                    src={user.avatar}
+                    alt="Profile"
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -258,7 +260,7 @@ const ProfilePage = () => {
             </div>
 
             {/* Quick ID */}
-            <div 
+            <div
               onClick={() => copyToClipboard(user?.unique_id)}
               className="bg-[#30d9fe]/10 border border-[#30d9fe]/30 rounded-lg px-4 py-2 cursor-pointer hover:bg-[#30d9fe]/20 transition-colors group"
               title="Click to copy full ID"
@@ -287,11 +289,10 @@ const ProfilePage = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-6 py-4 font-medium transition-all border-b-2 ${
-                    activeTab === tab.id
-                      ? 'text-[#30d9fe] border-[#30d9fe]'
-                      : 'text-gray-400 border-transparent hover:text-gray-300'
-                  }`}
+                  className={`flex items-center space-x-2 px-6 py-4 font-medium transition-all border-b-2 ${activeTab === tab.id
+                    ? 'text-[#30d9fe] border-[#30d9fe]'
+                    : 'text-gray-400 border-transparent hover:text-gray-300'
+                    }`}
                 >
                   <Icon className="w-5 h-5" />
                   <span>{tab.name}</span>
@@ -346,7 +347,7 @@ const ProfilePage = () => {
                         <input
                           type="text"
                           value={editForm.first_name}
-                          onChange={(e) => setEditForm({...editForm, first_name: e.target.value})}
+                          onChange={(e) => setEditForm({ ...editForm, first_name: e.target.value })}
                           className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#30d9fe] focus:border-transparent"
                         />
                       </div>
@@ -358,7 +359,7 @@ const ProfilePage = () => {
                         <input
                           type="text"
                           value={editForm.last_name}
-                          onChange={(e) => setEditForm({...editForm, last_name: e.target.value})}
+                          onChange={(e) => setEditForm({ ...editForm, last_name: e.target.value })}
                           className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#30d9fe] focus:border-transparent"
                         />
                       </div>
@@ -386,7 +387,7 @@ const ProfilePage = () => {
                         <input
                           type="tel"
                           value={editForm.phone}
-                          onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
+                          onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
                           placeholder="+1 XXX XXX XXXX"
                           className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] focus:border-transparent"
                         />
@@ -401,15 +402,15 @@ const ProfilePage = () => {
                       <input
                         type="text"
                         value={editForm.organization}
-                        onChange={(e) => setEditForm({...editForm, organization: e.target.value})}
+                        onChange={(e) => setEditForm({ ...editForm, organization: e.target.value })}
                         placeholder="Your company or school"
                         className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] focus:border-transparent"
                       />
                     </div>
 
                     <div className="flex items-center gap-3 pt-4">
-                      <button 
-                        type="submit" 
+                      <button
+                        type="submit"
                         disabled={saving}
                         className="flex items-center px-6 py-3 bg-[#30d9fe] text-[#03325a] font-semibold rounded-lg hover:bg-[#30d9fe]/90 transition-all disabled:opacity-50"
                       >
@@ -425,7 +426,7 @@ const ProfilePage = () => {
                           </>
                         )}
                       </button>
-                      <button 
+                      <button
                         type="button"
                         onClick={() => setEditing(false)}
                         className="flex items-center px-6 py-3 bg-white/10 text-white font-semibold rounded-lg hover:bg-white/20 transition-all"
@@ -618,7 +619,7 @@ const ProfilePage = () => {
             {/* User ID Card */}
             <div className="bg-gradient-to-br from-[#30d9fe]/20 to-[#eec262]/20 backdrop-blur-lg border border-[#30d9fe]/30 rounded-2xl p-6">
               <h3 className="text-lg font-bold text-white mb-4">Your Unique ID</h3>
-              <div 
+              <div
                 onClick={() => copyToClipboard(user?.unique_id)}
                 className="bg-black/30 rounded-lg p-3 font-mono text-[#30d9fe] text-sm break-all cursor-pointer hover:bg-black/40 transition-colors flex items-center justify-between gap-2 group"
                 title="Click to copy"
