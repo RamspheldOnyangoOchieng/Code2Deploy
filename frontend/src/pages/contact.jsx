@@ -1,13 +1,14 @@
 // The exported code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work.
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
+import { useToast } from '../contexts/ToastContext';
 import Layout from '../components/layout';
-import { Link } from 'react-router-dom';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const Contact = () => {
+  const toast = useToast();
   const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
     name: '',
@@ -64,7 +65,7 @@ const Contact = () => {
           }
         }
       } catch (error) {
-        console.error('Error fetching contact settings:', error);
+        toast.error('Failed to load contact settings');
       } finally {
         setLoadingSettings(false);
       }
@@ -150,6 +151,7 @@ const Contact = () => {
 
         if (response.ok) {
           setFormSubmitted(true);
+          toast.success('Message sent successfully!');
 
           setTimeout(() => {
             setFormSubmitted(false);
@@ -168,11 +170,10 @@ const Contact = () => {
             });
           }, 5000);
         } else {
-          console.error('Failed to submit contact form');
-          // Could add error handling UI here
+          toast.error('Failed to submit contact form. Please try again later.');
         }
       } catch (error) {
-        console.error('Error submitting contact form:', error);
+        toast.error('An error occurred while submitting the form. Please check your connection.');
       }
     }
   };

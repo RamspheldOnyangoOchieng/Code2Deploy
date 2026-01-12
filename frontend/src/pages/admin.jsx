@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useToast } from '../contexts/ToastContext';
 import authService from '../services/authService';
 import { API_BASE_URL } from '../config/api';
 import AdminUsers from '../components/admin/AdminUsers';
@@ -26,24 +27,20 @@ import {
   LockClosedIcon
 } from '@heroicons/react/24/outline';
 
+import { useAuth } from '../contexts/AuthContext';
+
 const AdminDashboard = () => {
+  const toast = useToast();
+  const { logout, user } = useAuth(); // Use global auth context
   const [activeTab, setActiveTab] = useState('dashboard');
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogoutClick = () => {
-    setIsLogoutModalOpen(true);
-  };
-
-  const handleLogoutConfirm = () => {
-    authService.logout();
-    setIsLogoutModalOpen(false);
-    navigate('/');
-  };
+  // Logout is handled by DashboardLayout globally
+  // Remove redundant local handlers if not used
 
   useEffect(() => {
     checkAdminAccess();
@@ -53,14 +50,9 @@ const AdminDashboard = () => {
   }, [activeTab]);
 
   const checkAdminAccess = async () => {
-    try {
-      const user = await authService.getCurrentUser();
-      if (!user || user.role !== 'admin') {
-        navigate('/');
-        return;
-      }
-    } catch (err) {
+    if (!user || user.role !== 'admin') {
       navigate('/');
+      return;
     }
   };
 
@@ -77,10 +69,10 @@ const AdminDashboard = () => {
         const data = await response.json();
         setStats(data);
       } else {
-        setError('Failed to fetch dashboard stats');
+        toast.error('Failed to fetch dashboard stats');
       }
     } catch (err) {
-      setError('Error fetching dashboard stats');
+      toast.error('Error fetching dashboard stats');
     } finally {
       setLoading(false);
     }

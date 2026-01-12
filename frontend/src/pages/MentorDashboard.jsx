@@ -24,12 +24,13 @@ import {
   ArrowLeftOnRectangleIcon
 } from '@heroicons/react/24/outline';
 import { useToast } from '../contexts/ToastContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const MentorDashboard = () => {
+  const { user, logout } = useAuth(); // Use global auth context
   const toast = useToast();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -52,7 +53,6 @@ const MentorDashboard = () => {
   const [showResourceModal, setShowResourceModal] = useState(false);
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [showAvailabilityModal, setShowAvailabilityModal] = useState(false);
-  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -66,15 +66,7 @@ const MentorDashboard = () => {
     setSearchParams({ tab: tabId });
   };
 
-  const handleLogoutClick = () => {
-    setIsLogoutModalOpen(true);
-  };
-
-  const handleLogoutConfirm = () => {
-    authService.logout();
-    setIsLogoutModalOpen(false);
-    navigate('/');
-  };
+  // Logout is handled by DashboardLayout globally
 
   const sidebarItems = [
     { id: 'overview', name: 'Overview', icon: HomeIcon },
@@ -110,7 +102,6 @@ const MentorDashboard = () => {
         navigate('/learner-dashboard');
         return;
       }
-      setUser(userData);
       setLoading(false);
     } catch (err) {
       navigate('/');

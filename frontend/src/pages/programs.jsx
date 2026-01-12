@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import Layout from '../components/layout';
+import { useToast } from '../contexts/ToastContext';
 import authService from '../services/authService';
 import { useAuth } from '../contexts/AuthContext';
 import { API_BASE_URL } from '../config/api';
 
 const Programs = () => {
+  const toast = useToast();
   const navigate = useNavigate();
   const { openLoginModal } = useAuth();
   const [searchParams] = useSearchParams();
@@ -48,7 +50,7 @@ const Programs = () => {
         setPageSettings(data);
       }
     } catch (error) {
-      console.error('Error fetching programs page settings:', error);
+      toast.error('Failed to load page settings');
     }
   };
 
@@ -66,11 +68,10 @@ const Programs = () => {
         setPrograms(data.results || data);
         setError(null);
       } else {
-        setError('Failed to load programs');
+        toast.error('Failed to load programs');
       }
     } catch (err) {
-      console.error('Error fetching programs:', err);
-      setError('Failed to connect to server');
+      toast.error('Failed to connect to server');
     } finally {
       setLoading(false);
     }

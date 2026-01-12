@@ -3,6 +3,7 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import authService from '../services/authService';
 import { API_BASE_URL } from '../config/api';
 import { useToast } from '../contexts/ToastContext';
+import { useAuth } from '../contexts/AuthContext';
 import DashboardLayout from '../components/DashboardLayout';
 import {
   UserCircleIcon,
@@ -26,8 +27,9 @@ import {
 } from '@heroicons/react/24/outline';
 
 const LearnerDashboard = () => {
+  const { user, logout } = useAuth(); // Use global auth context
   const toast = useToast();
-  const [user, setUser] = useState(null);
+  // const [user, setUser] = useState(null); // Removed local user state
   const [enrollments, setEnrollments] = useState([]);
   const [eventRegistrations, setEventRegistrations] = useState([]);
   const [certificates, setCertificates] = useState([]);
@@ -38,7 +40,7 @@ const LearnerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
-  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  // Logout handled globally by DashboardLayout
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
@@ -60,32 +62,32 @@ const LearnerDashboard = () => {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
+      toast.success('ID copied to clipboard');
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy:', err);
+      toast.error('Failed to copy to clipboard');
     }
   };
 
   useEffect(() => {
-    if (!authService.isAuthenticated()) {
-      navigate('/login');
-      return;
+    if (!user) {
+      if (!authService.isAuthenticated()) {
+        navigate('/');
+      }
     }
     loadUserData();
-  }, [navigate]);
+  }, [navigate, user]);
 
   const loadUserData = async () => {
     try {
       setLoading(true);
       const [
-        userData,
         enrollmentsData,
         eventRegistrationsData,
         certificatesData,
         badgesData,
         notificationsData
       ] = await Promise.all([
-        authService.getCurrentUser(),
         authService.getUserEnrollments(),
         authService.getUserEventRegistrations(),
         authService.getUserCertificates(),
@@ -93,7 +95,6 @@ const LearnerDashboard = () => {
         authService.getUserNotifications()
       ]);
 
-      setUser(userData);
       setEnrollments(enrollmentsData.results || enrollmentsData);
       setEventRegistrations(eventRegistrationsData.results || eventRegistrationsData);
       setCertificates(certificatesData.results || certificatesData);
@@ -105,7 +106,6 @@ const LearnerDashboard = () => {
       loadUpcomingSessions();
     } catch (err) {
       toast.error('Failed to load user data');
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -124,7 +124,7 @@ const LearnerDashboard = () => {
         setAssignments(data.results || data);
       }
     } catch (err) {
-      console.error('Failed to load assignments:', err);
+      toast.error('Failed to load assignments');
     }
   };
 
@@ -141,7 +141,7 @@ const LearnerDashboard = () => {
         setUpcomingSessions(data.results || data);
       }
     } catch (err) {
-      console.error('Failed to load sessions:', err);
+      toast.error('Failed to load sessions');
     }
   };
 

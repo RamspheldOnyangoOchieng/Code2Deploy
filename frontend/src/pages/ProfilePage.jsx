@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useToast } from '../contexts/ToastContext';
 import { useAuth } from '../contexts/AuthContext';
 import authService from '../services/authService';
 import LogoutModal from '../components/LogoutModal';
@@ -31,8 +32,8 @@ import {
 } from '@heroicons/react/24/outline';
 
 const ProfilePage = () => {
-  const { logout } = useAuth();
-  const [user, setUser] = useState(null);
+  const toast = useToast();
+  const { logout, user, login: updateContextUser } = useAuth(); // Destructure from useAuth
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [editing, setEditing] = useState(false);
@@ -49,9 +50,10 @@ const ProfilePage = () => {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
+      toast.success('ID copied to clipboard');
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy:', err);
+      toast.error('Failed to copy to clipboard');
     }
   };
 
@@ -66,18 +68,18 @@ const ProfilePage = () => {
   const loadUserData = async () => {
     try {
       setLoading(true);
-      const userData = await authService.getCurrentUser();
-      setUser(userData);
-      setEditForm({
-        first_name: userData.first_name || '',
-        last_name: userData.last_name || '',
-        phone: userData.phone || '',
-        organization: userData.organization || '',
-        bio: userData.bio || ''
-      });
+      // Data is already in 'user' from context, but we need it for the form
+      if (user) {
+        setEditForm({
+          first_name: user.first_name || '',
+          last_name: user.last_name || '',
+          phone: user.phone || '',
+          organization: user.organization || '',
+          bio: user.bio || ''
+        });
+      }
     } catch (err) {
-      setError('Failed to load user data');
-      console.error(err);
+      toast.error('Failed to load user data');
     } finally {
       setLoading(false);
     }
@@ -88,10 +90,11 @@ const ProfilePage = () => {
     try {
       setSaving(true);
       const updatedUser = await authService.updateProfile(editForm);
-      setUser(updatedUser);
+      updateContextUser(updatedUser); // Update the global context
       setEditing(false);
+      toast.success('Profile updated successfully');
     } catch (err) {
-      setError('Failed to update profile');
+      toast.error('Failed to update profile');
     } finally {
       setSaving(false);
     }
@@ -130,10 +133,10 @@ const ProfilePage = () => {
       setUploadingAvatar(true);
       setError('');
       const updatedUser = await authService.uploadAvatar(file);
-      setUser(updatedUser);
+      updateContextUser(updatedUser); // Update global context
+      toast.success('Avatar updated successfully');
     } catch (err) {
-      setError('Failed to upload avatar');
-      console.error(err);
+      toast.error('Failed to upload avatar');
     } finally {
       setUploadingAvatar(false);
     }

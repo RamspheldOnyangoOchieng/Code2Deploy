@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import authService from '../services/authService';
+import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import LogoutModal from './LogoutModal';
 import NotificationPopover from './NotificationPopover';
 import logo from '../assets/logo2-clear.png';
@@ -16,7 +18,8 @@ import {
 } from '@heroicons/react/24/outline';
 
 const DashboardLayout = ({ children, sidebarItems = [], activeTab, setActiveTab, title = 'Dashboard' }) => {
-    const [user, setUser] = useState(null);
+    const toast = useToast();
+    const { logout, user } = useAuth(); // Use global user
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
@@ -30,13 +33,16 @@ const DashboardLayout = ({ children, sidebarItems = [], activeTab, setActiveTab,
             navigate('/');
             return;
         }
-        authService.getCurrentUser().then(setUser).catch(console.error);
+        // Removed local user fetch, using global user from context
 
         // Fetch unread count
         authService.getUserNotifications().then(data => {
             const notifications = data.results || data || [];
             setUnreadCount(notifications.filter(n => !n.is_read).length);
-        }).catch(console.error);
+        }).catch(err => {
+            console.error(err);
+            // toast.error('Failed to fetch notifications'); // Keep it silent for background polling to avoid annoyance
+        });
     }, [navigate]);
 
     // Close dropdown when clicking outside
@@ -59,7 +65,7 @@ const DashboardLayout = ({ children, sidebarItems = [], activeTab, setActiveTab,
     };
 
     const handleLogoutConfirm = () => {
-        authService.logout();
+        logout();
         setIsLogoutModalOpen(false);
         navigate('/');
     };

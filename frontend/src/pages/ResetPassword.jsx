@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Layout from '../components/layout';
+import { useToast } from '../contexts/ToastContext';
 import { API_BASE_URL } from '../config/api';
 
 const ResetPassword = () => {
+  const toast = useToast();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -19,7 +21,7 @@ const ResetPassword = () => {
 
   useEffect(() => {
     if (!uid || !token) {
-      setError('Invalid reset link. Please request a new password reset.');
+      toast.error('Invalid reset link. Please request a new password reset.');
     }
   }, [uid, token]);
 
@@ -36,12 +38,12 @@ const ResetPassword = () => {
 
     // Validation
     if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long');
+      toast.error('Password must be at least 8 characters long');
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      toast.error('Passwords do not match');
       return;
     }
 
@@ -66,14 +68,14 @@ const ResetPassword = () => {
         throw new Error(data.detail || 'Password reset failed');
       }
 
-      setSuccess(true);
-      
+      toast.success('Password reset successful! Redirecting to login...');
+
       // Redirect to login after 3 seconds
       setTimeout(() => {
         navigate('/');
       }, 3000);
     } catch (err) {
-      setError(err.message || 'Failed to reset password');
+      toast.error(err.message || 'Failed to reset password');
     } finally {
       setLoading(false);
     }

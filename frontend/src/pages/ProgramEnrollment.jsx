@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Layout from '../components/layout';
+import { useToast } from '../contexts/ToastContext';
 import authService from '../services/authService';
 import paymentService from '../services/paymentService';
 import { API_BASE_URL } from '../config/api';
@@ -19,6 +20,7 @@ const AVAILABILITY_OPTIONS = [
 ];
 
 const ProgramEnrollment = () => {
+    const toast = useToast();
     const navigate = useNavigate();
     const location = useLocation();
     const [program, setProgram] = useState(null);
@@ -62,7 +64,7 @@ const ProgramEnrollment = () => {
                     email: user.email || ''
                 }));
             } catch (err) {
-                console.error('Failed to get user data:', err);
+                toast.error('Failed to pre-fill user data');
             }
         };
 
@@ -112,7 +114,7 @@ const ProgramEnrollment = () => {
                 setSelectedPlan((plans.results || plans)[0]);
             }
         } catch (err) {
-            console.error('Failed to load pricing plans:', err);
+            toast.error('Failed to load pricing plans');
         }
     };
 
@@ -141,7 +143,7 @@ const ProgramEnrollment = () => {
         if (validateStep(currentStep)) {
             setCurrentStep(prev => prev + 1);
         } else {
-            setError('Please fill in all required fields');
+            toast.error('Please fill in all required fields');
         }
     };
 
@@ -184,10 +186,10 @@ const ProgramEnrollment = () => {
                 });
             } else {
                 const data = await response.json();
-                setError(data.detail || 'Failed to enroll. You may already be enrolled.');
+                toast.error(data.detail || 'Failed to enroll. You may already be enrolled.');
             }
         } catch (err) {
-            setError('Failed to complete enrollment. Please try again.');
+            toast.error('Failed to complete enrollment. Please try again.');
         } finally {
             setSubmitting(false);
         }

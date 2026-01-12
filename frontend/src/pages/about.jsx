@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useToast } from '../contexts/ToastContext';
 import Layout from '../components/layout';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 const About = () => {
+  const toast = useToast();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [pageSettings, setPageSettings] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,7 +29,7 @@ const About = () => {
         setPageSettings(data);
       }
     } catch (error) {
-      console.error('Error fetching about page settings:', error);
+      toast.error('Failed to load page settings');
     } finally {
       setLoading(false);
     }
@@ -36,7 +38,7 @@ const About = () => {
   return (
     <Layout>
       {/* Hero Section */}
-      <div className="relative h-72 sm:h-[400px] md:h-[500px] lg:h-[600px] bg-cover bg-center" style={{backgroundImage: pageSettings?.hero_image_url ? `url('${pageSettings.hero_image_url}')` : "url('https://readdy.ai/api/search-image?query=Modern%20tech%20office%20environment%20with%20abstract%20geometric%20patterns%20in%20blue%20and%20white.%20Professional%20workspace%20with%20subtle%20technology%20elements%20and%20clean%20minimalist%20design.%20Soft%20lighting%20creating%20an%20inviting%20atmosphere%20perfect%20for%20text%20overlay.%20Contemporary%20corporate%20setting%20with%20innovative%20architectural%20details&width=1440&height=600&seq=301&orientation=landscape')"}}>
+      <div className="relative h-72 sm:h-[400px] md:h-[500px] lg:h-[600px] bg-cover bg-center" style={{ backgroundImage: pageSettings?.hero_image_url ? `url('${pageSettings.hero_image_url}')` : "url('https://readdy.ai/api/search-image?query=Modern%20tech%20office%20environment%20with%20abstract%20geometric%20patterns%20in%20blue%20and%20white.%20Professional%20workspace%20with%20subtle%20technology%20elements%20and%20clean%20minimalist%20design.%20Soft%20lighting%20creating%20an%20inviting%20atmosphere%20perfect%20for%20text%20overlay.%20Contemporary%20corporate%20setting%20with%20innovative%20architectural%20details&width=1440&height=600&seq=301&orientation=landscape')" }}>
         <div className="absolute inset-0 bg-gradient-to-r from-[#03325a] to-transparent">
           <div className="container mx-auto px-4 sm:px-6 h-full flex items-center">
             <div className="max-w-2xl text-white">

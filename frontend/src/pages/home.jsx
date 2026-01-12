@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import { Autoplay, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import Layout from '../components/layout';
+import { useToast } from '../contexts/ToastContext';
 import '../styles/swiper-custom.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 const Home = () => {
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [pageSettings, setPageSettings] = useState(null);
@@ -28,7 +30,7 @@ const Home = () => {
         setPageSettings(data);
       }
     } catch (error) {
-      console.error('Error fetching home page settings:', error);
+      toast.error('Failed to load home page settings');
     } finally {
       setLoading(false);
     }
@@ -42,7 +44,7 @@ const Home = () => {
         setPrograms(data.results || data);
       }
     } catch (error) {
-      console.error('Error fetching programs:', error);
+      toast.error('Failed to load programs');
     }
   };
 

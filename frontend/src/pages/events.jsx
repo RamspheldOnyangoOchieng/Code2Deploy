@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useToast } from '../contexts/ToastContext';
 import Layout from '../components/layout';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 const Events = () => {
+  const toast = useToast();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('events');
   const [selectedDate, setSelectedDate] = useState(null);
@@ -37,7 +39,7 @@ const Events = () => {
         setPageSettings(data);
       }
     } catch (error) {
-      console.error('Error fetching events page settings:', error);
+      toast.error('Failed to load page settings');
     }
   };
 
@@ -83,23 +85,23 @@ const Events = () => {
   const generateCalendarDays = () => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
-    
+
     const daysInMonth = getDaysInMonth(year, month);
     const firstDay = getFirstDayOfMonth(year, month);
-    
+
     const days = [];
-    
+
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < firstDay; i++) {
       days.push(null);
     }
-    
+
     // Add days of the month
     for (let i = 1; i <= daysInMonth; i++) {
       const date = new Date(year, month, i);
       days.push(date);
     }
-    
+
     return days;
   };
 
@@ -227,7 +229,7 @@ const Events = () => {
   // Filter events based on search term and filters
   useEffect(() => {
     let results = [...events];
-    
+
     if (searchTerm) {
       results = results.filter(event =>
         event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -235,7 +237,7 @@ const Events = () => {
         event.topics.some((topic) => topic.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
-    
+
     if (filters.type) {
       results = results.filter(event => {
         if (filters.type === 'Workshops') return event.title.includes('Workshop') || event.title.includes('Bootcamp');
@@ -244,21 +246,21 @@ const Events = () => {
         return true;
       });
     }
-    
+
     if (filters.location) {
       results = results.filter(event => event.format.toLowerCase() === filters.location.toLowerCase());
     }
-    
+
     if (filters.topic) {
       results = results.filter(event =>
         event.topics.some((topic) => topic.toLowerCase() === filters.topic.toLowerCase())
       );
     }
-    
+
     if (filters.dateRange) {
       results = results.filter(event => event.date === filters.dateRange);
     }
-    
+
     setFilteredEvents(results);
   }, [searchTerm, filters]);
 
@@ -272,9 +274,9 @@ const Events = () => {
 
   // Check if a date has events
   const hasEvents = (date) => {
-    return eventDates.some(eventDate => 
-      eventDate.getDate() === date.getDate() && 
-      eventDate.getMonth() === date.getMonth() && 
+    return eventDates.some(eventDate =>
+      eventDate.getDate() === date.getDate() &&
+      eventDate.getMonth() === date.getMonth() &&
       eventDate.getFullYear() === date.getFullYear()
     );
   };
@@ -332,8 +334,8 @@ const Events = () => {
               </div>
               <div className="grid grid-cols-7 gap-1">
                 {generateCalendarDays().map((date, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className={`aspect-square flex items-center justify-center text-xs sm:text-sm rounded-full cursor-pointer ${!date ? 'text-gray-300' : 'hover:bg-gray-100'} ${date && selectedDate && date.toDateString() === selectedDate.toDateString() ? 'bg-[#03325a] text-white hover:bg-[#03325a]' : ''} ${date && hasEvents(date) ? 'font-bold' : ''}`}
                     onClick={() => date && handleDateClick(date)}
                   >
@@ -380,56 +382,56 @@ const Events = () => {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-4">
                   {/* Event Type Filter */}
-                    <div className="relative">
-                      <select
-                        value={filters.type}
-                        onChange={(e) => setFilters({...filters, type: e.target.value})}
+                  <div className="relative">
+                    <select
+                      value={filters.type}
+                      onChange={(e) => setFilters({ ...filters, type: e.target.value })}
                       className="appearance-none w-full py-2 sm:py-3 px-4 pr-8 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] focus:border-transparent bg-white text-sm cursor-pointer"
-                      >
-                        <option value="">Event Type (All)</option>
-                        <option value="Workshops">Workshops</option>
-                        <option value="Webinars">Webinars</option>
-                        <option value="Meetups">Meetups</option>
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                        <i className="fas fa-chevron-down text-xs"></i>
-                      </div>
+                    >
+                      <option value="">Event Type (All)</option>
+                      <option value="Workshops">Workshops</option>
+                      <option value="Webinars">Webinars</option>
+                      <option value="Meetups">Meetups</option>
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <i className="fas fa-chevron-down text-xs"></i>
                     </div>
+                  </div>
                   {/* Location Filter */}
-                    <div className="relative">
-                      <select
-                        value={filters.location}
-                        onChange={(e) => setFilters({...filters, location: e.target.value})}
+                  <div className="relative">
+                    <select
+                      value={filters.location}
+                      onChange={(e) => setFilters({ ...filters, location: e.target.value })}
                       className="appearance-none w-full py-2 sm:py-3 px-4 pr-8 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] focus:border-transparent bg-white text-sm cursor-pointer"
-                      >
-                        <option value="">Location (All)</option>
-                        <option value="Online">Online</option>
-                        <option value="In-person">In-person</option>
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                        <i className="fas fa-chevron-down text-xs"></i>
-                      </div>
+                    >
+                      <option value="">Location (All)</option>
+                      <option value="Online">Online</option>
+                      <option value="In-person">In-person</option>
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <i className="fas fa-chevron-down text-xs"></i>
                     </div>
+                  </div>
                   {/* Topic Filter */}
-                    <div className="relative">
-                      <select
-                        value={filters.topic}
-                        onChange={(e) => setFilters({...filters, topic: e.target.value})}
+                  <div className="relative">
+                    <select
+                      value={filters.topic}
+                      onChange={(e) => setFilters({ ...filters, topic: e.target.value })}
                       className="appearance-none w-full py-2 sm:py-3 px-4 pr-8 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] focus:border-transparent bg-white text-sm cursor-pointer"
-                      >
-                        <option value="">Topic (All)</option>
-                        <option value="React">React</option>
-                        <option value="Python">Python</option>
-                        <option value="AI">AI</option>
-                        <option value="DevOps">DevOps</option>
-                        <option value="Blockchain">Blockchain</option>
-                        <option value="UI/UX">UI/UX</option>
-                        <option value="Security">Security</option>
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                        <i className="fas fa-chevron-down text-xs"></i>
-                      </div>
+                    >
+                      <option value="">Topic (All)</option>
+                      <option value="React">React</option>
+                      <option value="Python">Python</option>
+                      <option value="AI">AI</option>
+                      <option value="DevOps">DevOps</option>
+                      <option value="Blockchain">Blockchain</option>
+                      <option value="UI/UX">UI/UX</option>
+                      <option value="Security">Security</option>
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <i className="fas fa-chevron-down text-xs"></i>
                     </div>
+                  </div>
                   {/* Clear Filters Button */}
                   <button
                     onClick={clearFilters}
@@ -445,8 +447,8 @@ const Events = () => {
                     <div className="flex items-center">
                       <span>Filtered by date: </span>
                       <span className="ml-1 font-medium">{selectedDate.toLocaleDateString()}</span>
-                      <button 
-                        onClick={() => { setSelectedDate(null); setFilters({...filters, dateRange: ''}); }}
+                      <button
+                        onClick={() => { setSelectedDate(null); setFilters({ ...filters, dateRange: '' }); }}
                         className="ml-2 text-[#03325a] hover:text-[#30d9fe] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                       >
                         <i className="fas fa-times"></i>
@@ -479,11 +481,10 @@ const Events = () => {
                       </span>
                     </div>
                     <div className="absolute top-0 right-0 m-2 sm:m-3">
-                      <span className={`text-xs font-bold px-2 sm:px-3 py-1 rounded-full ${
-                        event.status === 'Available' ? 'bg-green-100 text-green-800' : 
-                        event.status === 'Limited Spots' ? 'bg-yellow-100 text-yellow-800' : 
-                        'bg-red-100 text-red-800'
-                      }`}>
+                      <span className={`text-xs font-bold px-2 sm:px-3 py-1 rounded-full ${event.status === 'Available' ? 'bg-green-100 text-green-800' :
+                          event.status === 'Limited Spots' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                        }`}>
                         {event.status}
                       </span>
                     </div>
