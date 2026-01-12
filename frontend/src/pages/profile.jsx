@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import authService from '../services/authService';
 import { API_BASE_URL } from '../config/api';
 import LogoutModal from '../components/LogoutModal';
@@ -20,6 +21,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 const Profile = () => {
+  const { logout } = useAuth();
   const [user, setUser] = useState(null);
   const [enrollments, setEnrollments] = useState([]);
   const [eventRegistrations, setEventRegistrations] = useState([]);
@@ -143,7 +145,7 @@ const Profile = () => {
   };
 
   const handleLogoutConfirm = () => {
-    authService.logout();
+    logout();
     setIsLogoutModalOpen(false);
     navigate('/');
   };
@@ -268,9 +270,9 @@ const Profile = () => {
                 <div className="relative group">
                   <div className="w-16 h-16 bg-gradient-to-r from-[#30d9fe] to-[#eec262] rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg ring-4 ring-[#30d9fe]/30 overflow-hidden">
                     {user?.avatar ? (
-                      <img 
-                        src={user.avatar} 
-                        alt="Profile" 
+                      <img
+                        src={user.avatar}
+                        alt="Profile"
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -303,13 +305,12 @@ const Profile = () => {
                   </h2>
                   <p className="text-[#30d9fe] text-sm truncate">@{user?.username}</p>
                   {user?.role && (
-                    <span className={`inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full ${
-                      user.role === 'admin' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/50' :
+                    <span className={`inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full ${user.role === 'admin' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/50' :
                       user.role === 'mentor' ? 'bg-teal-500/20 text-teal-300 border border-teal-500/50' :
-                      user.role === 'sponsor' ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/50' :
-                      user.role === 'partner' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/50' :
-                      'bg-green-500/20 text-green-300 border border-green-500/50'
-                    }`}>
+                        user.role === 'sponsor' ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/50' :
+                          user.role === 'partner' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/50' :
+                            'bg-green-500/20 text-green-300 border border-green-500/50'
+                      }`}>
                       {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                     </span>
                   )}
@@ -333,8 +334,8 @@ const Profile = () => {
                     className={`
                       w-full flex items-center space-x-3 px-4 py-3 rounded-lg
                       transition-all duration-200 group
-                      ${activeTab === item.id 
-                        ? 'bg-[#30d9fe] text-[#03325a] shadow-lg shadow-[#30d9fe]/50' 
+                      ${activeTab === item.id
+                        ? 'bg-[#30d9fe] text-[#03325a] shadow-lg shadow-[#30d9fe]/50'
                         : 'text-gray-300 hover:bg-white/10 hover:text-white'
                       }
                     `}
@@ -374,7 +375,7 @@ const Profile = () => {
         </aside>
 
         {sidebarOpen && (
-          <div 
+          <div
             className="fixed inset-0 bg-black/50 z-40 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
@@ -423,13 +424,12 @@ const Profile = () => {
                   <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl p-4 flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <span className="text-gray-300">Your Role:</span>
-                      <span className={`px-3 py-1 text-sm font-semibold rounded-full ${
-                        user.role === 'admin' ? 'bg-purple-500 text-white' :
+                      <span className={`px-3 py-1 text-sm font-semibold rounded-full ${user.role === 'admin' ? 'bg-purple-500 text-white' :
                         user.role === 'mentor' ? 'bg-teal-500 text-white' :
-                        user.role === 'sponsor' ? 'bg-yellow-500 text-gray-900' :
-                        user.role === 'partner' ? 'bg-blue-500 text-white' :
-                        'bg-green-500 text-white'
-                      }`}>
+                          user.role === 'sponsor' ? 'bg-yellow-500 text-gray-900' :
+                            user.role === 'partner' ? 'bg-blue-500 text-white' :
+                              'bg-green-500 text-white'
+                        }`}>
                         {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                       </span>
                     </div>
@@ -557,11 +557,10 @@ const Profile = () => {
                                 <h3 className="font-semibold text-white">{enrollment.program.title}</h3>
                                 <p className="text-sm text-gray-400 mt-1">Progress: {enrollment.progress}%</p>
                               </div>
-                              <span className={`px-3 py-1 text-xs rounded-full font-medium ${
-                                enrollment.status === 'completed' 
-                                  ? 'bg-green-500/20 text-green-300 border border-green-500/50' 
-                                  : 'bg-blue-500/20 text-blue-300 border border-blue-500/50'
-                              }`}>
+                              <span className={`px-3 py-1 text-xs rounded-full font-medium ${enrollment.status === 'completed'
+                                ? 'bg-green-500/20 text-green-300 border border-green-500/50'
+                                : 'bg-blue-500/20 text-blue-300 border border-blue-500/50'
+                                }`}>
                                 {enrollment.status}
                               </span>
                             </div>
@@ -597,7 +596,7 @@ const Profile = () => {
                         <input
                           type="text"
                           value={editForm.first_name}
-                          onChange={(e) => setEditForm({...editForm, first_name: e.target.value})}
+                          onChange={(e) => setEditForm({ ...editForm, first_name: e.target.value })}
                           className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                         />
                       </div>
@@ -606,7 +605,7 @@ const Profile = () => {
                         <input
                           type="text"
                           value={editForm.last_name}
-                          onChange={(e) => setEditForm({...editForm, last_name: e.target.value})}
+                          onChange={(e) => setEditForm({ ...editForm, last_name: e.target.value })}
                           className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                         />
                       </div>
@@ -615,7 +614,7 @@ const Profile = () => {
                         <input
                           type="tel"
                           value={editForm.phone}
-                          onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
+                          onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
                           className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                         />
                       </div>
@@ -624,7 +623,7 @@ const Profile = () => {
                         <input
                           type="text"
                           value={editForm.organization}
-                          onChange={(e) => setEditForm({...editForm, organization: e.target.value})}
+                          onChange={(e) => setEditForm({ ...editForm, organization: e.target.value })}
                           className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                         />
                       </div>
@@ -648,13 +647,12 @@ const Profile = () => {
                       </div>
                       <div className="flex items-start justify-between py-3 border-b border-white/10">
                         <span className="text-sm font-semibold text-gray-400">Role:</span>
-                        <span className={`px-3 py-1 text-sm font-semibold rounded-full ${
-                          user?.role === 'admin' ? 'bg-purple-500 text-white' :
+                        <span className={`px-3 py-1 text-sm font-semibold rounded-full ${user?.role === 'admin' ? 'bg-purple-500 text-white' :
                           user?.role === 'mentor' ? 'bg-teal-500 text-white' :
-                          user?.role === 'sponsor' ? 'bg-yellow-500 text-gray-900' :
-                          user?.role === 'partner' ? 'bg-blue-500 text-white' :
-                          'bg-green-500 text-white'
-                        }`}>
+                            user?.role === 'sponsor' ? 'bg-yellow-500 text-gray-900' :
+                              user?.role === 'partner' ? 'bg-blue-500 text-white' :
+                                'bg-green-500 text-white'
+                          }`}>
                           {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Learner'}
                         </span>
                       </div>
@@ -805,11 +803,10 @@ const Profile = () => {
                               <h3 className="font-semibold text-white">{enrollment.program.title}</h3>
                               <p className="text-sm text-gray-300 mt-1">{enrollment.program.description}</p>
                               <div className="mt-2 flex items-center gap-2">
-                                <span className={`px-2 py-1 text-xs rounded-full font-medium ${
-                                  enrollment.status === 'completed' 
-                                    ? 'bg-green-500/20 text-green-300 border border-green-500/50' 
-                                    : 'bg-blue-500/20 text-blue-300 border border-blue-500/50'
-                                }`}>
+                                <span className={`px-2 py-1 text-xs rounded-full font-medium ${enrollment.status === 'completed'
+                                  ? 'bg-green-500/20 text-green-300 border border-green-500/50'
+                                  : 'bg-blue-500/20 text-blue-300 border border-blue-500/50'
+                                  }`}>
                                   {enrollment.status}
                                 </span>
                                 <span className="text-sm text-gray-400">Progress: {enrollment.progress}%</span>
@@ -845,11 +842,10 @@ const Profile = () => {
                                 {new Date(registration.event.date).toLocaleDateString()}
                               </p>
                               <div className="mt-2">
-                                <span className={`px-2 py-1 text-xs rounded-full font-medium ${
-                                  registration.status === 'attended' 
-                                    ? 'bg-green-500/20 text-green-300 border border-green-500/50' 
-                                    : 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/50'
-                                }`}>
+                                <span className={`px-2 py-1 text-xs rounded-full font-medium ${registration.status === 'attended'
+                                  ? 'bg-green-500/20 text-green-300 border border-green-500/50'
+                                  : 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/50'
+                                  }`}>
                                   {registration.status}
                                 </span>
                               </div>
