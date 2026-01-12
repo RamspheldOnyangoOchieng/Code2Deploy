@@ -287,27 +287,74 @@ class AdminEventManagementView(APIView):
     serializer_class = MessageSerializer
     
     def get(self, request):
+        search = request.query_params.get('search', '')
+        category = request.query_params.get('category', '')
+        status_filter = request.query_params.get('status', '')
+        
         events = Event.objects.annotate(
             registration_count=Count('registrations'),
             certificate_count=Count('certificates'),
             badge_count=Count('badges')
         )
         
+        if search:
+            events = events.filter(title__icontains=search) | events.filter(description__icontains=search)
+        
+        if category:
+            events = events.filter(category__iexact=category)
+            
+        if status_filter:
+            if status_filter.lower() == 'active':
+                events = events.filter(is_active=True)
+            elif status_filter.lower() == 'inactive':
+                events = events.filter(is_active=False)
+        
+        total_count = events.count()
+        
+        # Simple pagination if needed, but the frontend currently sends page/page_size
+        page = int(request.query_params.get('page', 1))
+        page_size = int(request.query_params.get('page_size', 20))
+        start = (page - 1) * page_size
+        end = start + page_size
+        
+        paginated_events = events.order_by('-date')[start:end]
+        
         event_data = []
-        for event in events:
+        for event in paginated_events:
+            image_url = ''
+            if event.image:
+                try:
+                    image_url = event.image.url
+                except AttributeError:
+                    image_url = str(event.image)
+                    
             event_data.append({
                 'id': event.id,
                 'title': event.title,
+                'description': event.description,
+                'category': event.category,
                 'date': event.date,
+                'time': event.time,
                 'location': event.location,
+                'format': event.format,
+                'capacity': event.capacity,
+                'price': float(event.price),
+                'speaker': event.speaker,
+                'topics': event.topics,
+                'status': event.status,
+                'is_active': event.is_active,
                 'registration_count': event.registration_count,
                 'certificate_count': event.certificate_count,
                 'badge_count': event.badge_count,
+                'image': image_url,
                 'created_at': event.created_at,
                 'updated_at': event.updated_at
             })
         
-        return Response(event_data)
+        return Response({
+            'events': event_data,
+            'total_count': total_count
+        })
 
 
 class AdminCertificateManagementView(APIView):

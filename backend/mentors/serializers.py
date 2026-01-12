@@ -17,8 +17,7 @@ class UserMinimalSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        if instance.avatar:
-            data['avatar'] = instance.avatar.url
+        # avatar is now a TextField (URL string), so just include it as-is
         return data
 
 
@@ -34,8 +33,8 @@ class MentorSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        if instance.photo:
-            data['photo'] = instance.photo.url
+        # photo is now a TextField (URL string), so just include it as-is
+        # No need to call .url on it
         return data
 
 
@@ -113,8 +112,7 @@ class AssignmentSubmissionSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        if instance.submission_file:
-            data['submission_file'] = instance.submission_file.url
+        # submission_file is now a TextField (URL string), so just include it as-is
         return data
 
 
@@ -144,8 +142,7 @@ class MentorResourceSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        if instance.file:
-            data['file'] = instance.file.url
+        # file is now a TextField (URL string), so just include it as-is
         return data
 
 

@@ -19,15 +19,10 @@ class Event(models.Model):
     topics = models.CharField(max_length=255, blank=True, help_text='Comma-separated list of topics')
     status = models.CharField(max_length=20, default='Available')
     is_active = models.BooleanField(default=True)
-    image = CloudinaryField(
-        'image', 
-        folder='code2deploy/events', 
+    image = models.TextField(
         blank=True, 
         null=True,
-        transformation=[
-            {'width': 1200, 'height': 800, 'crop': 'limit'},
-            {'quality': 'auto', 'fetch_format': 'auto'}
-        ]
+        help_text="Cloudinary ID or external URL"
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

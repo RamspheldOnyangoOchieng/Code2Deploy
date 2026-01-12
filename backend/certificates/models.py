@@ -70,15 +70,10 @@ class Badge(models.Model):
     badge_type = models.CharField(max_length=20, choices=BADGE_TYPES)
     
     # Badge details
-    icon = CloudinaryField(
-        'badge', 
-        folder='code2deploy/badges', 
+    icon = models.TextField(
         blank=True, 
         null=True,
-        transformation=[
-            {'width': 400, 'height': 400, 'crop': 'limit'},
-            {'quality': 'auto', 'fetch_format': 'auto'}
-        ]
+        help_text="Cloudinary ID or external URL"
     )
     color = models.CharField(max_length=7, default='#30d9fe')  # Hex color
     points = models.IntegerField(default=0)  # Points awarded for this badge

@@ -38,8 +38,7 @@ class BadgeSerializer(serializers.ModelSerializer):
     
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        if instance.icon:
-            data['icon'] = instance.icon.url
+        # icon is now a TextField (URL string), so just include it as-is
         return data
 
 
@@ -70,8 +69,7 @@ class UserBadgesSerializer(serializers.ModelSerializer):
     
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        if instance.icon:
-            data['icon'] = instance.icon.url
+        # icon is now a TextField (URL string), so just include it as-is
         return data
 
 class MessageSerializer(serializers.Serializer):

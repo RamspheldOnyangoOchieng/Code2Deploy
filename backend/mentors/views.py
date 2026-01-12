@@ -105,14 +105,21 @@ class MentorListCreateView(generics.ListCreateAPIView):
             )
         
         # Create Mentor profile
+        # Photo is now a TextField - handle as URL string or file name
         photo = request.FILES.get('photo')
+        photo_url = request.data.get('photo_url', '')  # Accept external URL
+        
+        # If a file was uploaded, we'd need to handle it separately (e.g., upload to storage)
+        # For now, just use the URL if provided
+        photo_value = photo_url if photo_url else ''
+        
         mentor = Mentor.objects.create(
             user=user,
             name=f"{first_name} {last_name}".strip() or user.username,
             bio=bio,
             expertise=specialty,
             phone=phone,
-            photo=photo,
+            photo=photo_value,
             hourly_rate=float(hourly_rate) if hourly_rate else None,
             years_experience=int(experience_years) if experience_years else 0,
             is_active=is_active

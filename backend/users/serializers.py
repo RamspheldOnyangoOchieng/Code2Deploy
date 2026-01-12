@@ -18,7 +18,7 @@ class UserCreateSerializer(BaseUserCreateSerializer):
         return super().validate(attrs)
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    avatar = serializers.ImageField(required=False)
+    avatar = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     
     class Meta:
         model = User
@@ -29,10 +29,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'unique_id', 'role', 'date_joined', 'last_login', 'email', 'username')
     
     def to_representation(self, instance):
-        """Customize output to return Cloudinary URL for avatar"""
+        """Customize output - avatar is now a TextField (URL string)"""
         data = super().to_representation(instance)
-        if instance.avatar:
-            data['avatar'] = instance.avatar.url
+        # avatar is already a string, no need to call .url
         return data
 
 class MessageSerializer(serializers.Serializer):

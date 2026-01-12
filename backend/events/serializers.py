@@ -8,13 +8,7 @@ class EventSerializer(serializers.ModelSerializer):
         
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        if instance.image:
-            try:
-                # If it's a CloudinaryResource, it has a .url attribute
-                data['image'] = instance.image.url
-            except AttributeError:
-                # If it's just a string, use it directly (useful for seeding with external URLs)
-                data['image'] = str(instance.image)
+        # image is now a TextField (URL string), so just include it as-is
         return data
 
 class EventRegistrationSerializer(serializers.ModelSerializer):

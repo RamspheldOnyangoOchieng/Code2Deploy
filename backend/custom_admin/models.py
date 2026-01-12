@@ -111,15 +111,10 @@ class HomePageSettings(models.Model):
     hero_button1_link = models.CharField(max_length=200, default="/programs")
     hero_button2_text = models.CharField(max_length=50, default="Upcoming Events")
     hero_button2_link = models.CharField(max_length=200, default="/events")
-    hero_image = CloudinaryField(
-        'hero_image', 
-        folder='code2deploy/home', 
+    hero_image = models.TextField(
         blank=True, 
         null=True,
-        transformation=[
-            {'width': 1920, 'height': 1080, 'crop': 'limit'},
-            {'quality': 'auto', 'fetch_format': 'auto'}
-        ]
+        help_text="Cloudinary ID or external URL"
     )
     
     @property
@@ -184,15 +179,10 @@ class AboutPageSettings(models.Model):
         max_length=300, 
         default="Empowering African youth with cutting-edge tech skills"
     )
-    hero_image = CloudinaryField(
-        'hero_image', 
-        folder='code2deploy/about', 
+    hero_image = models.TextField(
         blank=True, 
         null=True,
-        transformation=[
-            {'width': 1920, 'height': 1080, 'crop': 'limit'},
-            {'quality': 'auto', 'fetch_format': 'auto'}
-        ]
+        help_text="Cloudinary ID or external URL"
     )
     
     @property
@@ -254,15 +244,10 @@ class ProgramsPageSettings(models.Model):
         default="From beginner to advanced, our programs are designed to take you from where you are to where you want to be in tech.",
         blank=True
     )
-    hero_image = CloudinaryField(
-        'hero_image', 
-        folder='code2deploy/programs_page', 
+    hero_image = models.TextField(
         blank=True, 
         null=True,
-        transformation=[
-            {'width': 1920, 'height': 1080, 'crop': 'limit'},
-            {'quality': 'auto', 'fetch_format': 'auto'}
-        ]
+        help_text="Cloudinary ID or external URL"
     )
     
     @property
@@ -322,15 +307,10 @@ class EventsPageSettings(models.Model):
         default="Stay connected with the Code2Deploy community through our events.",
         blank=True
     )
-    hero_image = CloudinaryField(
-        'hero_image', 
-        folder='code2deploy/events_page', 
+    hero_image = models.TextField(
         blank=True, 
         null=True,
-        transformation=[
-            {'width': 1920, 'height': 1080, 'crop': 'limit'},
-            {'quality': 'auto', 'fetch_format': 'auto'}
-        ]
+        help_text="Cloudinary ID or external URL"
     )
     
     @property

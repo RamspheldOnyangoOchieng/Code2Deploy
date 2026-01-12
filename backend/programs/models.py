@@ -22,15 +22,10 @@ class Program(models.Model):
     duration = models.CharField(max_length=50)  # e.g., '12 Weeks'
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES)
     technologies = models.CharField(max_length=255, help_text='Comma-separated list of technologies')
-    image = CloudinaryField(
-        'image', 
-        folder='code2deploy/programs', 
+    image = models.TextField(
         blank=True, 
         null=True,
-        transformation=[
-            {'width': 1000, 'height': 600, 'crop': 'limit'},
-            {'quality': 'auto', 'fetch_format': 'auto'}
-        ]
+        help_text="Cloudinary ID or external URL"
     )
     mode = models.CharField(max_length=20, choices=MODE_CHOICES, default='Online')
     sessions_per_week = models.IntegerField(default=3)
