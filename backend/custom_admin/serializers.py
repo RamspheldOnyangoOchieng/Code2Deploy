@@ -38,6 +38,14 @@ class ContactPageSettingsSerializer(serializers.ModelSerializer):
 
 
 class HomePageSettingsSerializer(serializers.ModelSerializer):
+    def to_internal_value(self, data):
+        if 'hero_image' in data:
+            image_value = data.get('hero_image')
+            if image_value is None or image_value == '' or not isinstance(image_value, str):
+                data = data.copy() if hasattr(data, 'copy') else dict(data)
+                data['hero_image'] = ''
+        return super().to_internal_value(data)
+
     class Meta:
         model = HomePageSettings
         fields = [
@@ -72,6 +80,14 @@ class HomePageSettingsSerializer(serializers.ModelSerializer):
 
 
 class AboutPageSettingsSerializer(serializers.ModelSerializer):
+    def to_internal_value(self, data):
+        if 'hero_image' in data:
+            image_value = data.get('hero_image')
+            if image_value is None or image_value == '' or not isinstance(image_value, str):
+                data = data.copy() if hasattr(data, 'copy') else dict(data)
+                data['hero_image'] = ''
+        return super().to_internal_value(data)
+
     class Meta:
         model = AboutPageSettings
         fields = [
@@ -95,6 +111,14 @@ class AboutPageSettingsSerializer(serializers.ModelSerializer):
 
 
 class ProgramsPageSettingsSerializer(serializers.ModelSerializer):
+    def to_internal_value(self, data):
+        if 'hero_image' in data:
+            image_value = data.get('hero_image')
+            if image_value is None or image_value == '' or not isinstance(image_value, str):
+                data = data.copy() if hasattr(data, 'copy') else dict(data)
+                data['hero_image'] = ''
+        return super().to_internal_value(data)
+
     class Meta:
         model = ProgramsPageSettings
         fields = [
@@ -118,6 +142,14 @@ class ProgramsPageSettingsSerializer(serializers.ModelSerializer):
 
 
 class EventsPageSettingsSerializer(serializers.ModelSerializer):
+    def to_internal_value(self, data):
+        if 'hero_image' in data:
+            image_value = data.get('hero_image')
+            if image_value is None or image_value == '' or not isinstance(image_value, str):
+                data = data.copy() if hasattr(data, 'copy') else dict(data)
+                data['hero_image'] = ''
+        return super().to_internal_value(data)
+
     class Meta:
         model = EventsPageSettings
         fields = [

@@ -832,34 +832,38 @@ const AdminPrograms = () => {
                 </div>
               </div>
 
-              {/* Pricing and Coupon Section */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    <i className="fas fa-tag mr-2"></i>Price ($)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={editForm.price}
-                    onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
-                    placeholder="0.00"
-                  />
+              {/* Pricing and Coupon Section - Only show if paid */}
+              {editForm.is_paid && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 bg-blue-50 p-4 rounded-lg border border-blue-100">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <i className="fas fa-tag text-[#30d9fe] mr-2"></i>Enrollment Cost ($)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={editForm.price}
+                      onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
+                      placeholder="0.00"
+                      required={editForm.is_paid}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <i className="fas fa-ticket-alt text-[#30d9fe] mr-2"></i>Coupon Code
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.coupon}
+                      onChange={(e) => setEditForm({ ...editForm, coupon: e.target.value })}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
+                      placeholder="e.g., EARLYBIRD"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    <i className="fas fa-ticket-alt mr-2"></i>Coupon Code
-                  </label>
-                  <input
-                    type="text"
-                    value={editForm.coupon}
-                    onChange={(e) => setEditForm({ ...editForm, coupon: e.target.value })}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
-                    placeholder="%coupon"
-                  />
-                </div>
-              </div>
+              )}
 
               <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:space-x-4 mt-6 md:mt-8 pt-4 md:pt-6 border-t border-gray-200 sticky bottom-0 bg-white z-10">
                 <button
