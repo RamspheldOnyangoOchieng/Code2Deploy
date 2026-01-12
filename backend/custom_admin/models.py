@@ -156,6 +156,7 @@ class HomePageSettings(models.Model):
     cta_button2_link = models.CharField(max_length=200, default="/contact")
     
     is_active = models.BooleanField(default=True)
+    sections = models.JSONField(default=list, blank=True, help_text="Dynamic sections for the home page")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -222,6 +223,7 @@ class AboutPageSettings(models.Model):
     team_title = models.CharField(max_length=100, default="Our Leadership Team")
     
     is_active = models.BooleanField(default=True)
+    sections = models.JSONField(default=list, blank=True, help_text="Dynamic sections for the about page")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -289,6 +291,7 @@ class ProgramsPageSettings(models.Model):
     cta_button_text = models.CharField(max_length=50, default="Apply Now")
     
     is_active = models.BooleanField(default=True)
+    sections = models.JSONField(default=list, blank=True, help_text="Dynamic sections for the programs page")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -357,6 +360,7 @@ class EventsPageSettings(models.Model):
     cta_button_link = models.CharField(max_length=200, default="/contact")
     
     is_active = models.BooleanField(default=True)
+    sections = models.JSONField(default=list, blank=True, help_text="Dynamic sections for the events page")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

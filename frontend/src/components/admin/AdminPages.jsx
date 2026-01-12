@@ -115,7 +115,8 @@ const AdminPages = () => {
       vision_description: "To be Africa's leading technology education platform, empowering the next generation of tech leaders and innovators who will drive the continent's digital transformation.",
       journey_title: 'Our Journey',
       team_title: 'Our Leadership Team',
-      is_active: true
+      is_active: true,
+      sections: []
     },
     programs: {
       hero_title: 'Our Programs',
@@ -126,7 +127,8 @@ const AdminPages = () => {
       cta_title: 'Ready to Start Your Journey?',
       cta_description: 'Join thousands of students who have transformed their careers through our programs.',
       cta_button_text: 'Apply Now',
-      is_active: true
+      is_active: true,
+      sections: []
     },
     events: {
       hero_title: 'Upcoming Events',
@@ -138,7 +140,8 @@ const AdminPages = () => {
       cta_description: 'Partner with us to bring tech events to your community.',
       cta_button_text: 'Contact Us',
       cta_button_link: '/contact',
-      is_active: true
+      is_active: true,
+      sections: []
     }
   });
   const [loadingPageSettings, setLoadingPageSettings] = useState(false);
@@ -379,9 +382,13 @@ const AdminPages = () => {
       // Add all fields to formData
       Object.keys(settings).forEach(key => {
         // Skip URL properties and the image object itself
-        // We handle the file separately if it exists
         if (key !== 'hero_image' && key !== 'hero_image_url' && settings[key] !== null && settings[key] !== undefined) {
-          formData.append(key, settings[key]);
+          // If it's the sections array, stringify it for the backend
+          if (key === 'sections') {
+            formData.append(key, JSON.stringify(settings[key]));
+          } else {
+            formData.append(key, settings[key]);
+          }
         }
       });
 

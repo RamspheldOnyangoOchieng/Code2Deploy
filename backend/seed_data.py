@@ -52,18 +52,18 @@ def seed_page_settings():
 
     # Home Page
     home, created = HomePageSettings.objects.get_or_create(id=1)
-    if created or is_invalid_image(home.hero_image):
-        home.hero_title_line1 = "From"
-        home.hero_title_highlight1 = "Hello World"
-        home.hero_title_line2 = "to"
-        home.hero_title_highlight2 = "Hello AI"
-        home.hero_description = "Empowering African youth with cutting-edge tech skills to build solutions that matter. Join our community of innovators today."
+    if created:
+        home.hero_title_line1 = "Transforming"
+        home.hero_title_highlight1 = "Skills"
+        home.hero_title_line2 = "Into"
+        home.hero_title_highlight2 = "Intelligent Systems"
+        home.hero_description = "Building the next generation of technologists worldwide. This is where builders become founders, ideas become companies, and technology becomes leverage."
         home.save()
         upload_image_from_url(home, 'hero_image', "https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=1920&q=80", "home_hero.jpg")
     
     # About Page
     about, created = AboutPageSettings.objects.get_or_create(id=1)
-    if created or is_invalid_image(about.hero_image):
+    if created:
         about.hero_title = "About Code2Deploy"
         about.hero_subtitle = "Empowering African youth with cutting-edge tech skills"
         about.save()
@@ -71,7 +71,7 @@ def seed_page_settings():
         
     # Programs Page
     prog, created = ProgramsPageSettings.objects.get_or_create(id=1)
-    if created or is_invalid_image(prog.hero_image):
+    if created:
         prog.hero_title = "Our Programs"
         prog.hero_subtitle = "Discover world-class technology programs designed for African youth"
         prog.save()
@@ -79,7 +79,7 @@ def seed_page_settings():
         
     # Events Page
     ev_page, created = EventsPageSettings.objects.get_or_create(id=1)
-    if created or is_invalid_image(ev_page.hero_image):
+    if created:
         ev_page.hero_title = "Upcoming Events"
         ev_page.hero_subtitle = "Discover workshops, webinars, and tech meetups to enhance your skills"
         ev_page.save()

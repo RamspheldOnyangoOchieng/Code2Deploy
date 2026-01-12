@@ -64,6 +64,7 @@ class HomePageSettingsSerializer(serializers.ModelSerializer):
             'cta_button2_text',
             'cta_button2_link',
             'is_active',
+            'sections',
             'created_at',
             'updated_at'
         ]
@@ -86,6 +87,7 @@ class AboutPageSettingsSerializer(serializers.ModelSerializer):
             'journey_title',
             'team_title',
             'is_active',
+            'sections',
             'created_at',
             'updated_at'
         ]
@@ -108,6 +110,7 @@ class ProgramsPageSettingsSerializer(serializers.ModelSerializer):
             'cta_description',
             'cta_button_text',
             'is_active',
+            'sections',
             'created_at',
             'updated_at'
         ]
@@ -131,6 +134,7 @@ class EventsPageSettingsSerializer(serializers.ModelSerializer):
             'cta_button_text',
             'cta_button_link',
             'is_active',
+            'sections',
             'created_at',
             'updated_at'
         ]
