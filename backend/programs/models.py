@@ -22,7 +22,7 @@ class Program(models.Model):
     duration = models.CharField(max_length=50)  # e.g., '12 Weeks'
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES)
     technologies = models.CharField(max_length=255, help_text='Comma-separated list of technologies')
-    image = CloudinaryField('image', folder='programs', blank=True, null=True)
+    image = CloudinaryField('image', folder='code2deploy/programs', blank=True, null=True)
     mode = models.CharField(max_length=20, choices=MODE_CHOICES, default='Online')
     sessions_per_week = models.IntegerField(default=3)
     has_certification = models.BooleanField(default=True)

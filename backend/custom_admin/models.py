@@ -1,4 +1,5 @@
 from django.db import models
+from cloudinary.models import CloudinaryField
 
 
 class ContactPageSettings(models.Model):
@@ -110,7 +111,13 @@ class HomePageSettings(models.Model):
     hero_button1_link = models.CharField(max_length=200, default="/programs")
     hero_button2_text = models.CharField(max_length=50, default="Upcoming Events")
     hero_button2_link = models.CharField(max_length=200, default="/events")
-    hero_image_url = models.URLField(blank=True, null=True)
+    hero_image = CloudinaryField('hero_image', folder='code2deploy/home', blank=True, null=True)
+    
+    @property
+    def hero_image_url(self):
+        if self.hero_image:
+            return self.hero_image.url
+        return None
     
     # Our Approach Section
     approach_title = models.CharField(max_length=100, default="Our Approach")
@@ -162,7 +169,13 @@ class AboutPageSettings(models.Model):
         max_length=300, 
         default="Empowering African youth with cutting-edge tech skills"
     )
-    hero_image_url = models.URLField(blank=True, null=True)
+    hero_image = CloudinaryField('hero_image', folder='code2deploy/about', blank=True, null=True)
+    
+    @property
+    def hero_image_url(self):
+        if self.hero_image:
+            return self.hero_image.url
+        return None
     
     # Mission & Vision
     mission_title = models.CharField(max_length=100, default="Our Mission")
@@ -211,6 +224,13 @@ class ProgramsPageSettings(models.Model):
         default="From beginner to advanced, our programs are designed to take you from where you are to where you want to be in tech.",
         blank=True
     )
+    hero_image = CloudinaryField('hero_image', folder='code2deploy/programs_page', blank=True, null=True)
+    
+    @property
+    def hero_image_url(self):
+        if self.hero_image:
+            return self.hero_image.url
+        return None
     
     # Programs Section
     programs_section_title = models.CharField(max_length=100, default="Available Programs")
@@ -257,6 +277,13 @@ class EventsPageSettings(models.Model):
         default="Stay connected with the Code2Deploy community through our events.",
         blank=True
     )
+    hero_image = CloudinaryField('hero_image', folder='code2deploy/events_page', blank=True, null=True)
+    
+    @property
+    def hero_image_url(self):
+        if self.hero_image:
+            return self.hero_image.url
+        return None
     
     # Events Section
     events_section_title = models.CharField(max_length=100, default="All Events")

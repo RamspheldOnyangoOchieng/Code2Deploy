@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 
+from cloudinary.models import CloudinaryField
+
 # Create your models here.
 
 class Event(models.Model):
@@ -8,7 +10,7 @@ class Event(models.Model):
     description = models.TextField()
     date = models.DateTimeField()
     location = models.CharField(max_length=255)
-    image = models.URLField(blank=True, null=True)
+    image = CloudinaryField('image', folder='code2deploy/events', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

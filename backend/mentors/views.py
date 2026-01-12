@@ -105,12 +105,14 @@ class MentorListCreateView(generics.ListCreateAPIView):
             )
         
         # Create Mentor profile
+        photo = request.FILES.get('photo')
         mentor = Mentor.objects.create(
             user=user,
             name=f"{first_name} {last_name}".strip() or user.username,
             bio=bio,
             expertise=specialty,
             phone=phone,
+            photo=photo,
             hourly_rate=float(hourly_rate) if hourly_rate else None,
             years_experience=int(experience_years) if experience_years else 0,
             is_active=is_active

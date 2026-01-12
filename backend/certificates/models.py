@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from cloudinary.models import CloudinaryField
 
 
 class Certificate(models.Model):
@@ -69,7 +70,7 @@ class Badge(models.Model):
     badge_type = models.CharField(max_length=20, choices=BADGE_TYPES)
     
     # Badge details
-    icon_url = models.URLField(blank=True, null=True)  # Badge icon/image
+    icon = CloudinaryField('badge', folder='code2deploy/badges', blank=True, null=True)
     color = models.CharField(max_length=7, default='#30d9fe')  # Hex color
     points = models.IntegerField(default=0)  # Points awarded for this badge
     

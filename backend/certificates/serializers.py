@@ -30,11 +30,17 @@ class BadgeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Badge
         fields = [
-            'id', 'title', 'description', 'badge_type', 'icon_url', 'color',
+            'id', 'title', 'description', 'badge_type', 'icon', 'color',
             'points', 'program', 'event', 'awarded_date', 'criteria',
             'user_username', 'user_unique_id'
         ]
         read_only_fields = ['id', 'awarded_date']
+    
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.icon:
+            data['icon'] = instance.icon.url
+        return data
 
 
 class UserCertificatesSerializer(serializers.ModelSerializer):
@@ -58,10 +64,15 @@ class UserBadgesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Badge
         fields = [
-            'id', 'title', 'badge_type', 'icon_url', 'color', 'points',
+            'id', 'title', 'badge_type', 'icon', 'color', 'points',
             'awarded_date', 'program_title', 'event_title'
-        ] 
-
+        ]
+    
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.icon:
+            data['icon'] = instance.icon.url
+        return data
 
 class MessageSerializer(serializers.Serializer):
     detail = serializers.CharField()

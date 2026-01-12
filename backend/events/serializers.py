@@ -5,6 +5,12 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = '__all__'
+        
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.image:
+            data['image'] = instance.image.url
+        return data
 
 class EventRegistrationSerializer(serializers.ModelSerializer):
     event = EventSerializer(read_only=True)

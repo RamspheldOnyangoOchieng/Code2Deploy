@@ -31,7 +31,7 @@ class ProgramSerializer(serializers.ModelSerializer):
                 # Upload to Cloudinary
                 upload_result = cloudinary.uploader.upload(
                     image_file,
-                    folder='programs',
+                    folder='code2deploy/programs',
                     resource_type='image'
                 )
                 validated_data['image'] = upload_result.get('public_id')
@@ -45,7 +45,7 @@ class ProgramSerializer(serializers.ModelSerializer):
                 try:
                     upload_result = cloudinary.uploader.upload(
                         image_value,
-                        folder='programs',
+                        folder='code2deploy/programs',
                         resource_type='image'
                     )
                     validated_data['image'] = upload_result.get('public_id')
@@ -68,7 +68,7 @@ class ProgramSerializer(serializers.ModelSerializer):
                 # Upload to Cloudinary
                 upload_result = cloudinary.uploader.upload(
                     image_file,
-                    folder='programs',
+                    folder='code2deploy/programs',
                     resource_type='image'
                 )
                 validated_data['image'] = upload_result.get('public_id')
@@ -83,7 +83,7 @@ class ProgramSerializer(serializers.ModelSerializer):
                     try:
                         upload_result = cloudinary.uploader.upload(
                             image_value,
-                            folder='programs',
+                            folder='code2deploy/programs',
                             resource_type='image'
                         )
                         validated_data['image'] = upload_result.get('public_id')

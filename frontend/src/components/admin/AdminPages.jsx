@@ -143,25 +143,38 @@ const AdminPages = () => {
   });
   const [loadingPageSettings, setLoadingPageSettings] = useState(false);
   const [savingPageSettings, setSavingPageSettings] = useState(false);
+  const [heroImageFiles, setHeroImageFiles] = useState({
+    home: null,
+    about: null,
+    programs: null,
+    events: null
+  });
+
+  const handleHeroImageChange = (pageType, file) => {
+    setHeroImageFiles(prev => ({
+      ...prev,
+      [pageType]: file
+    }));
+  };
 
   const contactTypes = [
-    { 
-      id: 'general', 
-      name: 'General Contact', 
+    {
+      id: 'general',
+      name: 'General Contact',
       icon: '📧',
       description: 'Default contact page when users click "Contact"',
       color: 'from-blue-500 to-cyan-500'
     },
-    { 
-      id: 'sponsor', 
-      name: 'Partner as Sponsor', 
+    {
+      id: 'sponsor',
+      name: 'Partner as Sponsor',
       icon: '💰',
       description: 'Contact page for "Partner as Sponsor" button',
       color: 'from-yellow-500 to-orange-500'
     },
-    { 
-      id: 'education', 
-      name: 'Education & Training Partner', 
+    {
+      id: 'education',
+      name: 'Education & Training Partner',
       icon: '🎓',
       description: 'Contact page for "Education & Training Partner" button',
       color: 'from-green-500 to-emerald-500'
@@ -213,7 +226,7 @@ const AdminPages = () => {
       if (response.ok) {
         const data = await response.json();
         setContactSettings(data);
-        
+
         const newForm = { ...contactEditForm };
         data.forEach(setting => {
           if (newForm[setting.contact_type]) {
@@ -274,14 +287,14 @@ const AdminPages = () => {
     }
   };
 
-  const handleSaveContactSettings = async (contactType) => {
+  const handleSaveContactSettings = async (contactType, shouldExit = false) => {
     try {
       setSavingContact(true);
       const token = AuthService.getToken();
       const formData = contactEditForm[contactType];
-      
+
       const existingSetting = contactSettings.find(s => s.contact_type === contactType);
-      
+
       let response;
       if (existingSetting) {
         response = await fetch(`${API_BASE_URL}/admin/contact-settings/${existingSetting.id}/`, {
@@ -312,6 +325,7 @@ const AdminPages = () => {
       if (response.ok) {
         alert(`✅ ${contactTypes.find(t => t.id === contactType)?.name} settings saved successfully!`);
         fetchContactSettings();
+        if (shouldExit) setShowEditModal(false);
       } else {
         const error = await response.json();
         alert(`❌ Error: ${JSON.stringify(error)}`);
@@ -339,7 +353,7 @@ const AdminPages = () => {
     try {
       setLoadingPageSettings(true);
       const response = await fetch(`${API_BASE_URL}/admin/page-settings/${pageType}/`);
-      
+
       if (response.ok) {
         const data = await response.json();
         setPageSettings(prev => ({
@@ -354,24 +368,46 @@ const AdminPages = () => {
     }
   };
 
-  const handleSavePageSettings = async (pageType) => {
+  const handleSavePageSettings = async (pageType, shouldExit = false) => {
     try {
       setSavingPageSettings(true);
       const token = AuthService.getToken();
+
+      const formData = new FormData();
+      const settings = pageSettings[pageType];
+
+      // Add all fields to formData
+      Object.keys(settings).forEach(key => {
+        // Skip URL properties and the image object itself
+        // We handle the file separately if it exists
+        if (key !== 'hero_image' && key !== 'hero_image_url' && settings[key] !== null && settings[key] !== undefined) {
+          formData.append(key, settings[key]);
+        }
+      });
+
+      // Add the file if selected
+      if (heroImageFiles[pageType]) {
+        formData.append('hero_image', heroImageFiles[pageType]);
+      }
+
       const response = await fetch(`${API_BASE_URL}/admin/page-settings/${pageType}/`, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(pageSettings[pageType])
+        body: formData
       });
 
       if (response.ok) {
         alert(`✅ ${pageType.charAt(0).toUpperCase() + pageType.slice(1)} page settings saved successfully!`);
+        // Refresh settings to get new image URL
+        fetchPageSettings(pageType);
+        // Clear the file state
+        setHeroImageFiles(prev => ({ ...prev, [pageType]: null }));
+        if (shouldExit) setShowEditModal(false);
       } else {
         const error = await response.json();
-        alert(`❌ Error: ${JSON.stringify(error)}`);
+        alert(`❌ Failed to save page settings: ${JSON.stringify(error)}`);
       }
     } catch (error) {
       console.error(`Error saving ${pageType} page settings:`, error);
@@ -423,7 +459,7 @@ const AdminPages = () => {
 
   const handleEditPage = (page) => {
     setSelectedPage(page);
-    
+
     if (page.id === 'contact') {
       fetchContactSettings();
     } else if (['home', 'about', 'programs', 'events'].includes(page.id)) {
@@ -440,10 +476,10 @@ const AdminPages = () => {
     setShowEditModal(true);
   };
 
-  const handleSavePage = () => {
+  const handleSavePage = (shouldExit = false) => {
     localStorage.setItem(`page_${selectedPage.id}_sections`, JSON.stringify(editForm.sections));
     alert('✅ Page saved successfully!');
-    setShowEditModal(false);
+    if (shouldExit) setShowEditModal(false);
   };
 
   const handleAddSection = () => {
@@ -487,12 +523,12 @@ const AdminPages = () => {
   const moveSection = (id, direction) => {
     const index = editForm.sections.findIndex(s => s.id === id);
     if ((direction === 'up' && index === 0) || (direction === 'down' && index === editForm.sections.length - 1)) return;
-    
+
     const newSections = [...editForm.sections];
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     [newSections[index], newSections[newIndex]] = [newSections[newIndex], newSections[index]];
     newSections.forEach((s, i) => s.order = i);
-    
+
     setEditForm({ ...editForm, sections: newSections });
   };
 
@@ -509,11 +545,10 @@ const AdminPages = () => {
             <button
               key={type.id}
               onClick={() => setActiveContactTab(type.id)}
-              className={`p-4 rounded-xl border-2 transition-all duration-300 text-left ${
-                activeContactTab === type.id
-                  ? 'border-[#30d9fe] bg-gradient-to-br from-[#03325a] to-[#044e7c] text-white shadow-lg'
-                  : 'border-gray-200 bg-white hover:border-[#30d9fe]/50 hover:shadow-md'
-              }`}
+              className={`p-4 rounded-xl border-2 transition-all duration-300 text-left ${activeContactTab === type.id
+                ? 'border-[#30d9fe] bg-gradient-to-br from-[#03325a] to-[#044e7c] text-white shadow-lg'
+                : 'border-gray-200 bg-white hover:border-[#30d9fe]/50 hover:shadow-md'
+                }`}
             >
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-3xl">{type.icon}</span>
@@ -527,15 +562,13 @@ const AdminPages = () => {
                 </div>
               </div>
               {contactSettings.find(s => s.contact_type === type.id) ? (
-                <span className={`text-xs px-2 py-1 rounded-full ${
-                  activeContactTab === type.id ? 'bg-green-400/20 text-green-200' : 'bg-green-100 text-green-600'
-                }`}>
+                <span className={`text-xs px-2 py-1 rounded-full ${activeContactTab === type.id ? 'bg-green-400/20 text-green-200' : 'bg-green-100 text-green-600'
+                  }`}>
                   ✓ Configured
                 </span>
               ) : (
-                <span className={`text-xs px-2 py-1 rounded-full ${
-                  activeContactTab === type.id ? 'bg-yellow-400/20 text-yellow-200' : 'bg-yellow-100 text-yellow-600'
-                }`}>
+                <span className={`text-xs px-2 py-1 rounded-full ${activeContactTab === type.id ? 'bg-yellow-400/20 text-yellow-200' : 'bg-yellow-100 text-yellow-600'
+                  }`}>
                   ○ Using Defaults
                 </span>
               )}
@@ -665,7 +698,7 @@ const AdminPages = () => {
           <p className="text-sm text-gray-600 mb-4">
             This section appears on the right side of the contact page with your address, email, and phone information.
           </p>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="lg:col-span-2">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -871,7 +904,7 @@ const AdminPages = () => {
           <h4 className="text-lg font-bold text-[#03325a] mb-4 flex items-center gap-2">
             <span>🎯</span> Hero Section
           </h4>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Title Line 1</label>
@@ -962,6 +995,32 @@ const AdminPages = () => {
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
                 style={{ color: '#111827', backgroundColor: '#ffffff' }}
               />
+            </div>
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Hero Image</label>
+              <div className="flex items-center gap-4 p-4 bg-white rounded-lg border-2 border-dashed border-gray-300">
+                {(settings.hero_image_url || heroImageFiles.home) && (
+                  <div className="relative">
+                    <img
+                      src={heroImageFiles.home ? URL.createObjectURL(heroImageFiles.home) : settings.hero_image_url}
+                      alt="Hero Preview"
+                      className="w-40 h-24 object-cover rounded-lg border-2 border-gray-200 shadow-sm"
+                    />
+                    {heroImageFiles.home && (
+                      <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] px-2 py-1 rounded-full font-bold">New</span>
+                    )}
+                  </div>
+                )}
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    onChange={(e) => handleHeroImageChange('home', e.target.files[0])}
+                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    accept="image/*"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Recommended size: 1920x1080px. Max 5MB. {heroImageFiles.home ? `Selected: ${heroImageFiles.home.name}` : ''}</p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1127,14 +1186,21 @@ const AdminPages = () => {
           </div>
         </div>
 
-        {/* Save Button */}
-        <div className="flex justify-end pt-4 border-t border-gray-200">
+        {/* Save Buttons */}
+        <div className="flex flex-wrap gap-4 justify-end pt-4 border-t border-gray-200">
           <button
-            onClick={() => handleSavePageSettings('home')}
+            onClick={() => handleSavePageSettings('home', false)}
             disabled={savingPageSettings}
-            className="px-8 py-3 bg-[#30d9fe] text-[#03325a] font-bold rounded-lg hover:bg-[#eec262] transition-all shadow-lg disabled:opacity-50"
+            className="px-6 py-2.5 bg-white text-[#03325a] border-2 border-[#03325a] font-bold rounded-lg hover:bg-gray-50 transition-all shadow"
           >
-            {savingPageSettings ? '⏳ Saving...' : '💾 Save Home Page Settings'}
+            {savingPageSettings ? '⏳ Saving...' : '💾 Save Changes'}
+          </button>
+          <button
+            onClick={() => handleSavePageSettings('home', true)}
+            disabled={savingPageSettings}
+            className="px-8 py-3 bg-[#03325a] text-white font-bold rounded-lg hover:bg-[#044e7c] transition-all shadow-lg disabled:opacity-50"
+          >
+            {savingPageSettings ? '⏳ Saving...' : '💾 Save & Exit'}
           </button>
         </div>
       </div>
@@ -1171,6 +1237,32 @@ const AdminPages = () => {
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
                 style={{ color: '#111827', backgroundColor: '#ffffff' }}
               />
+            </div>
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Hero Image</label>
+              <div className="flex items-center gap-4 p-4 bg-white rounded-lg border-2 border-dashed border-gray-300">
+                {(settings.hero_image_url || heroImageFiles.about) && (
+                  <div className="relative">
+                    <img
+                      src={heroImageFiles.about ? URL.createObjectURL(heroImageFiles.about) : settings.hero_image_url}
+                      alt="Hero Preview"
+                      className="w-40 h-24 object-cover rounded-lg border-2 border-gray-200 shadow-sm"
+                    />
+                    {heroImageFiles.about && (
+                      <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] px-2 py-1 rounded-full font-bold">New</span>
+                    )}
+                  </div>
+                )}
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    onChange={(e) => handleHeroImageChange('about', e.target.files[0])}
+                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    accept="image/*"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Recommended size: 1920x1080px. Max 5MB. {heroImageFiles.about ? `Selected: ${heroImageFiles.about.name}` : ''}</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1262,14 +1354,21 @@ const AdminPages = () => {
           </div>
         </div>
 
-        {/* Save Button */}
-        <div className="flex justify-end pt-4 border-t border-gray-200">
+        {/* Save Buttons */}
+        <div className="flex flex-wrap gap-4 justify-end pt-4 border-t border-gray-200">
           <button
-            onClick={() => handleSavePageSettings('about')}
+            onClick={() => handleSavePageSettings('about', false)}
             disabled={savingPageSettings}
-            className="px-8 py-3 bg-[#30d9fe] text-[#03325a] font-bold rounded-lg hover:bg-[#eec262] transition-all shadow-lg disabled:opacity-50"
+            className="px-6 py-2.5 bg-white text-[#03325a] border-2 border-[#03325a] font-bold rounded-lg hover:bg-gray-50 transition-all shadow"
           >
-            {savingPageSettings ? '⏳ Saving...' : '💾 Save About Page Settings'}
+            {savingPageSettings ? '⏳ Saving...' : '💾 Save Changes'}
+          </button>
+          <button
+            onClick={() => handleSavePageSettings('about', true)}
+            disabled={savingPageSettings}
+            className="px-8 py-3 bg-[#03325a] text-white font-bold rounded-lg hover:bg-[#044e7c] transition-all shadow-lg disabled:opacity-50"
+          >
+            {savingPageSettings ? '⏳ Saving...' : '💾 Save & Exit'}
           </button>
         </div>
       </div>
@@ -1308,7 +1407,7 @@ const AdminPages = () => {
               />
             </div>
             <div className="lg:col-span-2">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Hero Description</label>
               <textarea
                 value={settings.hero_description}
                 onChange={(e) => handlePageSettingsChange('programs', 'hero_description', e.target.value)}
@@ -1316,6 +1415,32 @@ const AdminPages = () => {
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
                 style={{ color: '#111827', backgroundColor: '#ffffff' }}
               />
+            </div>
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Hero Image</label>
+              <div className="flex items-center gap-4 p-4 bg-white rounded-lg border-2 border-dashed border-gray-300">
+                {(settings.hero_image_url || heroImageFiles.programs) && (
+                  <div className="relative">
+                    <img
+                      src={heroImageFiles.programs ? URL.createObjectURL(heroImageFiles.programs) : settings.hero_image_url}
+                      alt="Hero Preview"
+                      className="w-40 h-24 object-cover rounded-lg border-2 border-gray-200 shadow-sm"
+                    />
+                    {heroImageFiles.programs && (
+                      <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] px-2 py-1 rounded-full font-bold">New</span>
+                    )}
+                  </div>
+                )}
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    onChange={(e) => handleHeroImageChange('programs', e.target.files[0])}
+                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    accept="image/*"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Recommended size: 1920x1080px. Max 5MB. {heroImageFiles.programs ? `Selected: ${heroImageFiles.programs.name}` : ''}</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1388,14 +1513,21 @@ const AdminPages = () => {
           </div>
         </div>
 
-        {/* Save Button */}
-        <div className="flex justify-end pt-4 border-t border-gray-200">
+        {/* Save Buttons */}
+        <div className="flex flex-wrap gap-4 justify-end pt-4 border-t border-gray-200">
           <button
-            onClick={() => handleSavePageSettings('programs')}
+            onClick={() => handleSavePageSettings('programs', false)}
             disabled={savingPageSettings}
-            className="px-8 py-3 bg-[#30d9fe] text-[#03325a] font-bold rounded-lg hover:bg-[#eec262] transition-all shadow-lg disabled:opacity-50"
+            className="px-6 py-2.5 bg-white text-[#03325a] border-2 border-[#03325a] font-bold rounded-lg hover:bg-gray-50 transition-all shadow"
           >
-            {savingPageSettings ? '⏳ Saving...' : '💾 Save Programs Page Settings'}
+            {savingPageSettings ? '⏳ Saving...' : '💾 Save Changes'}
+          </button>
+          <button
+            onClick={() => handleSavePageSettings('programs', true)}
+            disabled={savingPageSettings}
+            className="px-8 py-3 bg-[#03325a] text-white font-bold rounded-lg hover:bg-[#044e7c] transition-all shadow-lg disabled:opacity-50"
+          >
+            {savingPageSettings ? '⏳ Saving...' : '💾 Save & Exit'}
           </button>
         </div>
       </div>
@@ -1442,6 +1574,32 @@ const AdminPages = () => {
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] transition-all"
                 style={{ color: '#111827', backgroundColor: '#ffffff' }}
               />
+            </div>
+            <div className="lg:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Hero Image</label>
+              <div className="flex items-center gap-4 p-4 bg-white rounded-lg border-2 border-dashed border-gray-300">
+                {(settings.hero_image_url || heroImageFiles.events) && (
+                  <div className="relative">
+                    <img
+                      src={heroImageFiles.events ? URL.createObjectURL(heroImageFiles.events) : settings.hero_image_url}
+                      alt="Hero Preview"
+                      className="w-40 h-24 object-cover rounded-lg border-2 border-gray-200 shadow-sm"
+                    />
+                    {heroImageFiles.events && (
+                      <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] px-2 py-1 rounded-full font-bold">New</span>
+                    )}
+                  </div>
+                )}
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    onChange={(e) => handleHeroImageChange('events', e.target.files[0])}
+                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    accept="image/*"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Recommended size: 1920x1080px. Max 5MB. {heroImageFiles.events ? `Selected: ${heroImageFiles.events.name}` : ''}</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1524,14 +1682,21 @@ const AdminPages = () => {
           </div>
         </div>
 
-        {/* Save Button */}
-        <div className="flex justify-end pt-4 border-t border-gray-200">
+        {/* Save Buttons */}
+        <div className="flex flex-wrap gap-4 justify-end pt-4 border-t border-gray-200">
           <button
-            onClick={() => handleSavePageSettings('events')}
+            onClick={() => handleSavePageSettings('events', false)}
             disabled={savingPageSettings}
-            className="px-8 py-3 bg-[#30d9fe] text-[#03325a] font-bold rounded-lg hover:bg-[#eec262] transition-all shadow-lg disabled:opacity-50"
+            className="px-6 py-2.5 bg-white text-[#03325a] border-2 border-[#03325a] font-bold rounded-lg hover:bg-gray-50 transition-all shadow"
           >
-            {savingPageSettings ? '⏳ Saving...' : '💾 Save Events Page Settings'}
+            {savingPageSettings ? '⏳ Saving...' : '💾 Save Changes'}
+          </button>
+          <button
+            onClick={() => handleSavePageSettings('events', true)}
+            disabled={savingPageSettings}
+            className="px-8 py-3 bg-[#03325a] text-white font-bold rounded-lg hover:bg-[#044e7c] transition-all shadow-lg disabled:opacity-50"
+          >
+            {savingPageSettings ? '⏳ Saving...' : '💾 Save & Exit'}
           </button>
         </div>
       </div>
@@ -1576,7 +1741,7 @@ const AdminPages = () => {
                   <div>
                     <h3 className="text-3xl font-bold text-white mb-1">Edit {selectedPage?.name}</h3>
                     <p className="text-gray-300">
-                      {selectedPage?.id === 'contact' 
+                      {selectedPage?.id === 'contact'
                         ? 'Manage contact page content for different contact types'
                         : 'Manage sections and content'
                       }
@@ -1600,12 +1765,20 @@ const AdminPages = () => {
                         🔄 Initialize Defaults
                       </button>
                     ) : (
-                      <button
-                        onClick={handleSavePage}
-                        className="bg-[#30d9fe] text-[#03325a] px-6 py-2.5 rounded-lg hover:bg-[#eec262] transition-all font-bold shadow-lg"
-                      >
-                        💾 Save Page
-                      </button>
+                      <div className="flex space-x-3">
+                        <button
+                          onClick={() => handleSavePage(false)}
+                          className="bg-[#30d9fe] text-[#03325a] px-5 py-2.5 rounded-lg hover:bg-[#eec262] transition-all font-bold shadow-lg"
+                        >
+                          💾 Save Changes
+                        </button>
+                        <button
+                          onClick={() => handleSavePage(true)}
+                          className="bg-white text-[#03325a] px-6 py-2.5 rounded-lg hover:bg-gray-100 transition-all font-bold shadow-lg"
+                        >
+                          🚪 Save & Exit
+                        </button>
+                      </div>
                     )}
                     <button
                       onClick={() => setShowEditModal(false)}
@@ -1679,7 +1852,7 @@ const AdminPages = () => {
                             <input
                               type="text"
                               value={editForm.title}
-                              onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                              onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
                               className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
                               style={{ color: '#111827', backgroundColor: '#ffffff' }}
                             />
@@ -1688,7 +1861,7 @@ const AdminPages = () => {
                             <label className="block text-sm font-semibold text-gray-700 mb-2">Meta Description</label>
                             <textarea
                               value={editForm.meta_description}
-                              onChange={(e) => setEditForm({...editForm, meta_description: e.target.value})}
+                              onChange={(e) => setEditForm({ ...editForm, meta_description: e.target.value })}
                               rows={3}
                               className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
                               style={{ color: '#111827', backgroundColor: '#ffffff' }}
@@ -1698,7 +1871,7 @@ const AdminPages = () => {
                             <input
                               type="checkbox"
                               checked={editForm.is_active}
-                              onChange={(e) => setEditForm({...editForm, is_active: e.target.checked})}
+                              onChange={(e) => setEditForm({ ...editForm, is_active: e.target.checked })}
                               className="h-5 w-5 text-[#30d9fe] rounded border-gray-300 focus:ring-[#30d9fe]"
                             />
                             <label className="ml-3 text-sm font-semibold text-gray-700">Page Active</label>
@@ -1717,7 +1890,7 @@ const AdminPages = () => {
                             <select
                               value={currentSection.type}
                               onChange={(e) => {
-                                setCurrentSection({...currentSection, type: e.target.value});
+                                setCurrentSection({ ...currentSection, type: e.target.value });
                               }}
                               className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
                               style={{ color: '#111827', backgroundColor: '#ffffff' }}
@@ -1732,31 +1905,31 @@ const AdminPages = () => {
                               {sectionTypes.find(t => t.id === currentSection.type)?.desc}
                             </p>
                           </div>
-                          
+
                           <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">Section Title</label>
                             <input
                               type="text"
                               value={currentSection.title}
-                              onChange={(e) => setCurrentSection({...currentSection, title: e.target.value})}
+                              onChange={(e) => setCurrentSection({ ...currentSection, title: e.target.value })}
                               placeholder="e.g., Welcome to Code2Deploy"
                               className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
                               style={{ color: '#111827', backgroundColor: '#ffffff' }}
                             />
                           </div>
-                          
+
                           <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">Subtitle (Optional)</label>
                             <input
                               type="text"
                               value={currentSection.subtitle}
-                              onChange={(e) => setCurrentSection({...currentSection, subtitle: e.target.value})}
+                              onChange={(e) => setCurrentSection({ ...currentSection, subtitle: e.target.value })}
                               placeholder="e.g., Empowering African Youth"
                               className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:border-[#30d9fe] focus:ring-2 focus:ring-[#30d9fe]/20 transition-all"
                               style={{ color: '#111827', backgroundColor: '#ffffff' }}
                             />
                           </div>
-                          
+
                           <button
                             onClick={handleAddSection}
                             disabled={!currentSection.title}
@@ -1773,7 +1946,7 @@ const AdminPages = () => {
                       <h4 className="font-bold text-[#03325a] mb-6 text-2xl flex items-center">
                         <span className="text-3xl mr-3">📄</span> Page Sections ({editForm.sections.length})
                       </h4>
-                      
+
                       {editForm.sections.length === 0 ? (
                         <div className="text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
                           <div className="text-6xl mb-4">📝</div>

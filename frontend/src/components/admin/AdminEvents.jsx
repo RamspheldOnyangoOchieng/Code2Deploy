@@ -26,7 +26,8 @@ const AdminEvents = () => {
     location: '',
     capacity: '',
     price: '',
-    is_active: true
+    is_active: true,
+    image: null
   });
 
   useEffect(() => {
@@ -79,13 +80,21 @@ const AdminEvents = () => {
 
   const handleCreateEvent = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/events/`, {
+      const formData = new FormData();
+      Object.keys(editForm).forEach(key => {
+        if (key === 'image') {
+          if (editForm.image) formData.append('image', editForm.image);
+        } else if (editForm[key] !== null && editForm[key] !== undefined) {
+          formData.append(key, editForm[key]);
+        }
+      });
+
+      const response = await fetch(`${API_BASE_URL}/events/events/`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${authService.getToken()}`,
-          'Content-Type': 'application/json'
+          'Authorization': `Bearer ${authService.getToken()}`
         },
-        body: JSON.stringify(editForm)
+        body: formData
       });
 
       if (response.ok) {
@@ -99,7 +108,8 @@ const AdminEvents = () => {
           location: '',
           capacity: '',
           price: '',
-          is_active: true
+          is_active: true,
+          image: null
         });
         toast.success('Event created successfully!');
         fetchEvents();
@@ -122,20 +132,29 @@ const AdminEvents = () => {
       location: event.location || '',
       capacity: event.capacity || '',
       price: event.price || '',
-      is_active: event.is_active
+      is_active: event.is_active,
+      image: null // We don't pre-fill the file input
     });
     setShowEditModal(true);
   };
 
   const handleUpdateEvent = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/events/${selectedEvent.id}/`, {
+      const formData = new FormData();
+      Object.keys(editForm).forEach(key => {
+        if (key === 'image') {
+          if (editForm.image) formData.append('image', editForm.image);
+        } else if (editForm[key] !== null && editForm[key] !== undefined) {
+          formData.append(key, editForm[key]);
+        }
+      });
+
+      const response = await fetch(`${API_BASE_URL}/events/events/${selectedEvent.id}/`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${authService.getToken()}`,
-          'Content-Type': 'application/json'
+          'Authorization': `Bearer ${authService.getToken()}`
         },
-        body: JSON.stringify(editForm)
+        body: formData
       });
 
       if (response.ok) {
@@ -152,11 +171,10 @@ const AdminEvents = () => {
 
   const handleDeleteEvent = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/events/${selectedEvent.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/events/events/${selectedEvent.id}/`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${authService.getToken()}`,
-          'Content-Type': 'application/json'
+          'Authorization': `Bearer ${authService.getToken()}`
         }
       });
 
@@ -174,8 +192,8 @@ const AdminEvents = () => {
 
   const getStatusBadge = (isActive) => (
     <span className={`px-2 py-1 text-xs font-medium rounded-full ${isActive
-        ? 'bg-green-100 text-green-800'
-        : 'bg-red-100 text-red-800'
+      ? 'bg-green-100 text-green-800'
+      : 'bg-red-100 text-red-800'
       }`}>
       {isActive ? 'Active' : 'Inactive'}
     </span>
@@ -302,7 +320,7 @@ const AdminEvents = () => {
                         <div className="flex-shrink-0 h-12 w-12">
                           <img
                             className="h-12 w-12 rounded-lg object-cover"
-                            src={event.image_url || 'https://via.placeholder.com/48'}
+                            src={event.image || 'https://via.placeholder.com/48'}
                             alt=""
                           />
                         </div>
@@ -382,8 +400,8 @@ const AdminEvents = () => {
                 key={page}
                 onClick={() => setCurrentPage(page)}
                 className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === page
-                    ? 'bg-[#30d9fe] text-white'
-                    : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                  ? 'bg-[#30d9fe] text-white'
+                  : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
                   }`}
               >
                 {page}
@@ -490,6 +508,24 @@ const AdminEvents = () => {
                     placeholder="0.00"
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Event Image</label>
+                  <div className="mt-1 flex items-center gap-3">
+                    {(editForm.image || (showEditModal && selectedEvent?.image)) && (
+                      <img
+                        src={editForm.image ? URL.createObjectURL(editForm.image) : selectedEvent.image}
+                        className="h-10 w-16 rounded-md object-cover border"
+                        alt="Preview"
+                      />
+                    )}
+                    <input
+                      type="file"
+                      onChange={(e) => setEditForm({ ...editForm, image: e.target.files[0] })}
+                      className="flex-1 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      accept="image/*"
+                    />
+                  </div>
                 </div>
                 <div className="flex items-center">
                   <input

@@ -17,7 +17,7 @@ class Mentor(models.Model):
     expertise = models.CharField(max_length=255, help_text='Comma-separated list of expertise areas')
     phone = models.CharField(max_length=20, blank=True, null=True)
     hourly_rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    photo = CloudinaryField('photo', folder='mentors', blank=True, null=True)
+    photo = CloudinaryField('photo', folder='code2deploy/mentors', blank=True, null=True)
     linkedin = models.URLField(blank=True, null=True)
     twitter = models.URLField(blank=True, null=True)
     github = models.URLField(blank=True, null=True)
@@ -212,7 +212,7 @@ class AssignmentSubmission(models.Model):
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='assignment_submissions')
     submission_text = models.TextField(blank=True)
     submission_url = models.URLField(blank=True, null=True, help_text='Link to code repo or document')
-    submission_file = CloudinaryField('file', folder='submissions', blank=True, null=True)
+    submission_file = CloudinaryField('file', folder='code2deploy/submissions', blank=True, null=True)
     status = models.CharField(max_length=20, choices=[
         ('pending', 'Pending'),
         ('submitted', 'Submitted'),
@@ -250,7 +250,7 @@ class MentorResource(models.Model):
     description = models.TextField(blank=True)
     resource_type = models.CharField(max_length=20, choices=RESOURCE_TYPE_CHOICES, default='document')
     url = models.URLField(blank=True, null=True)
-    file = CloudinaryField('file', folder='resources', blank=True, null=True)
+    file = CloudinaryField('file', folder='code2deploy/resources', blank=True, null=True)
     is_public = models.BooleanField(default=False, help_text='Visible to all students or just assigned mentees')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

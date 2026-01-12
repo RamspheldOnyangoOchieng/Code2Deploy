@@ -26,7 +26,8 @@ const AdminMentors = () => {
     bio: '',
     experience_years: '',
     hourly_rate: '',
-    is_active: true
+    is_active: true,
+    photo: null
   });
 
   useEffect(() => {
@@ -70,13 +71,21 @@ const AdminMentors = () => {
     try {
       setError(null);
 
+      const formData = new FormData();
+      Object.keys(editForm).forEach(key => {
+        if (key === 'photo') {
+          if (editForm.photo) formData.append('photo', editForm.photo);
+        } else if (editForm[key] !== null && editForm[key] !== undefined) {
+          formData.append(key, editForm[key]);
+        }
+      });
+
       const response = await fetch(`${API_BASE_URL}/mentors/`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${authService.getToken()}`,
-          'Content-Type': 'application/json'
+          'Authorization': `Bearer ${authService.getToken()}`
         },
-        body: JSON.stringify(editForm)
+        body: formData
       });
 
       const data = await response.json();
@@ -92,7 +101,8 @@ const AdminMentors = () => {
           bio: '',
           experience_years: '',
           hourly_rate: '',
-          is_active: true
+          is_active: true,
+          photo: null
         });
         toast.success(`Mentor "${editForm.first_name} ${editForm.last_name}" created successfully! A welcome email with login credentials has been sent.`);
         fetchMentors();
@@ -115,20 +125,29 @@ const AdminMentors = () => {
       bio: mentor.bio || '',
       experience_years: mentor.experience_years || '',
       hourly_rate: mentor.hourly_rate || '',
-      is_active: mentor.is_active
+      is_active: mentor.is_active,
+      photo: null // We don't pre-fill the file input
     });
     setShowEditModal(true);
   };
 
   const handleUpdateMentor = async () => {
     try {
+      const formData = new FormData();
+      Object.keys(editForm).forEach(key => {
+        if (key === 'photo') {
+          if (editForm.photo) formData.append('photo', editForm.photo);
+        } else if (editForm[key] !== null && editForm[key] !== undefined) {
+          formData.append(key, editForm[key]);
+        }
+      });
+
       const response = await fetch(`${API_BASE_URL}/mentors/${selectedMentor.id}/`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${authService.getToken()}`,
-          'Content-Type': 'application/json'
+          'Authorization': `Bearer ${authService.getToken()}`
         },
-        body: JSON.stringify(editForm)
+        body: formData
       });
 
       if (response.ok) {
@@ -299,7 +318,7 @@ const AdminMentors = () => {
                         <div className="flex-shrink-0 h-12 w-12">
                           <img
                             className="h-12 w-12 rounded-full object-cover"
-                            src={mentor.avatar || 'https://via.placeholder.com/48'}
+                            src={mentor.photo || 'https://via.placeholder.com/48'}
                             alt=""
                           />
                         </div>
@@ -474,6 +493,24 @@ const AdminMentors = () => {
                       value={editForm.hourly_rate}
                       onChange={(e) => setEditForm({ ...editForm, hourly_rate: e.target.value })}
                       className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Photo</label>
+                  <div className="mt-1 flex items-center gap-3">
+                    {(editForm.photo || (showEditModal && selectedMentor?.photo)) && (
+                      <img
+                        src={editForm.photo ? URL.createObjectURL(editForm.photo) : selectedMentor.photo}
+                        className="h-10 w-10 rounded-full object-cover border"
+                        alt="Preview"
+                      />
+                    )}
+                    <input
+                      type="file"
+                      onChange={(e) => setEditForm({ ...editForm, photo: e.target.files[0] })}
+                      className="flex-1 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      accept="image/*"
                     />
                   </div>
                 </div>

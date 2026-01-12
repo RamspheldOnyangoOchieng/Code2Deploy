@@ -15,14 +15,28 @@ class UserMinimalSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'avatar']
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.avatar:
+            data['avatar'] = instance.avatar.url
+        return data
+
 
 class MentorSerializer(serializers.ModelSerializer):
     expertise_list = serializers.ReadOnlyField()
     user_email = serializers.EmailField(source='user.email', read_only=True)
+    first_name = serializers.CharField(source='user.first_name', read_only=True)
+    last_name = serializers.CharField(source='user.last_name', read_only=True)
     
     class Meta:
         model = Mentor
         fields = '__all__'
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.photo:
+            data['photo'] = instance.photo.url
+        return data
 
 
 class MentorProgramSerializer(serializers.ModelSerializer):
@@ -97,6 +111,12 @@ class AssignmentSubmissionSerializer(serializers.ModelSerializer):
         model = AssignmentSubmission
         fields = '__all__'
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.submission_file:
+            data['submission_file'] = instance.submission_file.url
+        return data
+
 
 class AssignmentSerializer(serializers.ModelSerializer):
     submissions = AssignmentSubmissionSerializer(many=True, read_only=True)
@@ -121,6 +141,12 @@ class MentorResourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = MentorResource
         fields = '__all__'
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.file:
+            data['file'] = instance.file.url
+        return data
 
 
 class MentorDashboardSerializer(serializers.Serializer):
