@@ -119,7 +119,7 @@ const Layout = ({ children }) => {
   return (
     <div className="min-h-screen min-h-[100dvh] font-sans text-gray-800 bg-white flex flex-col overflow-x-hidden">
       {/* Navigation */}
-      <nav className="bg-gradient-to-b from-[#0A0F2C] to-[#0A0F2C] sticky top-0 z-50 text-white w-full" aria-label="Main Navigation">
+      <nav className="bg-gradient-to-b from-[#0A0F2C] to-[#0A0F2C] fixed top-0 left-0 right-0 z-50 text-white w-full" aria-label="Main Navigation">
         <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex items-center justify-between w-full">
             {/* Logo */}
@@ -448,7 +448,7 @@ const Layout = ({ children }) => {
         </div>
       </nav>
 
-      <main className="flex-1 w-full max-w-[100vw] overflow-x-hidden">{children}</main>
+      <main className="flex-1 w-full max-w-[100vw] overflow-x-hidden pt-16 sm:pt-20">{children}</main>
       {/* Footer */}
       <footer className="bg-[#03325a] text-white py-8 xs:py-10 sm:py-12 mt-auto w-full safe-area-inset">
         <div className="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6">

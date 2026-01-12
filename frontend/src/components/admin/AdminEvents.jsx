@@ -94,7 +94,7 @@ const AdminEvents = () => {
         }
       });
 
-      const response = await fetch(`${API_BASE_URL}/events/events/`, {
+      const response = await fetch(`${API_BASE_URL}/events/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`
@@ -162,7 +162,7 @@ const AdminEvents = () => {
         }
       });
 
-      const response = await fetch(`${API_BASE_URL}/events/events/${selectedEvent.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/events/${selectedEvent.id}/`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`
@@ -184,7 +184,7 @@ const AdminEvents = () => {
 
   const handleDeleteEvent = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/events/events/${selectedEvent.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/events/${selectedEvent.id}/`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`
