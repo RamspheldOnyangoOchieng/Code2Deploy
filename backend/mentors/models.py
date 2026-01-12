@@ -17,7 +17,16 @@ class Mentor(models.Model):
     expertise = models.CharField(max_length=255, help_text='Comma-separated list of expertise areas')
     phone = models.CharField(max_length=20, blank=True, null=True)
     hourly_rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    photo = CloudinaryField('photo', folder='code2deploy/mentors', blank=True, null=True)
+    photo = CloudinaryField(
+        'photo', 
+        folder='code2deploy/mentors', 
+        blank=True, 
+        null=True,
+        transformation=[
+            {'width': 800, 'height': 800, 'crop': 'limit'},
+            {'quality': 'auto', 'fetch_format': 'auto'}
+        ]
+    )
     linkedin = models.URLField(blank=True, null=True)
     twitter = models.URLField(blank=True, null=True)
     github = models.URLField(blank=True, null=True)

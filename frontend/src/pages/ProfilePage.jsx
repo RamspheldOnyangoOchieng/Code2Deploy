@@ -4,6 +4,7 @@ import { useToast } from '../contexts/ToastContext';
 import { useAuth } from '../contexts/AuthContext';
 import authService from '../services/authService';
 import LogoutModal from '../components/LogoutModal';
+import ChangePasswordModal from '../components/ChangePasswordModal';
 import {
   UserCircleIcon,
   EnvelopeIcon,
@@ -41,6 +42,7 @@ const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState('account');
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef(null);
@@ -124,8 +126,8 @@ const ProfilePage = () => {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image size must be less than 5MB');
+    if (file.size > 20 * 1024 * 1024) {
+      setError('Image size must be less than 20MB');
       return;
     }
 
@@ -533,7 +535,10 @@ const ProfilePage = () => {
                         </h3>
                         <p className="text-gray-400 text-sm mt-1">Change your password to keep your account secure</p>
                       </div>
-                      <button className="px-4 py-2 bg-white/10 text-white font-medium rounded-lg hover:bg-white/20 transition-all">
+                      <button
+                        onClick={() => setIsPasswordModalOpen(true)}
+                        className="px-4 py-2 bg-white/10 text-white font-medium rounded-lg hover:bg-white/20 transition-all border border-white/20"
+                      >
                         Change
                       </button>
                     </div>
@@ -549,7 +554,10 @@ const ProfilePage = () => {
                         </h3>
                         <p className="text-gray-400 text-sm mt-1">Add an extra layer of security to your account</p>
                       </div>
-                      <button className="px-4 py-2 bg-green-500/20 text-green-300 font-medium rounded-lg hover:bg-green-500/30 transition-all border border-green-500/50">
+                      <button
+                        onClick={() => toast.info('Two-Factor Authentication feature is coming soon!')}
+                        className="px-4 py-2 bg-green-500/10 text-green-300 font-medium rounded-lg hover:bg-green-500/20 transition-all border border-green-500/30"
+                      >
                         Enable
                       </button>
                     </div>
@@ -562,7 +570,10 @@ const ProfilePage = () => {
                         <h3 className="text-white font-semibold">Active Sessions</h3>
                         <p className="text-gray-400 text-sm mt-1">Manage your active login sessions</p>
                       </div>
-                      <button className="px-4 py-2 bg-red-500/20 text-red-300 font-medium rounded-lg hover:bg-red-500/30 transition-all border border-red-500/50">
+                      <button
+                        onClick={() => toast.info('Session management feature is coming soon!')}
+                        className="px-4 py-2 bg-red-500/10 text-red-300 font-medium rounded-lg hover:bg-red-500/20 transition-all border border-red-500/30"
+                      >
                         Sign Out All
                       </button>
                     </div>
@@ -571,6 +582,7 @@ const ProfilePage = () => {
               </div>
             )}
           </div>
+
 
           {/* Right Column - Sidebar */}
           <div className="space-y-6">
@@ -645,6 +657,11 @@ const ProfilePage = () => {
         isOpen={isLogoutModalOpen}
         onClose={() => setIsLogoutModalOpen(false)}
         onConfirm={handleLogoutConfirm}
+      />
+
+      <ChangePasswordModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
       />
     </div>
   );

@@ -400,6 +400,34 @@ class AuthService {
     }
   }
 
+  async changePassword(currentPassword, newPassword) {
+    try {
+      const response = await fetch(`${this.baseURL}/auth/users/set_password/`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify({
+          current_password: currentPassword,
+          new_password: newPassword,
+          re_new_password: newPassword
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        // Djoser returns field-specific errors
+        if (typeof errorData === 'object' && !errorData.detail) {
+          const firstError = Object.values(errorData)[0];
+          throw new Error(Array.isArray(firstError) ? firstError[0] : firstError);
+        }
+        throw new Error(errorData.detail || 'Password change failed');
+      }
+
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async exportUserData() {
     try {
       const response = await fetch(`${this.baseURL}/auth/me/export/`, {

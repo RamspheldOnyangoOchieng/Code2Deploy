@@ -22,11 +22,23 @@ class Program(models.Model):
     duration = models.CharField(max_length=50)  # e.g., '12 Weeks'
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES)
     technologies = models.CharField(max_length=255, help_text='Comma-separated list of technologies')
-    image = CloudinaryField('image', folder='code2deploy/programs', blank=True, null=True)
+    image = CloudinaryField(
+        'image', 
+        folder='code2deploy/programs', 
+        blank=True, 
+        null=True,
+        transformation=[
+            {'width': 1000, 'height': 600, 'crop': 'limit'},
+            {'quality': 'auto', 'fetch_format': 'auto'}
+        ]
+    )
     mode = models.CharField(max_length=20, choices=MODE_CHOICES, default='Online')
     sessions_per_week = models.IntegerField(default=3)
     has_certification = models.BooleanField(default=True)
     scholarship_available = models.BooleanField(default=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    is_paid = models.BooleanField(default=False)
+    coupon = models.CharField(max_length=50, blank=True, null=True, default='%coupon')
     prerequisites = models.TextField(blank=True, null=True)
     modules = models.TextField(blank=True, null=True, help_text='Comma-separated list of modules')
     created_at = models.DateTimeField(auto_now_add=True)

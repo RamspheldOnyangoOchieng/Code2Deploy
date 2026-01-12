@@ -111,12 +111,26 @@ class HomePageSettings(models.Model):
     hero_button1_link = models.CharField(max_length=200, default="/programs")
     hero_button2_text = models.CharField(max_length=50, default="Upcoming Events")
     hero_button2_link = models.CharField(max_length=200, default="/events")
-    hero_image = CloudinaryField('hero_image', folder='code2deploy/home', blank=True, null=True)
+    hero_image = CloudinaryField(
+        'hero_image', 
+        folder='code2deploy/home', 
+        blank=True, 
+        null=True,
+        transformation=[
+            {'width': 1920, 'height': 1080, 'crop': 'limit'},
+            {'quality': 'auto', 'fetch_format': 'auto'}
+        ]
+    )
     
     @property
     def hero_image_url(self):
         if self.hero_image:
-            return self.hero_image.url
+            try:
+                if hasattr(self.hero_image, 'url'):
+                    return self.hero_image.url
+                return str(self.hero_image)
+            except Exception:
+                return str(self.hero_image)
         return None
     
     # Our Approach Section
@@ -169,12 +183,26 @@ class AboutPageSettings(models.Model):
         max_length=300, 
         default="Empowering African youth with cutting-edge tech skills"
     )
-    hero_image = CloudinaryField('hero_image', folder='code2deploy/about', blank=True, null=True)
+    hero_image = CloudinaryField(
+        'hero_image', 
+        folder='code2deploy/about', 
+        blank=True, 
+        null=True,
+        transformation=[
+            {'width': 1920, 'height': 1080, 'crop': 'limit'},
+            {'quality': 'auto', 'fetch_format': 'auto'}
+        ]
+    )
     
     @property
     def hero_image_url(self):
         if self.hero_image:
-            return self.hero_image.url
+            try:
+                if hasattr(self.hero_image, 'url'):
+                    return self.hero_image.url
+                return str(self.hero_image)
+            except Exception:
+                return str(self.hero_image)
         return None
     
     # Mission & Vision
@@ -224,12 +252,26 @@ class ProgramsPageSettings(models.Model):
         default="From beginner to advanced, our programs are designed to take you from where you are to where you want to be in tech.",
         blank=True
     )
-    hero_image = CloudinaryField('hero_image', folder='code2deploy/programs_page', blank=True, null=True)
+    hero_image = CloudinaryField(
+        'hero_image', 
+        folder='code2deploy/programs_page', 
+        blank=True, 
+        null=True,
+        transformation=[
+            {'width': 1920, 'height': 1080, 'crop': 'limit'},
+            {'quality': 'auto', 'fetch_format': 'auto'}
+        ]
+    )
     
     @property
     def hero_image_url(self):
         if self.hero_image:
-            return self.hero_image.url
+            try:
+                if hasattr(self.hero_image, 'url'):
+                    return self.hero_image.url
+                return str(self.hero_image)
+            except Exception:
+                return str(self.hero_image)
         return None
     
     # Programs Section
@@ -277,12 +319,26 @@ class EventsPageSettings(models.Model):
         default="Stay connected with the Code2Deploy community through our events.",
         blank=True
     )
-    hero_image = CloudinaryField('hero_image', folder='code2deploy/events_page', blank=True, null=True)
+    hero_image = CloudinaryField(
+        'hero_image', 
+        folder='code2deploy/events_page', 
+        blank=True, 
+        null=True,
+        transformation=[
+            {'width': 1920, 'height': 1080, 'crop': 'limit'},
+            {'quality': 'auto', 'fetch_format': 'auto'}
+        ]
+    )
     
     @property
     def hero_image_url(self):
         if self.hero_image:
-            return self.hero_image.url
+            try:
+                if hasattr(self.hero_image, 'url'):
+                    return self.hero_image.url
+                return str(self.hero_image)
+            except Exception:
+                return str(self.hero_image)
         return None
     
     # Events Section

@@ -15,14 +15,14 @@ from .serializers import UserCreateSerializer, UserProfileSerializer, MessageSer
 from django.shortcuts import redirect
 from rest_framework.throttling import AnonRateThrottle
 from djoser.views import UserViewSet
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.generics import RetrieveUpdateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from .serializers import UserProfileSerializer
 from programs.serializers import EnrollmentSerializer
 from events.serializers import EventRegistrationSerializer
 from programs.models import Enrollment
 from events.models import EventRegistration
-from rest_framework.generics import ListAPIView
 from django.utils import timezone
 from rest_framework.permissions import AllowAny
 
@@ -287,7 +287,8 @@ class CustomPasswordResetView(APIView):
         token = default_token_generator.make_token(user)
         
         # Create frontend reset URL
-        frontend_reset_url = f'http://localhost:3000/reset-password?uid={uid}&token={token}'
+        frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+        frontend_reset_url = f'{frontend_url}/reset-password?uid={uid}&token={token}'
         
         html_message = CODE2DEPLOY_EMAIL_BRAND.format(
             message=f"Hi {user.first_name or user.username},<br/><br/>You requested a password reset for your Code2Deploy account. Click the button below to reset your password. This link will expire in 24 hours.",
@@ -296,12 +297,11 @@ class CustomPasswordResetView(APIView):
         )
         
         try:
-            send_mail(
+            send_email_async(
                 'Reset your Code2Deploy password',
                 f'Reset your password: {frontend_reset_url}',
                 settings.DEFAULT_FROM_EMAIL,
                 [user.email],
-                fail_silently=False,
                 html_message=html_message
             )
             response_data = {
@@ -353,9 +353,26 @@ class PasswordResetConfirmView(APIView):
 class UserProfileView(RetrieveUpdateAPIView):
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     def get_object(self):
         return self.request.user
+
+    def partial_update(self, request, *args, **kwargs):
+        logger.info(f"UserProfileView.partial_update called by {request.user.username}")
+        logger.info(f"Request data keys: {request.data.keys()}")
+        if 'avatar' in request.FILES:
+            logger.info(f"Avatar file found in request.FILES: {request.FILES['avatar'].name}")
+        elif 'avatar' in request.data:
+            logger.info(f"Avatar found in request.data: {type(request.data['avatar'])}")
+            
+        try:
+            response = super().partial_update(request, *args, **kwargs)
+            logger.info(f"Profile update successful for {request.user.username}")
+            return response
+        except Exception as e:
+            logger.error(f"Profile update failed for {request.user.username}: {str(e)}")
+            raise e
 
 class UserEnrollmentsView(ListAPIView):
     serializer_class = EnrollmentSerializer
@@ -404,12 +421,11 @@ class UserAccountDeletionView(APIView):
             button_text="Delete Account"
         )
         
-        send_mail(
+        send_email_async(
             'Confirm Account Deletion - Code2Deploy',
             f'Confirm account deletion: {deletion_url}',
             settings.DEFAULT_FROM_EMAIL,
             [user.email],
-            fail_silently=False,
             html_message=html_message
         )
         

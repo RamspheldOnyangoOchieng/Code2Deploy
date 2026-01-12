@@ -9,13 +9,17 @@ from .serializers import EventSerializer, EventRegistrationSerializer, MessageSe
 
 # Create your views here.
 
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+
 class EventListCreateView(generics.ListCreateAPIView):
     queryset = Event.objects.all().order_by('-date')
     serializer_class = EventSerializer
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
 class EventRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
 class RegisterForEventView(APIView):
     permission_classes = [IsAuthenticated]

@@ -251,8 +251,13 @@ const Programs = () => {
                     <div className="absolute top-0 left-0 m-2 sm:m-3">
                       <span className="bg-[#03325a] text-[#30d9fe] text-xs font-bold px-2 sm:px-3 py-1 rounded-full">{program.duration}</span>
                     </div>
-                    <div className="absolute top-0 right-0 m-2 sm:m-3">
+                    <div className="absolute top-0 right-0 m-2 sm:m-3 flex flex-col items-end gap-1">
                       <span className="bg-[#eec262] text-[#03325a] text-xs font-bold px-2 sm:px-3 py-1 rounded-full">{program.level}</span>
+                      {program.is_paid ? (
+                        <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">PAID</span>
+                      ) : program.scholarship_available ? (
+                        <span className="bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">SCHOLARSHIP</span>
+                      ) : null}
                     </div>
                   </div>
                   <div className="p-4 sm:p-6 flex-1 flex flex-col">
@@ -266,6 +271,12 @@ const Programs = () => {
                         <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">+{getTechnologies(program.technologies).length - 4}</span>
                       )}
                     </div>
+                    {program.coupon && (
+                      <div className="mb-3 flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Coupon:</span>
+                        <span className="bg-blue-50 text-blue-600 text-[10px] font-mono font-bold px-2 py-0.5 rounded border border-blue-100 border-dashed">{program.coupon}</span>
+                      </div>
+                    )}
                     <button
                       onClick={() => openModal(program)}
                       className="w-full py-2 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-[#eec262] transition-all duration-300 whitespace-nowrap mt-auto text-xs sm:text-base"
@@ -322,6 +333,16 @@ const Programs = () => {
                   <span className="bg-[#eec262] text-[#03325a] text-sm font-bold px-3 py-1 rounded-full">
                     <i className="fas fa-layer-group mr-2"></i>{selectedProgram.level}
                   </span>
+                  {selectedProgram.is_paid && (
+                    <span className="bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg border border-red-400">
+                      PAID PROGRAM
+                    </span>
+                  )}
+                  {selectedProgram.scholarship_available && (
+                    <span className="bg-green-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg border border-green-400">
+                      SCHOLARSHIP AVAILABLE
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -425,10 +446,18 @@ const Programs = () => {
                       </span>
                     </p>
                     {selectedProgram?.scholarship_available ? (
-                      <p className="flex justify-between">
-                        <span className="text-gray-600">Requirements:</span>
-                        <span className="font-semibold text-gray-800">Application Form</span>
-                      </p>
+                      <>
+                        <p className="flex justify-between">
+                          <span className="text-gray-600">Requirements:</span>
+                          <span className="font-semibold text-gray-800">Application Form</span>
+                        </p>
+                        {selectedProgram.coupon && (
+                          <p className="flex justify-between mt-2 pt-2 border-t border-green-200 border-dashed">
+                            <span className="text-green-700 font-bold">Use Coupon:</span>
+                            <span className="font-mono bg-white px-2 py-0.5 rounded text-green-700 border border-green-300 border-dashed">{selectedProgram.coupon}</span>
+                          </p>
+                        )}
+                      </>
                     ) : (
                       <>
                         <p className="flex justify-between">
@@ -439,6 +468,12 @@ const Programs = () => {
                           <span className="text-gray-600">Financial Aid:</span>
                           <span className="font-semibold text-gray-800">Contact Us</span>
                         </p>
+                        {selectedProgram.coupon && (
+                          <p className="flex justify-between mt-2 pt-2 border-t border-yellow-200 border-dashed">
+                            <span className="text-yellow-700 font-bold">Discount Code:</span>
+                            <span className="font-mono bg-white px-2 py-0.5 rounded text-yellow-700 border border-yellow-300 border-dashed">{selectedProgram.coupon}</span>
+                          </p>
+                        )}
                       </>
                     )}
                   </div>
@@ -488,8 +523,9 @@ const Programs = () => {
             </div>
           </div>
         </div>
-      )}
-    </Layout>
+      )
+      }
+    </Layout >
   );
 };
 

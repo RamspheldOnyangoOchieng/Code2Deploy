@@ -18,6 +18,8 @@ class UserCreateSerializer(BaseUserCreateSerializer):
         return super().validate(attrs)
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    avatar = serializers.ImageField(required=False)
+    
     class Meta:
         model = User
         fields = (

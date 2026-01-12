@@ -17,6 +17,7 @@ const AdminEvents = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+
   const [editForm, setEditForm] = useState({
     title: '',
     description: '',
@@ -27,6 +28,10 @@ const AdminEvents = () => {
     capacity: '',
     price: '',
     is_active: true,
+    format: 'In-person',
+    speaker: '',
+    topics: '',
+    status: 'Available',
     image: null
   });
 
@@ -109,6 +114,10 @@ const AdminEvents = () => {
           capacity: '',
           price: '',
           is_active: true,
+          format: 'In-person',
+          speaker: '',
+          topics: '',
+          status: 'Available',
           image: null
         });
         toast.success('Event created successfully!');
@@ -133,7 +142,11 @@ const AdminEvents = () => {
       capacity: event.capacity || '',
       price: event.price || '',
       is_active: event.is_active,
-      image: null // We don't pre-fill the file input
+      format: event.format || 'In-person',
+      speaker: event.speaker || '',
+      topics: event.topics || '',
+      status: event.status || 'Available',
+      image: null
     });
     setShowEditModal(true);
   };
@@ -506,6 +519,48 @@ const AdminEvents = () => {
                     value={editForm.price}
                     onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
                     placeholder="0.00"
+                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Format</label>
+                    <select
+                      value={editForm.format}
+                      onChange={(e) => setEditForm({ ...editForm, format: e.target.value })}
+                      className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
+                    >
+                      <option value="In-person">In-person</option>
+                      <option value="Online">Online</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Status</label>
+                    <input
+                      type="text"
+                      value={editForm.status}
+                      onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                      placeholder="e.g. Available, Limited Spots"
+                      className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Speaker</label>
+                  <input
+                    type="text"
+                    value={editForm.speaker}
+                    onChange={(e) => setEditForm({ ...editForm, speaker: e.target.value })}
+                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Topics (comma-separated)</label>
+                  <input
+                    type="text"
+                    value={editForm.topics}
+                    onChange={(e) => setEditForm({ ...editForm, topics: e.target.value })}
+                    placeholder="React, Node.js, Frontend"
                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
                   />
                 </div>

@@ -21,15 +21,41 @@ const Events = () => {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredEvents, setFilteredEvents] = useState([]);
-  const [pageSettings, setPageSettings] = useState(null);
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchPageSettings();
+    fetchEvents();
   }, []);
+
+  const fetchEvents = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/events/events/`);
+      if (response.ok) {
+        const data = await response.json();
+        // Backend returns an array or an object with results? 
+        // Based on ListCreateAPIView it should be an array (unless paginated)
+        // AdminEvents.jsx suggests it might be data.events if it was custom, 
+        // but EventListCreateView is standard generics.
+        const eventsArray = Array.isArray(data) ? data : (data.results || []);
+
+        // Transform topics from comma-separated string to array for frontend
+        const transformedEvents = eventsArray.map(event => ({
+          ...event,
+          topics: event.topics ? event.topics.split(',').map(t => t.trim()) : []
+        }));
+
+        setEvents(transformedEvents);
+        setFilteredEvents(transformedEvents);
+      }
+    } catch (error) {
+      toast.error('Failed to load events');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchPageSettings = async () => {
     try {
@@ -39,7 +65,7 @@ const Events = () => {
         setPageSettings(data);
       }
     } catch (error) {
-      toast.error('Failed to load page settings');
+      // toast.error('Failed to load page settings');
     }
   };
 
@@ -52,6 +78,7 @@ const Events = () => {
       dateRange: '',
     });
     setSelectedDate(null);
+    setFilteredEvents(events);
   };
 
   // Calendar navigation
@@ -105,127 +132,6 @@ const Events = () => {
     return days;
   };
 
-  // Sample events data
-  const events = [
-    {
-      id: 1,
-      title: "Web Development Workshop",
-      date: "2025-05-30",
-      time: "10:00 AM - 2:00 PM",
-      format: "In-person",
-      description: "Learn modern web development techniques with React and Node.js in this hands-on workshop.",
-      location: "Tech Hub, Lagos",
-      topics: ["React", "Node.js", "Frontend"],
-      speaker: "Sarah Johnson",
-      status: "Available",
-      image: "https://readdy.ai/api/search-image?query=Professional%2520tech%2520workshop%2520with%2520diverse%2520participants%2520collaborating%2520at%2520workstations%2520with%2520computers.%2520The%2520room%2520has%2520modern%2520design%2520with%2520blue%2520accent%2520lighting%2520and%2520tech%2520company%2520branding.%2520Participants%2520are%2520engaged%2520in%2520coding%2520activities%2520with%2520instructors%2520providing%2520guidance.%2520Clean%2520professional%2520environment%2520with%2520minimal%2520distractions&width=400&height=225&seq=201&orientation=landscape"
-    },
-    {
-      id: 2,
-      title: "Data Science Fundamentals Webinar",
-      date: "2025-06-05",
-      time: "3:00 PM - 5:00 PM",
-      format: "Online",
-      description: "Introduction to data analysis, visualization, and machine learning concepts for beginners.",
-      location: "Zoom",
-      topics: ["Python", "Data Analysis", "Machine Learning"],
-      speaker: "Dr. Michael Chen",
-      status: "Available",
-      image: "https://readdy.ai/api/search-image?query=Professional%2520online%2520webinar%2520session%2520with%2520data%2520visualization%2520charts%2520and%2520graphs%2520displayed%2520on%2520screen.%2520The%2520presenter%2520is%2520explaining%2520data%2520science%2520concepts%2520with%2520Python%2520code%2520examples.%2520Clean%2520professional%2520virtual%2520environment%2520with%2520blue%2520color%2520scheme%2520matching%2520the%2520website.%2520Multiple%2520participants%2520visible%2520in%2520video%2520conference%2520layout&width=400&height=225&seq=202&orientation=landscape"
-    },
-    {
-      id: 3,
-      title: "AI & Machine Learning Meetup",
-      date: "2025-06-12",
-      time: "6:00 PM - 8:30 PM",
-      format: "In-person",
-      description: "Network with AI professionals and learn about the latest advancements in machine learning.",
-      location: "Innovation Center, Accra",
-      topics: ["AI", "Deep Learning", "Neural Networks"],
-      speaker: "Prof. Ada Okonkwo",
-      status: "Available",
-      image: "https://readdy.ai/api/search-image?query=Professional%2520tech%2520meetup%2520with%2520diverse%2520audience%2520in%2520a%2520modern%2520conference%2520room%2520with%2520blue%2520accent%2520lighting.%2520A%2520presenter%2520is%2520showing%2520AI%2520neural%2520network%2520visualizations%2520on%2520a%2520large%2520screen.%2520Attendees%2520are%2520engaged%2520in%2520discussion%2520about%2520machine%2520learning%2520concepts.%2520Clean%2520professional%2520environment%2520with%2520tech%2520company%2520branding&width=400&height=225&seq=203&orientation=landscape"
-    },
-    {
-      id: 4,
-      title: "Mobile App Development Bootcamp",
-      date: "2025-06-15",
-      time: "9:00 AM - 5:00 PM",
-      format: "In-person",
-      description: "Intensive one-day bootcamp on building cross-platform mobile applications with React Native.",
-      location: "Code Hub, Nairobi",
-      topics: ["React Native", "Mobile", "JavaScript"],
-      speaker: "James Mwangi",
-      status: "Limited Spots",
-      image: "https://readdy.ai/api/search-image?query=Intensive%2520coding%2520bootcamp%2520with%2520diverse%2520participants%2520working%2520on%2520mobile%2520app%2520development.%2520Instructors%2520are%2520helping%2520students%2520with%2520React%2520Native%2520code%2520on%2520their%2520laptops.%2520The%2520space%2520is%2520modern%2520with%2520blue%2520accent%2520lighting%2520and%2520tech%2520company%2520branding.%2520Mobile%2520devices%2520are%2520being%2520used%2520for%2520testing%2520applications&width=400&height=225&seq=204&orientation=landscape"
-    },
-    {
-      id: 5,
-      title: "Cloud Computing Essentials Webinar",
-      date: "2025-06-20",
-      time: "2:00 PM - 4:00 PM",
-      format: "Online",
-      description: "Learn the fundamentals of cloud infrastructure, deployment, and management.",
-      location: "Google Meet",
-      topics: ["AWS", "Azure", "DevOps"],
-      speaker: "Fatima Al-Hassan",
-      status: "Available",
-      image: "https://readdy.ai/api/search-image?query=Professional%2520cloud%2520computing%2520webinar%2520with%2520presenter%2520explaining%2520cloud%2520architecture%2520diagrams.%2520The%2520screen%2520shows%2520AWS%2520and%2520Azure%2520service%2520comparisons%2520with%2520deployment%2520examples.%2520Multiple%2520participants%2520are%2520visible%2520in%2520the%2520virtual%2520meeting%2520interface.%2520Clean%2520professional%2520environment%2520with%2520blue%2520color%2520scheme%2520matching%2520the%2520website&width=400&height=225&seq=205&orientation=landscape"
-    },
-    {
-      id: 6,
-      title: "Cybersecurity Best Practices Workshop",
-      date: "2025-06-25",
-      time: "10:00 AM - 3:00 PM",
-      format: "In-person",
-      description: "Hands-on workshop covering essential cybersecurity practices for developers and IT professionals.",
-      location: "Tech Center, Cape Town",
-      topics: ["Security", "Ethical Hacking", "Network Security"],
-      speaker: "David Ndlovu",
-      status: "Almost Full",
-      image: "https://readdy.ai/api/search-image?query=Cybersecurity%2520workshop%2520with%2520professionals%2520analyzing%2520security%2520threats%2520on%2520computer%2520screens.%2520The%2520room%2520has%2520modern%2520design%2520with%2520blue%2520accent%2520lighting%2520and%2520network%2520security%2520visualizations%2520on%2520displays.%2520Instructors%2520are%2520demonstrating%2520ethical%2520hacking%2520techniques%2520to%2520diverse%2520participants.%2520Professional%2520environment%2520with%2520security%2520company%2520branding&width=400&height=225&seq=206&orientation=landscape"
-    },
-    {
-      id: 7,
-      title: "Blockchain Development Introduction",
-      date: "2025-07-02",
-      time: "1:00 PM - 4:00 PM",
-      format: "Online",
-      description: "Introduction to blockchain technology and smart contract development on Ethereum.",
-      location: "Zoom",
-      topics: ["Blockchain", "Ethereum", "Smart Contracts"],
-      speaker: "Emmanuel Osei",
-      status: "Available",
-      image: "https://readdy.ai/api/search-image?query=Professional%2520blockchain%2520development%2520webinar%2520with%2520presenter%2520explaining%2520blockchain%2520architecture%2520and%2520smart%2520contract%2520code.%2520The%2520screen%2520shows%2520Ethereum%2520development%2520environment%2520with%2520code%2520examples.%2520Multiple%2520participants%2520are%2520visible%2520in%2520the%2520virtual%2520meeting%2520interface.%2520Clean%2520professional%2520environment%2520with%2520blue%2520color%2520scheme&width=400&height=225&seq=207&orientation=landscape"
-    },
-    {
-      id: 8,
-      title: "UI/UX Design Principles Meetup",
-      date: "2025-07-10",
-      time: "5:30 PM - 7:30 PM",
-      format: "In-person",
-      description: "Discussion on modern UI/UX design principles and practices for creating exceptional user experiences.",
-      location: "Design Studio, Lagos",
-      topics: ["UI/UX", "Design", "User Research"],
-      speaker: "Amina Diallo",
-      status: "Available",
-      image: "https://readdy.ai/api/search-image?query=UI%2520UX%2520design%2520meetup%2520with%2520professionals%2520discussing%2520interface%2520designs%2520displayed%2520on%2520large%2520screens.%2520The%2520space%2520is%2520modern%2520with%2520blue%2520accent%2520lighting%2520and%2520design%2520company%2520branding.%2520Participants%2520are%2520reviewing%2520wireframes%2520and%2520prototypes%2520while%2520the%2520presenter%2520explains%2520design%2520principles.%2520Creative%2520professional%2520environment&width=400&height=225&seq=208&orientation=landscape"
-    },
-    {
-      id: 9,
-      title: "DevOps Pipeline Automation Workshop",
-      date: "2025-07-15",
-      time: "9:00 AM - 4:00 PM",
-      format: "In-person",
-      description: "Learn to build and optimize CI/CD pipelines for efficient software delivery and deployment.",
-      location: "Tech Park, Johannesburg",
-      topics: ["DevOps", "CI/CD", "Docker"],
-      speaker: "Thomas Mbeki",
-      status: "Limited Spots",
-      image: "https://readdy.ai/api/search-image?query=DevOps%2520workshop%2520with%2520professionals%2520working%2520on%2520CI%2520CD%2520pipeline%2520configurations.%2520The%2520room%2520has%2520modern%2520design%2520with%2520blue%2520accent%2520lighting%2520and%2520multiple%2520screens%2520showing%2520Docker%2520containers%2520and%2520deployment%2520workflows.%2520Instructors%2520are%2520helping%2520diverse%2520participants%2520with%2520automation%2520scripts.%2520Professional%2520tech%2520environment&width=400&height=225&seq=209&orientation=landscape"
-    }
-  ];
-
   // Filter events based on search term and filters
   useEffect(() => {
     let results = [...events];
@@ -240,9 +146,9 @@ const Events = () => {
 
     if (filters.type) {
       results = results.filter(event => {
-        if (filters.type === 'Workshops') return event.title.includes('Workshop') || event.title.includes('Bootcamp');
-        if (filters.type === 'Webinars') return event.format === 'Online';
-        if (filters.type === 'Meetups') return event.title.includes('Meetup');
+        if (filters.type === 'Workshops') return event.category === 'Workshop' || event.title.includes('Workshop') || event.title.includes('Bootcamp');
+        if (filters.type === 'Webinars') return event.format === 'Online' || event.category === 'Webinar';
+        if (filters.type === 'Meetups') return event.category === 'Meetup' || event.title.includes('Meetup');
         return true;
       });
     }
@@ -262,12 +168,7 @@ const Events = () => {
     }
 
     setFilteredEvents(results);
-  }, [searchTerm, filters]);
-
-  // Initialize filtered events on component mount
-  useEffect(() => {
-    setFilteredEvents(events);
-  }, []);
+  }, [searchTerm, filters, events]);
 
   // Get event dates for calendar highlighting
   const eventDates = events.map(event => new Date(event.date));
@@ -482,8 +383,8 @@ const Events = () => {
                     </div>
                     <div className="absolute top-0 right-0 m-2 sm:m-3">
                       <span className={`text-xs font-bold px-2 sm:px-3 py-1 rounded-full ${event.status === 'Available' ? 'bg-green-100 text-green-800' :
-                          event.status === 'Limited Spots' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
+                        event.status === 'Limited Spots' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
                         }`}>
                         {event.status}
                       </span>

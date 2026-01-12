@@ -18,7 +18,16 @@ class User(AbstractUser):
     phone = models.CharField(max_length=20, blank=True, null=True)
     organization = models.CharField(max_length=100, blank=True, null=True)
     unique_id = models.CharField(max_length=20, unique=True, blank=True, null=True)
-    avatar = CloudinaryField('avatar', folder='code2deploy/avatars', blank=True, null=True)
+    avatar = CloudinaryField(
+        'avatar', 
+        folder='code2deploy/avatars', 
+        blank=True, 
+        null=True,
+        transformation=[
+            {'width': 500, 'height': 500, 'crop': 'limit'},
+            {'quality': 'auto', 'fetch_format': 'auto'}
+        ]
+    )
 
     def save(self, *args, **kwargs):
         if not self.unique_id:

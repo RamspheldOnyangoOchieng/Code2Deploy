@@ -22,6 +22,9 @@ programs_data = [
         'sessions_per_week': 4,
         'has_certification': True,
         'scholarship_available': True,
+        'is_paid': False,
+        'price': 0.00,
+        'coupon': '%coupon',
         'prerequisites': 'Basic understanding of programming concepts',
         'modules': 'HTML & CSS Fundamentals, JavaScript Basics, React Framework, Backend with Node.js, Database Design, API Development, Deployment'
     },
@@ -35,6 +38,9 @@ programs_data = [
         'sessions_per_week': 3,
         'has_certification': True,
         'scholarship_available': True,
+        'is_paid': False,
+        'price': 0.00,
+        'coupon': '%coupon',
         'prerequisites': 'None - suitable for beginners',
         'modules': 'Python Basics, Data Structures, Pandas & NumPy, Data Visualization, Statistics, Machine Learning Intro, Real Projects'
     },
@@ -48,6 +54,9 @@ programs_data = [
         'sessions_per_week': 3,
         'has_certification': True,
         'scholarship_available': False,
+        'is_paid': True,
+        'price': 99.99,
+        'coupon': '%coupon',
         'prerequisites': 'JavaScript and React knowledge required',
         'modules': 'React Native Basics, Navigation, State Management, API Integration, Authentication, Deployment to App Stores'
     },
@@ -61,6 +70,9 @@ programs_data = [
         'sessions_per_week': 2,
         'has_certification': True,
         'scholarship_available': False,
+        'is_paid': True,
+        'price': 149.99,
+        'coupon': '%coupon',
         'prerequisites': 'Experience with web development and Linux',
         'modules': 'AWS Fundamentals, EC2 & Networking, S3 Storage, Serverless with Lambda, Database Services, DevOps & CI/CD'
     },
@@ -74,6 +86,9 @@ programs_data = [
         'sessions_per_week': 3,
         'has_certification': True,
         'scholarship_available': True,
+        'is_paid': False,
+        'price': 0.00,
+        'coupon': '%coupon',
         'prerequisites': 'None - creative mindset helpful',
         'modules': 'Design Principles, User Research, Wireframing, Prototyping, Usability Testing, Design Systems, Portfolio Building'
     },
@@ -87,6 +102,9 @@ programs_data = [
         'sessions_per_week': 4,
         'has_certification': True,
         'scholarship_available': True,
+        'is_paid': False,
+        'price': 0.00,
+        'coupon': '%coupon',
         'prerequisites': 'Basic networking and Linux knowledge',
         'modules': 'Security Fundamentals, Network Security, Web Security, Ethical Hacking, Penetration Testing, Security Tools, Incident Response'
     },
@@ -100,6 +118,9 @@ programs_data = [
         'sessions_per_week': 4,
         'has_certification': True,
         'scholarship_available': False,
+        'is_paid': True,
+        'price': 199.99,
+        'coupon': '%coupon',
         'prerequisites': 'Software development and Linux experience',
         'modules': 'DevOps Principles, Version Control, CI/CD Pipelines, Containerization, Kubernetes, Infrastructure as Code, Monitoring'
     },
@@ -113,6 +134,9 @@ programs_data = [
         'sessions_per_week': 3,
         'has_certification': True,
         'scholarship_available': True,
+        'is_paid': False,
+        'price': 0.00,
+        'coupon': '%coupon',
         'prerequisites': 'Python, Mathematics, and Statistics knowledge',
         'modules': 'ML Fundamentals, Neural Networks, Deep Learning, Computer Vision, NLP, Reinforcement Learning, AI Projects'
     }

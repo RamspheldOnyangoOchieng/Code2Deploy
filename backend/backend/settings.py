@@ -323,7 +323,7 @@ SPECTACULAR_SETTINGS = {
 }
 
 # File upload settings
-MAX_UPLOAD_SIZE = int(os.getenv('MAX_UPLOAD_SIZE', 5242880))  # 5MB default
+MAX_UPLOAD_SIZE = int(os.getenv('MAX_UPLOAD_SIZE', 20971520))  # 20MB default
 ALLOWED_IMAGE_TYPES = os.getenv('ALLOWED_IMAGE_TYPES', 'image/jpeg,image/png,image/gif').split(',')
 
 # Notification settings
@@ -392,6 +392,12 @@ else:
     )
 
 # Cloudinary Storage for media files
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME', 'dmqmanszjh'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY', '458193679926491'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET', ''),
+}
+
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Media files configuration

@@ -27,6 +27,9 @@ const AdminPrograms = () => {
     sessions_per_week: 3,
     has_certification: true,
     scholarship_available: true,
+    is_paid: false,
+    price: 0,
+    coupon: '%coupon',
     prerequisites: '',
     modules: ''
   });
@@ -96,6 +99,9 @@ const AdminPrograms = () => {
       formData.append('sessions_per_week', editForm.sessions_per_week);
       formData.append('has_certification', editForm.has_certification);
       formData.append('scholarship_available', editForm.scholarship_available);
+      formData.append('is_paid', editForm.is_paid);
+      formData.append('price', editForm.price);
+      formData.append('coupon', editForm.coupon || '%coupon');
       formData.append('prerequisites', editForm.prerequisites || '');
       formData.append('modules', editForm.modules || '');
 
@@ -128,6 +134,9 @@ const AdminPrograms = () => {
           sessions_per_week: 3,
           has_certification: true,
           scholarship_available: true,
+          is_paid: false,
+          price: 0,
+          coupon: '%coupon',
           prerequisites: '',
           modules: ''
         });
@@ -168,6 +177,9 @@ const AdminPrograms = () => {
       sessions_per_week: program.sessions_per_week || 3,
       has_certification: program.has_certification !== undefined ? program.has_certification : true,
       scholarship_available: program.scholarship_available !== undefined ? program.scholarship_available : true,
+      is_paid: program.is_paid !== undefined ? program.is_paid : false,
+      price: program.price || 0,
+      coupon: program.coupon || '%coupon',
       prerequisites: program.prerequisites || '',
       modules: program.modules || ''
     });
@@ -190,6 +202,9 @@ const AdminPrograms = () => {
       formData.append('sessions_per_week', editForm.sessions_per_week);
       formData.append('has_certification', editForm.has_certification);
       formData.append('scholarship_available', editForm.scholarship_available);
+      formData.append('is_paid', editForm.is_paid);
+      formData.append('price', editForm.price);
+      formData.append('coupon', editForm.coupon || '%coupon');
       formData.append('prerequisites', editForm.prerequisites || '');
       formData.append('modules', editForm.modules || '');
 
@@ -248,8 +263,8 @@ const AdminPrograms = () => {
 
   const getStatusBadge = (isActive) => (
     <span className={`px-2 py-1 text-xs font-medium rounded-full ${isActive
-        ? 'bg-green-100 text-green-800'
-        : 'bg-red-100 text-red-800'
+      ? 'bg-green-100 text-green-800'
+      : 'bg-red-100 text-red-800'
       }`}>
       {isActive ? 'Active' : 'Inactive'}
     </span>
@@ -570,8 +585,8 @@ const AdminPrograms = () => {
                 key={page}
                 onClick={() => setCurrentPage(page)}
                 className={`px-3 py-2 text-xs md:text-sm font-medium rounded-md ${currentPage === page
-                    ? 'bg-[#30d9fe] text-white'
-                    : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                  ? 'bg-[#30d9fe] text-white'
+                  : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
                   }`}
               >
                 {page}
@@ -800,7 +815,49 @@ const AdminPrograms = () => {
                         Scholarship Available
                       </label>
                     </div>
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={editForm.is_paid}
+                        onChange={(e) => setEditForm({ ...editForm, is_paid: e.target.checked })}
+                        className="h-5 w-5 text-[#30d9fe] focus:ring-[#30d9fe] border-gray-300 rounded"
+                        id="is_paid"
+                      />
+                      <label htmlFor="is_paid" className="ml-3 block text-sm font-medium text-gray-900">
+                        <i className="fas fa-dollar-sign text-blue-500 mr-2"></i>
+                        Paid Program
+                      </label>
+                    </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Pricing and Coupon Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <i className="fas fa-tag mr-2"></i>Price ($)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editForm.price}
+                    onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
+                    placeholder="0.00"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <i className="fas fa-ticket-alt mr-2"></i>Coupon Code
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.coupon}
+                    onChange={(e) => setEditForm({ ...editForm, coupon: e.target.value })}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe]"
+                    placeholder="%coupon"
+                  />
                 </div>
               </div>
 
