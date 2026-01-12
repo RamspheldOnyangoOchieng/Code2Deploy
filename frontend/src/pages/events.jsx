@@ -22,6 +22,7 @@ const Events = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [events, setEvents] = useState([]);
+  const [pageSettings, setPageSettings] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,7 +33,7 @@ const Events = () => {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/events/events/`);
+      const response = await fetch(`${API_BASE_URL}/events/`);
       if (response.ok) {
         const data = await response.json();
         // Backend returns an array or an object with results? 
@@ -197,7 +198,7 @@ const Events = () => {
             </div>
             <div className="mt-8 text-center">
               <Link to="/">
-                <button className="px-6 py-3 sm:px-8 sm:py-4 bg-[#03325a] text-white text-base sm:text-lg font-bold rounded-lg hover:bg-opacity-90 transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap w-full sm:w-auto">
+                <button className="px-6 py-3 sm:px-8 sm:py-4 bg-[#30d9fe] hover:bg-[#eec262] text-[#03325a] text-base sm:text-lg font-bold rounded-lg transition-all duration-300 whitespace-nowrap w-full sm:w-auto">
                   Back to Home
                 </button>
               </Link>
@@ -389,6 +390,11 @@ const Events = () => {
                         {event.status}
                       </span>
                     </div>
+                    <div className="absolute bottom-0 right-0 m-2 sm:m-3">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded shadow-sm ${parseFloat(event.price) === 0 ? 'bg-green-600' : 'bg-red-600'} text-white`}>
+                        {parseFloat(event.price) === 0 ? 'FREE' : `$${event.price}`}
+                      </span>
+                    </div>
                   </div>
                   <div className="p-4 sm:p-6 flex-1 flex flex-col">
                     <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2 text-[#03325a]">{event.title}</h3>
@@ -412,7 +418,7 @@ const Events = () => {
                       <i className="fas fa-user-tie mr-2 text-[#30d9fe]"></i>
                       <span>Presented by: <span className="font-medium">{event.speaker}</span></span>
                     </div>
-                    <button className="w-full py-2 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-opacity-90 transition-all duration-300 !rounded-button cursor-pointer whitespace-nowrap mt-auto text-xs sm:text-base">
+                    <button className="w-full py-2 bg-[#30d9fe] text-[#03325a] font-medium rounded-lg hover:bg-[#eec262] transition-all duration-300 font-bold whitespace-nowrap mt-auto text-xs sm:text-base">
                       Register Now
                     </button>
                   </div>
