@@ -31,6 +31,23 @@ class MentorSerializer(serializers.ModelSerializer):
         model = Mentor
         fields = '__all__'
 
+    def to_internal_value(self, data):
+        data = data.copy() if hasattr(data, 'copy') else dict(data)
+        if 'photo' in data:
+            image_value = data.get('photo')
+            if image_value and not isinstance(image_value, str):
+                try:
+                    import cloudinary.uploader
+                    upload_result = cloudinary.uploader.upload(image_value)
+                    image_url = upload_result.get('secure_url') or upload_result.get('url')
+                    data['photo'] = image_url or ''
+                except Exception as e:
+                    print(f"Cloudinary upload failed: {str(e)}")
+                    data['photo'] = ''
+            elif image_value is None:
+                data['photo'] = ''
+        return super().to_internal_value(data)
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
         # photo is now a TextField (URL string), so just include it as-is
@@ -110,6 +127,23 @@ class AssignmentSubmissionSerializer(serializers.ModelSerializer):
         model = AssignmentSubmission
         fields = '__all__'
 
+    def to_internal_value(self, data):
+        data = data.copy() if hasattr(data, 'copy') else dict(data)
+        if 'submission_file' in data:
+            file_value = data.get('submission_file')
+            if file_value and not isinstance(file_value, str):
+                try:
+                    import cloudinary.uploader
+                    upload_result = cloudinary.uploader.upload(file_value, resource_type='auto')
+                    file_url = upload_result.get('secure_url') or upload_result.get('url')
+                    data['submission_file'] = file_url or ''
+                except Exception as e:
+                    print(f"Cloudinary upload failed: {str(e)}")
+                    data['submission_file'] = ''
+            elif file_value is None:
+                data['submission_file'] = ''
+        return super().to_internal_value(data)
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
         # submission_file is now a TextField (URL string), so just include it as-is
@@ -139,6 +173,23 @@ class MentorResourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = MentorResource
         fields = '__all__'
+
+    def to_internal_value(self, data):
+        data = data.copy() if hasattr(data, 'copy') else dict(data)
+        if 'file' in data:
+            file_value = data.get('file')
+            if file_value and not isinstance(file_value, str):
+                try:
+                    import cloudinary.uploader
+                    upload_result = cloudinary.uploader.upload(file_value, resource_type='auto')
+                    file_url = upload_result.get('secure_url') or upload_result.get('url')
+                    data['file'] = file_url or ''
+                except Exception as e:
+                    print(f"Cloudinary upload failed: {str(e)}")
+                    data['file'] = ''
+            elif file_value is None:
+                data['file'] = ''
+        return super().to_internal_value(data)
 
     def to_representation(self, instance):
         data = super().to_representation(instance)

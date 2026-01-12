@@ -29,7 +29,21 @@ class EnrollInProgramView(APIView):
             program = Program.objects.get(pk=program_id)
         except Program.DoesNotExist:
             return Response({'detail': 'Program not found.'}, status=status.HTTP_404_NOT_FOUND)
-        enrollment, created = Enrollment.objects.get_or_create(user=user, program=program)
+        if program.is_paid:
+            status_val = 'payment_pending'
+            payment_status = 'pending'
+        else:
+            status_val = 'ongoing'
+            payment_status = 'none'
+            
+        enrollment, created = Enrollment.objects.get_or_create(
+            user=user, 
+            program=program,
+            defaults={
+                'status': status_val,
+                'payment_status': payment_status
+            }
+        )
         if not created:
             return Response({'detail': 'Already enrolled.'}, status=status.HTTP_400_BAD_REQUEST)
         serializer = EnrollmentSerializer(enrollment)
@@ -61,11 +75,20 @@ class EnrollInProgramBodyView(APIView):
         if existing_enrollment:
             return Response({'detail': 'Already enrolled in this program.'}, status=status.HTTP_400_BAD_REQUEST)
         
+        # Determine initial status based on program type
+        if program.is_paid:
+            status_val = 'payment_pending'
+            payment_status = 'pending'
+        else:
+            status_val = 'ongoing'
+            payment_status = 'none'
+
         # Create enrollment
         enrollment = Enrollment.objects.create(
             user=user,
             program=program,
-            status='ongoing',
+            status=status_val,
+            payment_status=payment_status,
             progress=0.0
         )
         

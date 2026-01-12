@@ -43,9 +43,26 @@ class Program(models.Model):
         return self.title
 
 class Enrollment(models.Model):
+    STATUS_CHOICES = [
+        ('payment_pending', 'Payment Pending'),
+        ('ongoing', 'Ongoing'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    PAYMENT_CHOICES = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('failed', 'Failed'),
+        ('refunded', 'Refunded'),
+        ('waived', 'Waived'), # For scholarships
+        ('none', 'None') # For free programs
+    ]
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='enrollments')
     program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name='enrollments')
-    status = models.CharField(max_length=20, choices=[('ongoing', 'Ongoing'), ('completed', 'Completed')], default='ongoing')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ongoing')
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='none')
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     progress = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)  # percent
     enrolled_at = models.DateTimeField(auto_now_add=True)
 

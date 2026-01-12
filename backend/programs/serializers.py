@@ -8,18 +8,35 @@ class ProgramSerializer(serializers.ModelSerializer):
         fields = '__all__'
     
     def to_internal_value(self, data):
-        """Convert image field to proper string before validation"""
-        # Handle image field - convert to string or empty string
+        """Convert image field to proper string (URL) before validation"""
+        # Create a mutable copy of data
+        data = data.copy() if hasattr(data, 'copy') else dict(data)
+
         if 'image' in data:
             image_value = data.get('image')
-            # If it's None, empty, or not a string, convert to empty string
-            if image_value is None or image_value == '':
-                data = data.copy() if hasattr(data, 'copy') else dict(data)
+            
+            # If it's a file object (has 'read' method and is not a string)
+            if image_value and not isinstance(image_value, str):
+                try:
+                    import cloudinary.uploader
+                    # Upload to Cloudinary
+                    upload_result = cloudinary.uploader.upload(image_value)
+                    # Get the URL
+                    image_url = upload_result.get('secure_url') or upload_result.get('url')
+                    if image_url:
+                        data['image'] = image_url
+                    else:
+                        data['image'] = ''
+                except Exception as e:
+                    print(f"Cloudinary upload failed: {str(e)}")
+                    # On failure, avoid 500 error by setting to empty string, 
+                    # or handle more gracefully if needed.
+                    data['image'] = ''
+            
+            # If it's None or empty string, ensure it's a blank string for TextField
+            elif image_value is None:
                 data['image'] = ''
-            elif not isinstance(image_value, str):
-                # If it's a file object or something else, use empty string for now
-                data = data.copy() if hasattr(data, 'copy') else dict(data)
-                data['image'] = ''
+                
         return super().to_internal_value(data)
     
     def create(self, validated_data):
@@ -71,7 +88,7 @@ class EnrollmentSerializer(serializers.ModelSerializer):
     program = ProgramSerializer(read_only=True)
     class Meta:
         model = Enrollment
-        fields = ['id', 'program', 'status', 'progress', 'enrolled_at']
+        fields = ['id', 'program', 'status', 'payment_status', 'amount_paid', 'progress', 'enrolled_at']
 
 class MessageSerializer(serializers.Serializer):
     detail = serializers.CharField()

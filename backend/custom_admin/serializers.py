@@ -39,10 +39,19 @@ class ContactPageSettingsSerializer(serializers.ModelSerializer):
 
 class HomePageSettingsSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
+        data = data.copy() if hasattr(data, 'copy') else dict(data)
         if 'hero_image' in data:
             image_value = data.get('hero_image')
-            if image_value is None or image_value == '' or not isinstance(image_value, str):
-                data = data.copy() if hasattr(data, 'copy') else dict(data)
+            if image_value and not isinstance(image_value, str):
+                try:
+                    import cloudinary.uploader
+                    upload_result = cloudinary.uploader.upload(image_value)
+                    image_url = upload_result.get('secure_url') or upload_result.get('url')
+                    data['hero_image'] = image_url or ''
+                except Exception as e:
+                    print(f"Cloudinary upload failed: {str(e)}")
+                    data['hero_image'] = ''
+            elif image_value is None:
                 data['hero_image'] = ''
         return super().to_internal_value(data)
 
@@ -81,10 +90,19 @@ class HomePageSettingsSerializer(serializers.ModelSerializer):
 
 class AboutPageSettingsSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
+        data = data.copy() if hasattr(data, 'copy') else dict(data)
         if 'hero_image' in data:
             image_value = data.get('hero_image')
-            if image_value is None or image_value == '' or not isinstance(image_value, str):
-                data = data.copy() if hasattr(data, 'copy') else dict(data)
+            if image_value and not isinstance(image_value, str):
+                try:
+                    import cloudinary.uploader
+                    upload_result = cloudinary.uploader.upload(image_value)
+                    image_url = upload_result.get('secure_url') or upload_result.get('url')
+                    data['hero_image'] = image_url or ''
+                except Exception as e:
+                    print(f"Cloudinary upload failed: {str(e)}")
+                    data['hero_image'] = ''
+            elif image_value is None:
                 data['hero_image'] = ''
         return super().to_internal_value(data)
 
@@ -112,10 +130,19 @@ class AboutPageSettingsSerializer(serializers.ModelSerializer):
 
 class ProgramsPageSettingsSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
+        data = data.copy() if hasattr(data, 'copy') else dict(data)
         if 'hero_image' in data:
             image_value = data.get('hero_image')
-            if image_value is None or image_value == '' or not isinstance(image_value, str):
-                data = data.copy() if hasattr(data, 'copy') else dict(data)
+            if image_value and not isinstance(image_value, str):
+                try:
+                    import cloudinary.uploader
+                    upload_result = cloudinary.uploader.upload(image_value)
+                    image_url = upload_result.get('secure_url') or upload_result.get('url')
+                    data['hero_image'] = image_url or ''
+                except Exception as e:
+                    print(f"Cloudinary upload failed: {str(e)}")
+                    data['hero_image'] = ''
+            elif image_value is None:
                 data['hero_image'] = ''
         return super().to_internal_value(data)
 
@@ -143,10 +170,19 @@ class ProgramsPageSettingsSerializer(serializers.ModelSerializer):
 
 class EventsPageSettingsSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
+        data = data.copy() if hasattr(data, 'copy') else dict(data)
         if 'hero_image' in data:
             image_value = data.get('hero_image')
-            if image_value is None or image_value == '' or not isinstance(image_value, str):
-                data = data.copy() if hasattr(data, 'copy') else dict(data)
+            if image_value and not isinstance(image_value, str):
+                try:
+                    import cloudinary.uploader
+                    upload_result = cloudinary.uploader.upload(image_value)
+                    image_url = upload_result.get('secure_url') or upload_result.get('url')
+                    data['hero_image'] = image_url or ''
+                except Exception as e:
+                    print(f"Cloudinary upload failed: {str(e)}")
+                    data['hero_image'] = ''
+            elif image_value is None:
                 data['hero_image'] = ''
         return super().to_internal_value(data)
 
