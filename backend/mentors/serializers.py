@@ -38,14 +38,16 @@ class MentorSerializer(serializers.ModelSerializer):
             if image_value and not isinstance(image_value, str):
                 try:
                     import cloudinary.uploader
-                    upload_result = cloudinary.uploader.upload(image_value)
+                    upload_result = cloudinary.uploader.upload(
+                        image_value,
+                        folder="Code2Deploy/mentors"
+                    )
                     image_url = upload_result.get('secure_url') or upload_result.get('url')
-                    data['photo'] = image_url or ''
+                    data['photo'] = image_url
                 except Exception as e:
                     print(f"Cloudinary upload failed: {str(e)}")
-                    data['photo'] = ''
-            elif image_value is None:
-                data['photo'] = ''
+                    if 'photo' in data:
+                        del data['photo']
         return super().to_internal_value(data)
 
     def to_representation(self, instance):
@@ -134,14 +136,17 @@ class AssignmentSubmissionSerializer(serializers.ModelSerializer):
             if file_value and not isinstance(file_value, str):
                 try:
                     import cloudinary.uploader
-                    upload_result = cloudinary.uploader.upload(file_value, resource_type='auto')
+                    upload_result = cloudinary.uploader.upload(
+                        file_value, 
+                        resource_type='auto',
+                        folder="Code2Deploy/submissions"
+                    )
                     file_url = upload_result.get('secure_url') or upload_result.get('url')
-                    data['submission_file'] = file_url or ''
+                    data['submission_file'] = file_url
                 except Exception as e:
                     print(f"Cloudinary upload failed: {str(e)}")
-                    data['submission_file'] = ''
-            elif file_value is None:
-                data['submission_file'] = ''
+                    if 'submission_file' in data:
+                        del data['submission_file']
         return super().to_internal_value(data)
 
     def to_representation(self, instance):
@@ -181,14 +186,17 @@ class MentorResourceSerializer(serializers.ModelSerializer):
             if file_value and not isinstance(file_value, str):
                 try:
                     import cloudinary.uploader
-                    upload_result = cloudinary.uploader.upload(file_value, resource_type='auto')
+                    upload_result = cloudinary.uploader.upload(
+                        file_value, 
+                        resource_type='auto',
+                        folder="Code2Deploy/resources"
+                    )
                     file_url = upload_result.get('secure_url') or upload_result.get('url')
-                    data['file'] = file_url or ''
+                    data['file'] = file_url
                 except Exception as e:
                     print(f"Cloudinary upload failed: {str(e)}")
-                    data['file'] = ''
-            elif file_value is None:
-                data['file'] = ''
+                    if 'file' in data:
+                        del data['file']
         return super().to_internal_value(data)
 
     def to_representation(self, instance):

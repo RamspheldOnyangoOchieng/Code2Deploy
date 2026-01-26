@@ -1,4 +1,7 @@
+from rest_framework import viewsets
 from rest_framework.views import APIView
+from .models import TeamMember
+from .serializers import TeamMemberSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from rest_framework import status
@@ -924,4 +927,11 @@ class InitializeAllPageSettingsView(APIView):
         return Response({
             'message': 'All page settings already exist',
             'created': []
-        }) 
+        })
+
+
+class TeamMemberViewSet(viewsets.ModelViewSet):
+    """ViewSet for managing Team Members"""
+    permission_classes = [IsAdminUser]
+    serializer_class = TeamMemberSerializer
+    queryset = TeamMember.objects.all() 

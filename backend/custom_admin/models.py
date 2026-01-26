@@ -387,3 +387,35 @@ class SiteSettings(models.Model):
         if not self.pk and SiteSettings.objects.exists():
             raise ValueError("Only one SiteSettings instance is allowed")
         super().save(*args, **kwargs)
+
+
+class TeamMember(models.Model):
+    """Model to store team members for the About page"""
+    name = models.CharField(max_length=100)
+    role = models.CharField(max_length=100)
+    image = models.TextField(blank=True, null=True, help_text="Cloudinary ID or external URL")
+    bio = models.TextField(blank=True, null=True)
+    twitter_link = models.URLField(blank=True, null=True)
+    linkedin_link = models.URLField(blank=True, null=True)
+    order = models.IntegerField(default=0, help_text="Order in which the member appears")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Team Member"
+        verbose_name_plural = "Team Members"
+        ordering = ['order', 'name']
+
+    def __str__(self):
+        return f"{self.name} - {self.role}"
+    
+    @property
+    def image_url(self):
+        if self.image:
+            try:
+                if hasattr(self.image, 'url'):
+                    return self.image.url
+                return str(self.image)
+            except Exception:
+                return str(self.image)
+        return None

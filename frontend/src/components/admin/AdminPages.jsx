@@ -153,12 +153,34 @@ const AdminPages = () => {
     events: null
   });
 
+  // Team Members State
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [loadingTeamMembers, setLoadingTeamMembers] = useState(false);
+  const [showMemberModal, setShowMemberModal] = useState(false);
+  const [editingMember, setEditingMember] = useState(null);
+  const [memberForm, setMemberForm] = useState({
+    name: '',
+    role: '',
+    bio: '',
+    twitter_link: '',
+    linkedin_link: '',
+    order: 0,
+    image: null
+  });
+  const [memberImageFile, setMemberImageFile] = useState(null);
+
   const handleHeroImageChange = (pageType, file) => {
     setHeroImageFiles(prev => ({
       ...prev,
       [pageType]: file
     }));
   };
+
+  useEffect(() => {
+    if (selectedPage && selectedPage.id === 'about') {
+      fetchTeamMembers();
+    }
+  }, [selectedPage]);
 
   const contactTypes = [
     {
@@ -463,6 +485,129 @@ const AdminPages = () => {
       setSavingPageSettings(false);
     }
   };
+
+  // Team Member Functions
+  const fetchTeamMembers = async () => {
+    try {
+      setLoadingTeamMembers(true);
+      const token = AuthService.getToken();
+      const response = await fetch(`${API_BASE_URL}/admin/team-members/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setTeamMembers(data.sort((a, b) => a.order - b.order));
+      }
+    } catch (error) {
+      console.error('Error fetching team members:', error);
+    } finally {
+      setLoadingTeamMembers(false);
+    }
+  };
+
+  const handleSaveTeamMember = async (e) => {
+    e.preventDefault();
+    try {
+      setLoadingTeamMembers(true);
+      const token = AuthService.getToken();
+      const formData = new FormData();
+      Object.keys(memberForm).forEach(key => {
+        if (key === 'image') return; // Handle image separately
+        formData.append(key, memberForm[key]);
+      });
+
+      if (memberImageFile) {
+        formData.append('image', memberImageFile);
+      } else if (memberForm.image && typeof memberForm.image === 'string') {
+        formData.append('image', memberForm.image);
+      }
+
+      const url = editingMember
+        ? `${API_BASE_URL}/admin/team-members/${editingMember.id}/`
+        : `${API_BASE_URL}/admin/team-members/`;
+
+      const method = editingMember ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        setShowMemberModal(false);
+        setEditingMember(null);
+        setMemberImageFile(null);
+        fetchTeamMembers();
+        alert('✅ Team member saved successfully');
+      } else {
+        const error = await response.json();
+        alert(`❌ Failed to save team member: ${JSON.stringify(error)}`);
+      }
+    } catch (error) {
+      console.error('Error saving team member:', error);
+      alert('❌ Error saving team member');
+    } finally {
+      setLoadingTeamMembers(false);
+    }
+  };
+
+  const handleDeleteTeamMember = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this team member?')) return;
+    try {
+      setLoadingTeamMembers(true);
+      const token = AuthService.getToken();
+      const response = await fetch(`${API_BASE_URL}/admin/team-members/${id}/`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        fetchTeamMembers();
+        alert('✅ Team member deleted');
+      } else {
+        alert('❌ Failed to delete team member');
+      }
+    } catch (error) {
+      console.error('Error deleting team member:', error);
+    } finally {
+      setLoadingTeamMembers(false);
+    }
+  };
+
+  const openMemberModal = (member = null) => {
+    if (member) {
+      setEditingMember(member);
+      setMemberForm({
+        name: member.name,
+        role: member.role,
+        bio: member.bio || '',
+        twitter_link: member.twitter_link || '',
+        linkedin_link: member.linkedin_link || '',
+        order: member.order || 0,
+        image: member.image || null
+      });
+    } else {
+      setEditingMember(null);
+      setMemberForm({
+        name: '',
+        role: '',
+        bio: '',
+        twitter_link: '',
+        linkedin_link: '',
+        order: teamMembers.length + 1,
+        image: null
+      });
+    }
+    setMemberImageFile(null);
+    setShowMemberModal(true);
+  };
+
 
   const handleEditPage = (page) => {
     setSelectedPage(page);
@@ -1361,6 +1506,63 @@ const AdminPages = () => {
           </div>
         </div>
 
+        {/* Team Members Section */}
+        <div className="bg-gradient-to-r from-indigo-50 to-violet-50 rounded-xl p-6 border-2 border-indigo-200">
+          <div className="flex justify-between items-center mb-4">
+            <h4 className="text-lg font-bold text-[#03325a] flex items-center gap-2">
+              <span>👥</span> Team Members
+            </h4>
+            <button
+              onClick={() => openMemberModal()}
+              className="px-4 py-2 bg-[#03325a] text-white text-sm font-bold rounded-lg hover:bg-[#044e7c] transition-all shadow-sm flex items-center gap-2"
+            >
+              <span>➕</span> Add Member
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {loadingTeamMembers ? (
+              <div className="col-span-full py-8 text-center text-gray-500">Loading team members...</div>
+            ) : teamMembers.length === 0 ? (
+              <div className="col-span-full py-8 text-center text-gray-500 bg-white rounded-lg border border-dashed border-gray-300">
+                No team members added yet. Add one to display on the About page.
+              </div>
+            ) : (
+              teamMembers.map(member => (
+                <div key={member.id} className="bg-white p-4 rounded-lg border border-indigo-100 shadow-sm hover:shadow-md transition-all">
+                  <div className="flex items-center gap-3 mb-3">
+                    <img
+                      src={member.image || 'https://via.placeholder.com/150'}
+                      alt={member.name}
+                      className="w-12 h-12 rounded-full object-cover border border-gray-200"
+                    />
+                    <div>
+                      <h5 className="font-bold text-gray-900">{member.name}</h5>
+                      <p className="text-xs text-indigo-600 font-semibold">{member.role}</p>
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-2 mt-2 pt-2 border-t border-gray-100">
+                    <button
+                      onClick={() => openMemberModal(member)}
+                      className="text-gray-500 hover:text-blue-600 p-1"
+                      title="Edit"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTeamMember(member.id)}
+                      className="text-gray-500 hover:text-red-600 p-1 font-bold text-lg"
+                      title="Delete"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
         {/* Save Buttons */}
         <div className="flex flex-wrap gap-4 justify-end pt-4 border-t border-gray-200">
           <button
@@ -2074,6 +2276,135 @@ const AdminPages = () => {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Team Member Edit Modal */}
+      {showMemberModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+              <h3 className="text-xl font-bold text-[#03325a]">
+                {editingMember ? 'Edit Team Member' : 'Add Team Member'}
+              </h3>
+              <button
+                onClick={() => setShowMemberModal(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors bg-transparent border-0 text-xl"
+              >
+                ❌
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveTeamMember} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Name</label>
+                <input
+                  type="text"
+                  required
+                  value={memberForm.name}
+                  onChange={(e) => setMemberForm({ ...memberForm, name: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#30d9fe] focus:border-transparent outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Role</label>
+                <input
+                  type="text"
+                  required
+                  value={memberForm.role}
+                  onChange={(e) => setMemberForm({ ...memberForm, role: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#30d9fe] focus:border-transparent outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Bio</label>
+                <textarea
+                  value={memberForm.bio}
+                  onChange={(e) => setMemberForm({ ...memberForm, bio: e.target.value })}
+                  rows={3}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#30d9fe] focus:border-transparent outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Twitter Link</label>
+                  <input
+                    type="url"
+                    value={memberForm.twitter_link}
+                    onChange={(e) => setMemberForm({ ...memberForm, twitter_link: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#30d9fe] focus:border-transparent outline-none"
+                    placeholder="https://twitter.com/..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">LinkedIn Link</label>
+                  <input
+                    type="url"
+                    value={memberForm.linkedin_link}
+                    onChange={(e) => setMemberForm({ ...memberForm, linkedin_link: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#30d9fe] focus:border-transparent outline-none"
+                    placeholder="https://linkedin.com/in/..."
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Order</label>
+                <input
+                  type="number"
+                  value={memberForm.order}
+                  onChange={(e) => setMemberForm({ ...memberForm, order: parseInt(e.target.value) || 0 })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#30d9fe] focus:border-transparent outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Profile Image</label>
+                <div className="flex items-center gap-4 p-3 border border-gray-300 rounded-lg bg-gray-50">
+                  {(memberImageFile || memberForm.image) && (
+                    <img
+                      src={memberImageFile ? URL.createObjectURL(memberImageFile) : memberForm.image}
+                      alt="Preview"
+                      className="w-16 h-16 object-cover rounded-full border border-gray-200"
+                    />
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setMemberImageFile(e.target.files[0])}
+                    className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#30d9fe]/10 file:text-[#03325a] hover:file:bg-[#30d9fe]/20"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setShowMemberModal(false)}
+                  className="px-4 py-2 text-gray-700 font-semibold hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loadingTeamMembers}
+                  className="px-6 py-2 bg-[#03325a] text-white font-bold rounded-lg hover:bg-[#044e7c] transition-all shadow-md disabled:opacity-70 flex items-center gap-2"
+                >
+                  {loadingTeamMembers ? (
+                    <>
+                      <span>⏳</span> Saving...
+                    </>
+                  ) : (
+                    <>
+                      <span>💾</span> Save Member
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

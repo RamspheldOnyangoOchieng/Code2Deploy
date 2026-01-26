@@ -1,4 +1,5 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from .views import (
     AdminDashboardStatsView, AdminUserManagementView,
     AdminProgramManagementView, AdminEventManagementView,
@@ -9,8 +10,11 @@ from .views import (
     SiteSettingsView,
     HomePageSettingsView, AboutPageSettingsView,
     ProgramsPageSettingsView, EventsPageSettingsView,
-    InitializeAllPageSettingsView
+    InitializeAllPageSettingsView, TeamMemberViewSet
 )
+
+router = DefaultRouter()
+router.register(r'team-members', TeamMemberViewSet, basename='team-member')
 
 app_name = 'custom_admin'
 
@@ -40,4 +44,5 @@ urlpatterns = [
     
     # Site Settings
     path('site-settings/', SiteSettingsView.as_view(), name='site-settings'),
+    path('', include(router.urls)),
 ] 

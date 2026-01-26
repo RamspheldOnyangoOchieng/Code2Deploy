@@ -14,24 +14,20 @@ class ProgramSerializer(serializers.ModelSerializer):
 
         if 'image' in data:
             image_value = data.get('image')
-            
-            # If it's a file object (has 'read' method and is not a string)
             if image_value and not isinstance(image_value, str):
                 try:
                     import cloudinary.uploader
-                    # Upload to Cloudinary
-                    upload_result = cloudinary.uploader.upload(image_value)
-                    # Get the URL
+                    upload_result = cloudinary.uploader.upload(
+                        image_value,
+                        folder="Code2Deploy/programs"
+                    )
                     image_url = upload_result.get('secure_url') or upload_result.get('url')
                     if image_url:
                         data['image'] = image_url
-                    else:
-                        data['image'] = ''
                 except Exception as e:
                     print(f"Cloudinary upload failed: {str(e)}")
-                    # On failure, avoid 500 error by setting to empty string, 
-                    # or handle more gracefully if needed.
-                    data['image'] = ''
+                    if 'image' in data:
+                        del data['image']
             
             # If it's None or empty string, ensure it's a blank string for TextField
             elif image_value is None:

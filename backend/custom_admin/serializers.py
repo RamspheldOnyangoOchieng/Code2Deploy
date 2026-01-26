@@ -2,8 +2,10 @@ from rest_framework import serializers
 from .models import (
     ContactPageSettings, SiteSettings, 
     HomePageSettings, AboutPageSettings, 
-    ProgramsPageSettings, EventsPageSettings
+    ProgramsPageSettings, EventsPageSettings,
+    TeamMember
 )
+
 
 
 class ContactPageSettingsSerializer(serializers.ModelSerializer):
@@ -45,14 +47,16 @@ class HomePageSettingsSerializer(serializers.ModelSerializer):
             if image_value and not isinstance(image_value, str):
                 try:
                     import cloudinary.uploader
-                    upload_result = cloudinary.uploader.upload(image_value)
+                    upload_result = cloudinary.uploader.upload(
+                        image_value,
+                        folder="Code2Deploy/page_settings"
+                    )
                     image_url = upload_result.get('secure_url') or upload_result.get('url')
-                    data['hero_image'] = image_url or ''
+                    data['hero_image'] = image_url
                 except Exception as e:
                     print(f"Cloudinary upload failed: {str(e)}")
-                    data['hero_image'] = ''
-            elif image_value is None:
-                data['hero_image'] = ''
+                    if 'hero_image' in data:
+                        del data['hero_image']
         return super().to_internal_value(data)
 
     class Meta:
@@ -96,14 +100,16 @@ class AboutPageSettingsSerializer(serializers.ModelSerializer):
             if image_value and not isinstance(image_value, str):
                 try:
                     import cloudinary.uploader
-                    upload_result = cloudinary.uploader.upload(image_value)
+                    upload_result = cloudinary.uploader.upload(
+                        image_value,
+                        folder="Code2Deploy/page_settings"
+                    )
                     image_url = upload_result.get('secure_url') or upload_result.get('url')
-                    data['hero_image'] = image_url or ''
+                    data['hero_image'] = image_url
                 except Exception as e:
                     print(f"Cloudinary upload failed: {str(e)}")
-                    data['hero_image'] = ''
-            elif image_value is None:
-                data['hero_image'] = ''
+                    if 'hero_image' in data:
+                        del data['hero_image']
         return super().to_internal_value(data)
 
     class Meta:
@@ -136,14 +142,16 @@ class ProgramsPageSettingsSerializer(serializers.ModelSerializer):
             if image_value and not isinstance(image_value, str):
                 try:
                     import cloudinary.uploader
-                    upload_result = cloudinary.uploader.upload(image_value)
+                    upload_result = cloudinary.uploader.upload(
+                        image_value,
+                        folder="Code2Deploy/page_settings"
+                    )
                     image_url = upload_result.get('secure_url') or upload_result.get('url')
-                    data['hero_image'] = image_url or ''
+                    data['hero_image'] = image_url
                 except Exception as e:
                     print(f"Cloudinary upload failed: {str(e)}")
-                    data['hero_image'] = ''
-            elif image_value is None:
-                data['hero_image'] = ''
+                    if 'hero_image' in data:
+                        del data['hero_image']
         return super().to_internal_value(data)
 
     class Meta:
@@ -176,14 +184,16 @@ class EventsPageSettingsSerializer(serializers.ModelSerializer):
             if image_value and not isinstance(image_value, str):
                 try:
                     import cloudinary.uploader
-                    upload_result = cloudinary.uploader.upload(image_value)
+                    upload_result = cloudinary.uploader.upload(
+                        image_value,
+                        folder="Code2Deploy/page_settings"
+                    )
                     image_url = upload_result.get('secure_url') or upload_result.get('url')
-                    data['hero_image'] = image_url or ''
+                    data['hero_image'] = image_url
                 except Exception as e:
                     print(f"Cloudinary upload failed: {str(e)}")
-                    data['hero_image'] = ''
-            elif image_value is None:
-                data['hero_image'] = ''
+                    if 'hero_image' in data:
+                        del data['hero_image']
         return super().to_internal_value(data)
 
     class Meta:
@@ -212,5 +222,31 @@ class EventsPageSettingsSerializer(serializers.ModelSerializer):
 class SiteSettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = SiteSettings
+        fields = '__all__'
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class TeamMemberSerializer(serializers.ModelSerializer):
+    def to_internal_value(self, data):
+        data = data.copy() if hasattr(data, 'copy') else dict(data)
+        if 'image' in data:
+            image_value = data.get('image')
+            if image_value and not isinstance(image_value, str):
+                try:
+                    import cloudinary.uploader
+                    upload_result = cloudinary.uploader.upload(
+                        image_value,
+                        folder="Code2Deploy/staff"
+                    )
+                    image_url = upload_result.get('secure_url') or upload_result.get('url')
+                    data['image'] = image_url
+                except Exception as e:
+                    print(f"Cloudinary upload failed: {str(e)}")
+                    if 'image' in data:
+                        del data['image']
+        return super().to_internal_value(data)
+
+    class Meta:
+        model = TeamMember
         fields = '__all__'
         read_only_fields = ['id', 'created_at', 'updated_at']

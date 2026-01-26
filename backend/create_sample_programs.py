@@ -153,12 +153,12 @@ for data in programs_data:
     )
     if created:
         created_count += 1
-        print(f'✅ Created: {program.title}')
+        print(f'[SUCCESS] Created: {program.title}')
     else:
         existing_count += 1
-        print(f'⚠️  Already exists: {program.title}')
+        print(f'[INFO] Already exists: {program.title}')
 
-print(f'\n🎉 Summary:')
+print(f'\nSummary:')
 print(f'   Created: {created_count} programs')
 print(f'   Already existed: {existing_count} programs')
 print(f'   Total in database: {Program.objects.count()} programs')

@@ -149,7 +149,9 @@ def seed_events():
             title=data['title'],
             defaults=data
         )
-        if created or is_invalid_image(event.image):
+        force_update = len(sys.argv) > 1 and sys.argv[1] == 'force_update'
+        
+        if created or is_invalid_image(event.image) or force_update:
             print(f"Updating image for event: {event.title}")
             upload_image_from_url(event, 'image', image_url, f"event_{event.id}.jpg")
         else:

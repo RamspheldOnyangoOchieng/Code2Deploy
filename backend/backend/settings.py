@@ -135,24 +135,24 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 # Use SQLite for local development (comment out PostgreSQL below)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
-# PostgreSQL Database (Supabase - Production)
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.getenv('DB_NAME'),
-#         'USER': os.getenv('DB_USER'),
-#         'PASSWORD': os.getenv('DB_PASSWORD'),
-#         'HOST': os.getenv('DB_HOST'),
-#         'PORT': os.getenv('DB_PORT', '5432'),
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
+# PostgreSQL Database (Supabase - Production)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT', '5432'),
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -375,28 +375,23 @@ LOGGING = {
 }
 
 # Cloudinary Configuration
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME', 'dmqmsnzjh'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY', '717578234265829'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET', 'ebgBkDhVKIndDEwnXJuprlYPNIg'),
+}
+
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
-# Try to use CLOUDINARY_URL first (contains all credentials), fall back to individual settings
-if os.getenv('CLOUDINARY_URL'):
-    # CLOUDINARY_URL format: cloudinary://api_key:api_secret@cloud_name
-    cloudinary.config()  # Will auto-detect from CLOUDINARY_URL env var
-else:
-    cloudinary.config(
-        cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME', 'dmqmanszjh'),
-        api_key=os.getenv('CLOUDINARY_API_KEY', '458193679926491'),
-        api_secret=os.getenv('CLOUDINARY_API_SECRET', ''),
-        secure=True
-    )
-
-# Cloudinary Storage for media files
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME', 'dmqmanszjh'),
-    'API_KEY': os.getenv('CLOUDINARY_API_KEY', '458193679926491'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET', ''),
-}
+# Sync configuration for non-storage use cases
+cloudinary.config(
+    cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
+    api_key=CLOUDINARY_STORAGE['API_KEY'],
+    api_secret=CLOUDINARY_STORAGE['API_SECRET'],
+    secure=True
+)
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 

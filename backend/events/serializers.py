@@ -13,14 +13,16 @@ class EventSerializer(serializers.ModelSerializer):
             if image_value and not isinstance(image_value, str):
                 try:
                     import cloudinary.uploader
-                    upload_result = cloudinary.uploader.upload(image_value)
+                    upload_result = cloudinary.uploader.upload(
+                        image_value,
+                        folder="Code2Deploy/events"
+                    )
                     image_url = upload_result.get('secure_url') or upload_result.get('url')
-                    data['image'] = image_url or ''
+                    data['image'] = image_url
                 except Exception as e:
                     print(f"Cloudinary upload failed: {str(e)}")
-                    data['image'] = ''
-            elif image_value is None:
-                data['image'] = ''
+                    if 'image' in data:
+                        del data['image']
         return super().to_internal_value(data)
         
     def to_representation(self, instance):
