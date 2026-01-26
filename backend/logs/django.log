@@ -3498,3 +3498,172 @@ INFO 2026-01-26 08:41:38,509 autoreload 17224 6796 D:\New\Code2Deploy\backend\cu
 INFO 2026-01-26 08:41:41,071 autoreload 4172 1108 Watching for file changes with StatReloader
 INFO 2026-01-26 08:43:44,935 autoreload 4172 1108 D:\New\Code2Deploy\backend\custom_admin\serializers.py changed, reloading.
 INFO 2026-01-26 08:43:47,014 autoreload 16340 19980 Watching for file changes with StatReloader
+INFO 2026-01-26 09:08:55,403 basehttp 16340 6604 "GET /api/admin/events/?page=1&page_size=20 HTTP/1.1" 200 1895
+INFO 2026-01-26 09:08:58,110 basehttp 16340 6604 "GET /api/admin/events/?page=1&page_size=20 HTTP/1.1" 200 1895
+INFO 2026-01-26 09:09:15,600 basehttp 16340 6604 "OPTIONS /api/events/3/ HTTP/1.1" 200 0
+ERROR 2026-01-26 09:09:17,543 log 16340 6604 Internal Server Error: /api/events/3/
+Traceback (most recent call last):
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\rest_framework\generics.py", line 292, in patch
+    return self.partial_update(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\rest_framework\mixins.py", line 82, in partial_update
+    return self.update(request, *args, **kwargs)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\rest_framework\mixins.py", line 67, in update
+    serializer.is_valid(raise_exception=True)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\rest_framework\serializers.py", line 225, in is_valid
+    self._validated_data = self.run_validation(self.initial_data)
+                           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\rest_framework\serializers.py", line 444, in run_validation
+    value = self.to_internal_value(data)
+  File "D:\New\Code2Deploy\backend\events\serializers.py", line 10, in to_internal_value
+    data = data.copy() if hasattr(data, 'copy') else dict(data)
+           ~~~~~~~~~^^
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\django\http\request.py", line 671, in copy
+    return self.__deepcopy__({})
+           ~~~~~~~~~~~~~~~~~^^^^
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\django\http\request.py", line 632, in __deepcopy__
+    result.setlist(copy.deepcopy(key, memo), copy.deepcopy(value, memo))
+                                             ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Python314\Lib\copy.py", line 131, in deepcopy
+    y = copier(x, memo)
+  File "C:\Python314\Lib\copy.py", line 177, in _deepcopy_list
+    append(deepcopy(a, memo))
+           ~~~~~~~~^^^^^^^^^
+  File "C:\Python314\Lib\copy.py", line 157, in deepcopy
+    y = _reconstruct(x, memo, *rv)
+  File "C:\Python314\Lib\copy.py", line 240, in _reconstruct
+    state = deepcopy(state, memo)
+  File "C:\Python314\Lib\copy.py", line 131, in deepcopy
+    y = copier(x, memo)
+  File "C:\Python314\Lib\copy.py", line 202, in _deepcopy_dict
+    y[deepcopy(key, memo)] = deepcopy(value, memo)
+                             ~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Python314\Lib\copy.py", line 157, in deepcopy
+    y = _reconstruct(x, memo, *rv)
+  File "C:\Python314\Lib\copy.py", line 240, in _reconstruct
+    state = deepcopy(state, memo)
+  File "C:\Python314\Lib\copy.py", line 131, in deepcopy
+    y = copier(x, memo)
+  File "C:\Python314\Lib\copy.py", line 202, in _deepcopy_dict
+    y[deepcopy(key, memo)] = deepcopy(value, memo)
+                             ~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Python314\Lib\copy.py", line 146, in deepcopy
+    rv = reductor(4)
+TypeError: cannot pickle 'BufferedRandom' instances
+ERROR 2026-01-26 09:09:17,553 basehttp 16340 6604 "PATCH /api/events/3/ HTTP/1.1" 500 207680
+ERROR 2026-01-26 09:10:16,365 log 16340 6604 Internal Server Error: /api/events/3/
+Traceback (most recent call last):
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\django\views\generic\base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\rest_framework\views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\rest_framework\views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\rest_framework\views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\rest_framework\views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\rest_framework\generics.py", line 292, in patch
+    return self.partial_update(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\rest_framework\mixins.py", line 82, in partial_update
+    return self.update(request, *args, **kwargs)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\rest_framework\mixins.py", line 67, in update
+    serializer.is_valid(raise_exception=True)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\rest_framework\serializers.py", line 225, in is_valid
+    self._validated_data = self.run_validation(self.initial_data)
+                           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\rest_framework\serializers.py", line 444, in run_validation
+    value = self.to_internal_value(data)
+  File "D:\New\Code2Deploy\backend\events\serializers.py", line 10, in to_internal_value
+    data = data.copy() if hasattr(data, 'copy') else dict(data)
+           ~~~~~~~~~^^
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\django\http\request.py", line 671, in copy
+    return self.__deepcopy__({})
+           ~~~~~~~~~~~~~~~~~^^^^
+  File "D:\New\Code2Deploy\backend\venv\Lib\site-packages\django\http\request.py", line 632, in __deepcopy__
+    result.setlist(copy.deepcopy(key, memo), copy.deepcopy(value, memo))
+                                             ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Python314\Lib\copy.py", line 131, in deepcopy
+    y = copier(x, memo)
+  File "C:\Python314\Lib\copy.py", line 177, in _deepcopy_list
+    append(deepcopy(a, memo))
+           ~~~~~~~~^^^^^^^^^
+  File "C:\Python314\Lib\copy.py", line 157, in deepcopy
+    y = _reconstruct(x, memo, *rv)
+  File "C:\Python314\Lib\copy.py", line 240, in _reconstruct
+    state = deepcopy(state, memo)
+  File "C:\Python314\Lib\copy.py", line 131, in deepcopy
+    y = copier(x, memo)
+  File "C:\Python314\Lib\copy.py", line 202, in _deepcopy_dict
+    y[deepcopy(key, memo)] = deepcopy(value, memo)
+                             ~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Python314\Lib\copy.py", line 157, in deepcopy
+    y = _reconstruct(x, memo, *rv)
+  File "C:\Python314\Lib\copy.py", line 240, in _reconstruct
+    state = deepcopy(state, memo)
+  File "C:\Python314\Lib\copy.py", line 131, in deepcopy
+    y = copier(x, memo)
+  File "C:\Python314\Lib\copy.py", line 202, in _deepcopy_dict
+    y[deepcopy(key, memo)] = deepcopy(value, memo)
+                             ~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Python314\Lib\copy.py", line 146, in deepcopy
+    rv = reductor(4)
+TypeError: cannot pickle 'BufferedRandom' instances
+ERROR 2026-01-26 09:10:16,372 basehttp 16340 6604 "PATCH /api/events/3/ HTTP/1.1" 500 207171
+INFO 2026-01-26 09:11:03,169 basehttp 16340 4948 "GET /api/programs/ HTTP/1.1" 200 10996
+INFO 2026-01-26 09:11:03,293 basehttp 16340 14444 "GET /api/admin/page-settings/home/ HTTP/1.1" 200 1316
+INFO 2026-01-26 09:11:04,581 basehttp 16340 20240 "GET /api/programs/ HTTP/1.1" 200 10996
+INFO 2026-01-26 09:11:04,861 basehttp 16340 14444 "GET /api/admin/page-settings/home/ HTTP/1.1" 200 1316
+INFO 2026-01-26 09:11:08,575 basehttp 16340 9188 "GET /api/admin/page-settings/programs/ HTTP/1.1" 200 900
+INFO 2026-01-26 09:11:08,891 basehttp 16340 6604 "GET /api/programs/ HTTP/1.1" 200 10996
+INFO 2026-01-26 09:11:10,304 basehttp 16340 9188 "GET /api/admin/page-settings/programs/ HTTP/1.1" 200 900
+INFO 2026-01-26 09:11:11,728 basehttp 16340 6604 "GET /api/programs/ HTTP/1.1" 200 10996
+INFO 2026-01-26 09:11:17,138 basehttp 16340 14444 "GET /api/admin/page-settings/events/ HTTP/1.1" 200 835
+INFO 2026-01-26 09:11:17,565 basehttp 16340 20240 "GET /api/events/ HTTP/1.1" 200 1744
+INFO 2026-01-26 09:11:18,763 basehttp 16340 14444 "GET /api/admin/page-settings/events/ HTTP/1.1" 200 835
+INFO 2026-01-26 09:11:18,864 basehttp 16340 20240 "GET /api/events/ HTTP/1.1" 200 1744
+INFO 2026-01-26 09:11:46,322 autoreload 16340 19980 D:\New\Code2Deploy\backend\events\serializers.py changed, reloading.
+INFO 2026-01-26 09:11:48,371 autoreload 5712 14852 Watching for file changes with StatReloader
+INFO 2026-01-26 09:12:10,727 autoreload 5712 14852 D:\New\Code2Deploy\backend\custom_admin\serializers.py changed, reloading.
+INFO 2026-01-26 09:12:12,995 autoreload 19972 2680 Watching for file changes with StatReloader
+INFO 2026-01-26 09:12:25,583 autoreload 19972 2680 D:\New\Code2Deploy\backend\programs\serializers.py changed, reloading.
+INFO 2026-01-26 09:12:28,006 autoreload 19988 16276 Watching for file changes with StatReloader
+INFO 2026-01-26 09:12:42,633 autoreload 19988 16276 D:\New\Code2Deploy\backend\mentors\serializers.py changed, reloading.
+INFO 2026-01-26 09:12:44,767 autoreload 17536 11316 Watching for file changes with StatReloader
+INFO 2026-01-26 09:13:50,200 autoreload 17536 11316 D:\New\Code2Deploy\backend\mentors\serializers.py changed, reloading.
+INFO 2026-01-26 09:13:52,497 autoreload 9452 10084 Watching for file changes with StatReloader
+INFO 2026-01-26 09:15:34,381 autoreload 9452 10084 D:\New\Code2Deploy\backend\custom_admin\serializers.py changed, reloading.
+INFO 2026-01-26 09:15:36,667 autoreload 5972 15780 Watching for file changes with StatReloader
+INFO 2026-01-26 09:20:38,457 autoreload 5972 15780 D:\New\Code2Deploy\backend\backend\settings.py changed, reloading.
+INFO 2026-01-26 09:20:40,802 autoreload 19608 19696 Watching for file changes with StatReloader

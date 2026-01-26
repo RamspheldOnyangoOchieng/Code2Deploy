@@ -32,7 +32,13 @@ class MentorSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def to_internal_value(self, data):
-        data = data.copy() if hasattr(data, 'copy') else dict(data)
+        # Handle dict copying safely without deepcopying file objects
+        if hasattr(data, 'dict'):
+            data = data.dict()
+        elif hasattr(data, 'copy'):
+            data = data.copy()
+        else:
+            data = dict(data)
         if 'photo' in data:
             image_value = data.get('photo')
             if image_value and not isinstance(image_value, str):
@@ -130,7 +136,13 @@ class AssignmentSubmissionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def to_internal_value(self, data):
-        data = data.copy() if hasattr(data, 'copy') else dict(data)
+        # Handle dict copying safely without deepcopying file objects
+        if hasattr(data, 'dict'):
+            data = data.dict()
+        elif hasattr(data, 'copy'):
+            data = data.copy()
+        else:
+            data = dict(data)
         if 'submission_file' in data:
             file_value = data.get('submission_file')
             if file_value and not isinstance(file_value, str):
@@ -180,7 +192,13 @@ class MentorResourceSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def to_internal_value(self, data):
-        data = data.copy() if hasattr(data, 'copy') else dict(data)
+        # Handle dict copying safely without deepcopying file objects
+        if hasattr(data, 'dict'):
+            data = data.dict()
+        elif hasattr(data, 'copy'):
+            data = data.copy()
+        else:
+            data = dict(data)
         if 'file' in data:
             file_value = data.get('file')
             if file_value and not isinstance(file_value, str):

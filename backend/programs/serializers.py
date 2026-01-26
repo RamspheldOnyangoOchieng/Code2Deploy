@@ -9,8 +9,13 @@ class ProgramSerializer(serializers.ModelSerializer):
     
     def to_internal_value(self, data):
         """Convert image field to proper string (URL) before validation"""
-        # Create a mutable copy of data
-        data = data.copy() if hasattr(data, 'copy') else dict(data)
+        # Create a mutable copy of data safely
+        if hasattr(data, 'dict'):
+            data = data.dict()
+        elif hasattr(data, 'copy'):
+            data = data.copy()
+        else:
+            data = dict(data)
 
         if 'image' in data:
             image_value = data.get('image')

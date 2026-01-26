@@ -41,7 +41,13 @@ class ContactPageSettingsSerializer(serializers.ModelSerializer):
 
 class HomePageSettingsSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
-        data = data.copy() if hasattr(data, 'copy') else dict(data)
+        # Handle dict copying safely without deepcopying file objects
+        if hasattr(data, 'dict'):
+            data_dict = data.dict()
+        else:
+            data_dict = data.copy()
+            
+        data = data_dict
         if 'hero_image' in data:
             image_value = data.get('hero_image')
             if image_value and not isinstance(image_value, str):
@@ -94,7 +100,13 @@ class HomePageSettingsSerializer(serializers.ModelSerializer):
 
 class AboutPageSettingsSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
-        data = data.copy() if hasattr(data, 'copy') else dict(data)
+        # Handle dict copying safely without deepcopying file objects
+        if hasattr(data, 'dict'):
+            data_dict = data.dict()
+        else:
+            data_dict = data.copy()
+            
+        data = data_dict
         if 'hero_image' in data:
             image_value = data.get('hero_image')
             if image_value and not isinstance(image_value, str):
@@ -136,7 +148,13 @@ class AboutPageSettingsSerializer(serializers.ModelSerializer):
 
 class ProgramsPageSettingsSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
-        data = data.copy() if hasattr(data, 'copy') else dict(data)
+        # Handle dict copying safely without deepcopying file objects
+        if hasattr(data, 'dict'):
+            data_dict = data.dict()
+        else:
+            data_dict = data.copy()
+            
+        data = data_dict
         if 'hero_image' in data:
             image_value = data.get('hero_image')
             if image_value and not isinstance(image_value, str):
@@ -178,7 +196,13 @@ class ProgramsPageSettingsSerializer(serializers.ModelSerializer):
 
 class EventsPageSettingsSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
-        data = data.copy() if hasattr(data, 'copy') else dict(data)
+        # Handle dict copying safely without deepcopying file objects
+        if hasattr(data, 'dict'):
+            data = data.dict()
+        elif hasattr(data, 'copy'):
+            data = data.copy()
+        else:
+            data = dict(data)
         if 'hero_image' in data:
             image_value = data.get('hero_image')
             if image_value and not isinstance(image_value, str):
@@ -228,7 +252,13 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
 
 class TeamMemberSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
-        data = data.copy() if hasattr(data, 'copy') else dict(data)
+        # Handle dict copying safely without deepcopying file objects
+        if hasattr(data, 'dict'):
+            data = data.dict()
+        elif hasattr(data, 'copy'):
+            data = data.copy()
+        else:
+            data = dict(data)
         if 'image' in data:
             image_value = data.get('image')
             if image_value and not isinstance(image_value, str):

@@ -7,7 +7,13 @@ class EventSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def to_internal_value(self, data):
-        data = data.copy() if hasattr(data, 'copy') else dict(data)
+        # Handle dict copying safely without deepcopying file objects
+        if hasattr(data, 'dict'):
+            data_dict = data.dict()
+        else:
+            data_dict = data.copy()
+            
+        data = data_dict
         if 'image' in data:
             image_value = data.get('image')
             if image_value and not isinstance(image_value, str):
