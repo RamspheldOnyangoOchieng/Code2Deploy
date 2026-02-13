@@ -1,0 +1,13 @@
+{
+  "name": "code2deploy",
+  "version": "1.0.0",
+  "description": "Root package for Code2Deploy project",
+  "scripts": {
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "lint": "cd frontend && npm run lint",
+    "preview": "cd frontend && npm run preview"
+  },
+  "author": "",
+  "license": "ISC"
+}

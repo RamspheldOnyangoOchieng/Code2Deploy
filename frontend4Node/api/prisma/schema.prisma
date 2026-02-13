@@ -1,0 +1,547 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id            String    @id @default(uuid())
+  supabaseId    String    @unique
+  email         String    @unique
+  fullName      String?
+  avatarUrl     String?
+  role          Role      @default(STUDENT)
+  bio           String?   @db.Text
+  expertise     String?   // Comma-separated for mentors
+  yearsExperience Int?     @default(0)
+  github        String?
+  linkedin      String?
+  twitter       String?
+  enrolledAt    DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  enrollments   Enrollment[]
+  programs      Program[]       @relation("InstructorPrograms")
+  menteePairs   MentorMentee[]  @relation("MenteeRelation")
+  mentorPairs   MentorMentee[]  @relation("MentorRelation")
+  sessions      MentorSession[] @relation("MentorSessions")
+  attendances   SessionAttendee[]
+  createdAssignments Assignment[] @relation("MentorAssignments")
+  submissions   AssignmentSubmission[] @relation("StudentSubmissions")
+  reviewedSubmissions AssignmentSubmission[] @relation("MentorReviews")
+  resources     Resource[]
+  sentMessages  Message[]       @relation("SentMessages")
+  receivedMessages Message[]    @relation("ReceivedMessages")
+  applications  Application[]
+  
+  // New relations
+  certificates  Certificate[]
+  badges        Badge[]
+  contactMessages ContactMessage[]
+  notifications Notification[]
+  notificationPreferences NotificationPreference?
+}
+
+enum Role {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+  MENTOR
+}
+
+model Program {
+  id                  String       @id @default(uuid())
+  title               String
+  slug                String       @unique
+  description         String       @db.Text
+  duration            String
+  level               Level
+  technologies        String[]
+  image               String?      
+  mode                Mode         @default(ONLINE)
+  sessionsPerWeek     Int          @default(3)
+  hasCertification    Boolean      @default(true)
+  scholarshipAvailable Boolean     @default(true)
+  price               Decimal      @default(0.0) @db.Decimal(10, 2)
+  isPaid              Boolean      @default(false)
+  coupon              String?
+  prerequisites       String?      @db.Text
+  modules             String?      @db.Text
+  
+  instructorId        String
+  instructor          Profile      @relation("InstructorPrograms", fields: [instructorId], references: [id])
+  
+  enrollments         Enrollment[]
+  assignments         Assignment[]
+  mentorMenteePairs   MentorMentee[]
+  sessions            MentorSession[]
+  resources           Resource[]
+  applications        Application[]
+  
+  // Relations to new models
+  certificates        Certificate[]
+  badges              Badge[]
+  notifications       Notification[]
+  
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+}
+
+enum Level {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum Mode {
+  ONLINE
+  HYBRID
+  ONSITE
+}
+
+model Enrollment {
+  id            String         @id @default(uuid())
+  profileId     String
+  profile       Profile        @relation(fields: [profileId], references: [id])
+  programId     String
+  program       Program        @relation(fields: [programId], references: [id])
+  
+  status        EnrollStatus   @default(ONGOING)
+  paymentStatus PaymentStatus  @default(PENDING)
+  amountPaid    Decimal        @default(0.0) @db.Decimal(10, 2)
+  progress      Float          @default(0.0)
+  
+  enrolledAt    DateTime       @default(now())
+
+  @@unique([profileId, programId])
+}
+
+enum EnrollStatus {
+  PAYMENT_PENDING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  WAIVED
+  NONE
+}
+
+model MentorMentee {
+  id          String   @id @default(uuid())
+  mentorId    String
+  mentor      Profile  @relation("MentorRelation", fields: [mentorId], references: [id])
+  menteeId    String
+  mentee      Profile  @relation("MenteeRelation", fields: [menteeId], references: [id])
+  programId   String?
+  program     Program? @relation(fields: [programId], references: [id])
+  assignedAt  DateTime @default(now())
+  isActive    Boolean  @default(true)
+  notes       String?  @db.Text
+
+  @@unique([mentorId, menteeId, programId])
+}
+
+model MentorSession {
+  id              String           @id @default(uuid())
+  mentorId        String
+  mentor          Profile          @relation("MentorSessions", fields: [mentorId], references: [id])
+  programId       String?
+  program         Program?         @relation(fields: [programId], references: [id])
+  title           String
+  description     String?          @db.Text
+  sessionType     SessionType      @default(ONE_ON_ONE)
+  scheduledAt     DateTime
+  durationMinutes Int              @default(60)
+  meetingLink     String?
+  status          SessionStatus    @default(SCHEDULED)
+  maxAttendees    Int              @default(1)
+  
+  attendees       SessionAttendee[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+enum SessionType {
+  ONE_ON_ONE
+  GROUP
+  WORKSHOP
+  REVIEW
+  OFFICE_HOURS
+}
+
+enum SessionStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model SessionAttendee {
+  id          String        @id @default(uuid())
+  sessionId   String
+  session     MentorSession @relation(fields: [sessionId], references: [id])
+  profileId   String
+  profile     Profile       @relation(fields: [profileId], references: [id])
+  attended    Boolean       @default(false)
+  feedback    String?       @db.Text
+  rating      Int?
+  registeredAt DateTime     @default(now())
+
+  @@unique([sessionId, profileId])
+}
+
+model Assignment {
+  id            String       @id @default(uuid())
+  mentorId      String
+  mentor        Profile      @relation("MentorAssignments", fields: [mentorId], references: [id])
+  programId     String
+  program       Program      @relation(fields: [programId], references: [id])
+  title         String
+  description   String       @db.Text
+  instructions  String?      @db.Text
+  dueDate       DateTime
+  maxScore      Int          @default(100)
+  
+  submissions   AssignmentSubmission[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model AssignmentSubmission {
+  id            String           @id @default(uuid())
+  assignmentId  String
+  assignment    Assignment       @relation(fields: [assignmentId], references: [id])
+  studentId     String
+  student       Profile          @relation("StudentSubmissions", fields: [studentId], references: [id])
+  submissionText String?         @db.Text
+  submissionUrl  String?
+  submissionFile String?
+  status        SubmissionStatus @default(PENDING)
+  score         Int?
+  feedback      String?          @db.Text
+  submittedAt   DateTime         @default(now())
+  reviewedAt    DateTime?
+  reviewedById  String?
+  reviewedBy    Profile?         @relation("MentorReviews", fields: [reviewedById], references: [id])
+
+  @@unique([assignmentId, studentId])
+}
+
+enum SubmissionStatus {
+  PENDING
+  SUBMITTED
+  REVIEWED
+  APPROVED
+  NEEDS_REVISION
+}
+
+model Event {
+  id            String       @id @default(uuid())
+  title         String
+  slug          String       @unique
+  description   String       @db.Text
+  date          DateTime
+  time          String
+  location      String
+  category      String
+  speaker       String
+  image         String?
+  price         Decimal      @default(0.0) @db.Decimal(10, 2)
+  format        EventFormat  @default(ONLINE)
+  status        EventStatus  @default(AVAILABLE)
+  attendeeCount Int          @default(0)
+  
+  applications  Application[]
+  
+  // Relations to new models
+  certificates  Certificate[]
+  badges        Badge[]
+  notifications Notification[]
+  
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+enum EventFormat {
+  ONLINE
+  IN_PERSON
+  HYBRID
+}
+
+enum EventStatus {
+  AVAILABLE
+  LIMITED_SPOTS
+  FULL
+  CANCELLED
+}
+
+model Application {
+  id            String            @id @default(uuid())
+  profileId     String
+  profile       Profile           @relation(fields: [profileId], references: [id])
+  programId     String?
+  program       Program?          @relation(fields: [programId], references: [id])
+  eventId       String?
+  event         Event?            @relation(fields: [eventId], references: [id])
+  status        ApplicationStatus @default(PENDING)
+  notes         String?           @db.Text
+  submissionDate DateTime         @default(now())
+  
+  notifications Notification[]
+
+  @@unique([profileId, programId, eventId])
+}
+
+enum ApplicationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model Resource {
+  id            String       @id @default(uuid())
+  mentorId      String
+  mentor        Profile      @relation(fields: [mentorId], references: [id])
+  programId     String?
+  program       Program?     @relation(fields: [programId], references: [id])
+  title         String
+  description   String?      @db.Text
+  type          ResourceType @default(DOCUMENT)
+  url           String?
+  file          String?
+  isPublic      Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+enum ResourceType {
+  DOCUMENT
+  VIDEO
+  LINK
+  TEMPLATE
+  GUIDE
+}
+
+model Message {
+  id            String    @id @default(uuid())
+  senderId      String
+  sender        Profile   @relation("SentMessages", fields: [senderId], references: [id])
+  recipientId   String
+  recipient     Profile   @relation("ReceivedMessages", fields: [recipientId], references: [id])
+  subject       String?
+  content       String    @db.Text
+  isRead        Boolean   @default(false)
+  readAt        DateTime?
+  createdAt     DateTime  @default(now())
+}
+
+// --- NEW MODULES ---
+
+model Certificate {
+  id              String           @id @default(uuid())
+  certificateId   String           @unique
+  profileId       String
+  profile         Profile          @relation(fields: [profileId], references: [id])
+  title           String
+  description     String?          @db.Text
+  type            CertificateType  @default(PROGRAM_COMPLETION)
+  status          CertificateStatus @default(PENDING)
+  
+  programId       String?
+  program         Program?         @relation(fields: [programId], references: [id])
+  eventId         String?
+  event           Event?           @relation(fields: [eventId], references: [id])
+  
+  issuedDate      DateTime         @default(now())
+  expiryDate      DateTime?
+  certificateUrl  String?
+  skillsCovered   String[]         
+  score           Decimal?         @db.Decimal(5, 2)
+  issuedBy        String           @default("Code2Deploy")
+  
+  notifications   Notification[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+enum CertificateType {
+  PROGRAM_COMPLETION
+  EVENT_ATTENDANCE
+  SKILL_ACHIEVEMENT
+  SPECIAL_RECOGNITION
+}
+
+enum CertificateStatus {
+  PENDING
+  ISSUED
+  EXPIRED
+  REVOKED
+}
+
+model Badge {
+  id              String      @id @default(uuid())
+  profileId       String
+  profile         Profile     @relation(fields: [profileId], references: [id])
+  title           String
+  description     String      @db.Text
+  type            BadgeType   @default(ACHIEVEMENT)
+  
+  icon            String?     // Cloudinary ID or URL
+  color           String      @default("#4f46e5")
+  points          Int         @default(0)
+  
+  programId       String?
+  program         Program?    @relation(fields: [programId], references: [id])
+  eventId         String?
+  event           Event?      @relation(fields: [eventId], references: [id])
+  
+  awardedDate     DateTime    @default(now())
+  criteria        Json?       
+  
+  notifications   Notification[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@unique([profileId, title])
+}
+
+enum BadgeType {
+  ACHIEVEMENT
+  PARTICIPATION
+  SKILL
+  MILESTONE
+  SPECIAL
+}
+
+model ContactMessage {
+  id            String          @id @default(uuid())
+  name          String
+  email         String
+  phone         String?
+  subject       String
+  message       String          @db.Text
+  type          ContactType     @default(GENERAL)
+  status        ContactStatus   @default(NEW)
+  
+  profileId     String?
+  profile       Profile?        @relation(fields: [profileId], references: [id])
+  
+  ipAddress     String?
+  userAgent     String?
+  
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+enum ContactType {
+  GENERAL
+  SPONSOR
+  EDUCATION
+  SUPPORT
+  OTHER
+}
+
+enum ContactStatus {
+  NEW
+  READ
+  REPLIED
+  ARCHIVED
+}
+
+model Notification {
+  id                String           @id @default(uuid())
+  profileId         String
+  profile           Profile          @relation(fields: [profileId], references: [id])
+  type              NotificationType
+  title             String
+  message           String           @db.Text
+  priority          Priority         @default(MEDIUM)
+  status            NotifyStatus     @default(UNREAD)
+  
+  programId         String?
+  program           Program?         @relation(fields: [programId], references: [id])
+  eventId           String?
+  event             Event?           @relation(fields: [eventId], references: [id])
+  certificateId     String?
+  certificate       Certificate?     @relation(fields: [certificateId], references: [id])
+  badgeId           String?
+  badge             Badge?           @relation(fields: [badgeId], references: [id])
+  applicationId     String?
+  application       Application?     @relation(fields: [applicationId], references: [id])
+  
+  actionUrl         String?
+  actionText        String?
+  
+  createdAt         DateTime         @default(now())
+  readAt            DateTime?
+  sentViaEmail      Boolean          @default(false)
+  sentViaPush       Boolean          @default(false)
+
+  @@index([profileId, status])
+}
+
+enum NotificationType {
+  PROGRAM_ENROLLMENT
+  EVENT_REGISTRATION
+  CERTIFICATE_ISSUED
+  BADGE_AWARDED
+  APPLICATION_UPDATE
+  SYSTEM_ANNOUNCEMENT
+  MENTOR_MESSAGE
+  REMINDER
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum NotifyStatus {
+  UNREAD
+  READ
+  ARCHIVED
+}
+
+model NotificationPreference {
+  id                        String   @id @default(uuid())
+  profileId                 String   @unique
+  profile                   Profile  @relation(fields: [profileId], references: [id])
+  
+  emailEnabled              Boolean  @default(true)
+  emailProgramUpdates       Boolean  @default(true)
+  emailEventReminders       Boolean  @default(true)
+  emailCertificateIssued    Boolean  @default(true)
+  emailBadgeAwarded         Boolean  @default(true)
+  emailApplicationUpdates   Boolean  @default(true)
+  emailSystemAnnouncements  Boolean  @default(true)
+  
+  pushEnabled               Boolean  @default(true)
+  pushProgramUpdates        Boolean  @default(true)
+  pushEventReminders        Boolean  @default(true)
+  pushCertificateIssued     Boolean  @default(true)
+  pushBadgeAwarded          Boolean  @default(true)
+  pushApplicationUpdates    Boolean  @default(true)
+  pushSystemAnnouncements   Boolean  @default(true)
+  
+  digestFrequency           DigestFrequency @default(IMMEDIATE)
+  
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+}
+
+enum DigestFrequency {
+  IMMEDIATE
+  DAILY
+  WEEKLY
+}
