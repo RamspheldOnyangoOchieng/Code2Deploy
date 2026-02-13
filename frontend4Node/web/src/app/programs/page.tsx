@@ -1,293 +1,277 @@
 "use client";
 
-import { useState } from "react";
-import { Navbar } from "@/components/Navbar";
-import { motion, AnimatePresence } from "framer-motion";
-import { Search, Filter, Clock, BarChart, BookOpen, CheckCircle, X, ChevronRight, Zap, Target, ShieldCheck } from "lucide-react";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
-
-const CATEGORIES = ["All", "Frontend", "Backend", "Fullstack", "DevOps", "AI & Data"];
-const LEVELS = ["All", "Beginner", "Intermediate", "Advanced"];
-
-const MOCK_PROGRAMS = [
-    {
-        id: "1",
-        title: "Modern Frontend Engineering",
-        description: "Master React, Next.js 14, and advanced CSS techniques. Build production-ready interfaces with performance in mind.",
-        duration: "12 Weeks",
-        level: "Intermediate",
-        category: "Frontend",
-        image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80",
-        price: 0,
-        isScholarship: true,
-        technologies: ["React", "Next.js", "Tailwind", "TypeScript"],
-        modules: ["Fundamentals", "Mastering Hooks", "Server Components", "Optimization"]
-    },
-    {
-        id: "2",
-        title: "Scalable Backend with NestJS",
-        description: "Learn to build enterprise-grade APIs using NestJS, PostgreSQL, and Prisma. Deep dive into microservices.",
-        duration: "14 Weeks",
-        level: "Advanced",
-        category: "Backend",
-        image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80",
-        price: 499,
-        isScholarship: false,
-        technologies: ["Node.js", "NestJS", "PostgreSQL", "Docker"],
-        modules: ["Architecture", "Database Design", "Security", "Deployment"]
-    },
-    {
-        id: "3",
-        title: "DevOps & Cloud Native",
-        description: "Master Kubernetes, Docker, CI/CD pipelines, and cloud orchestration on AWS and Google Cloud.",
-        duration: "10 Weeks",
-        level: "Advanced",
-        category: "DevOps",
-        image: "https://images.unsplash.com/photo-1667372333374-0d3c004cde7d?w=800&q=80",
-        price: 599,
-        isScholarship: true,
-        technologies: ["K8s", "Docker", "Terraform", "AWS"],
-        modules: ["Containerization", "Automation", "Monitoring", "Scaling"]
-    }
-];
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import OriginalLayout from '@/components/OriginalLayout';
 
 export default function ProgramsPage() {
-    const [searchTerm, setSearchTerm] = useState("");
-    const [activeCategory, setActiveCategory] = useState("All");
-    const [activeLevel, setActiveLevel] = useState("All");
-    const [selectedProgram, setSelectedProgram] = useState<any>(null);
-
-    const filteredPrograms = MOCK_PROGRAMS.filter(p => {
-        const matchesSearch = p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            p.description.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCategory = activeCategory === "All" || p.category === activeCategory;
-        const matchesLevel = activeLevel === "All" || p.level === activeLevel;
-        return matchesSearch && matchesCategory && matchesLevel;
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+    const [filters, setFilters] = useState({
+        duration: '',
+        difficulty: '',
+        technology: ''
     });
+    const [programs, setPrograms] = useState<any[]>([]);
+    const [filteredPrograms, setFilteredPrograms] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [selectedProgram, setSelectedProgram] = useState<any>(null);
+    const [showModal, setShowModal] = useState(false);
+
+    const clearFilters = () => {
+        setSearchTerm('');
+        setFilters({
+            duration: '',
+            difficulty: '',
+            technology: ''
+        });
+    };
+
+    useEffect(() => {
+        fetchPrograms();
+    }, []);
+
+    const fetchPrograms = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/programs/`);
+            if (response.ok) {
+                const data = await response.json();
+                setPrograms(data.results || data);
+                setError(null);
+            } else {
+                setError('Failed to load programs');
+            }
+        } catch (err) {
+            setError('Failed to connect to server');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        let results = [...programs];
+        if (searchTerm) {
+            results = results.filter(program =>
+                program.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                program.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (program.technologies && program.technologies.toLowerCase().includes(searchTerm.toLowerCase()))
+            );
+        }
+        if (filters.duration) {
+            results = results.filter(program => program.duration === filters.duration);
+        }
+        if (filters.difficulty) {
+            results = results.filter(program => program.level === filters.difficulty);
+        }
+        if (filters.technology) {
+            results = results.filter(program =>
+                program.technologies && program.technologies.toLowerCase().includes(filters.technology.toLowerCase())
+            );
+        }
+        setFilteredPrograms(results);
+    }, [searchTerm, filters, programs]);
+
+    const getTechnologies = (techString: string) => {
+        if (!techString) return [];
+        return techString.split(',').map(tech => tech.trim());
+    };
+
+    const openModal = (program: any) => {
+        setSelectedProgram(program);
+        setShowModal(true);
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
+        setSelectedProgram(null);
+    };
 
     return (
-        <main className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-            <Navbar />
+        <OriginalLayout>
+            {/* Page Header */}
+            <div className="bg-[#03325a] text-white py-12">
+                <div className="container mx-auto px-4 sm:px-6">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div>
+                            <h1 className="text-3xl md:text-4xl font-bold mb-2">All Programs</h1>
+                            <p className="text-lg text-gray-300">Explore our comprehensive range of tech training programs</p>
+                        </div>
+                        <div className="mt-8 text-center">
+                            <Link href="/">
+                                <button className="px-8 py-4 bg-[#30d9fe] hover:bg-[#eec262] text-[#03325a] text-lg font-bold rounded-lg transition-all duration-300">
+                                    Back to Home
+                                </button>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            {/* Premium Header */}
-            <section className="pt-40 pb-20 bg-white dark:bg-zinc-900 overflow-hidden relative">
-                <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="max-w-3xl"
-                    >
-                        <h1 className="text-5xl sm:text-7xl font-black tracking-tight text-zinc-900 dark:text-white leading-[1.1]">
-                            Accelerate Your <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">Engineering Journey</span>
-                        </h1>
-                        <p className="mt-8 text-xl text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-2xl">
-                            World-class curricula designed by engineers from Google, Amazon, and Meta.
-                            From zero to production-ready deployments.
-                        </p>
-                    </motion.div>
-
-                    {/* Dynamic Filters Bar */}
-                    <div className="mt-16 bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-3xl border border-zinc-200 dark:border-zinc-700 backdrop-blur-sm flex flex-col lg:flex-row gap-6">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-400 h-5 w-5" />
+            {/* Filter Section */}
+            <section className="py-8 bg-gray-50 border-b border-gray-200">
+                <div className="container mx-auto px-4 sm:px-6">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div className="w-full md:w-1/3 relative">
                             <input
                                 type="text"
-                                placeholder="Search by tech, role, or path..."
-                                className="w-full pl-14 pr-4 py-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm"
+                                placeholder="Search programs..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full py-3 pl-10 pr-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#30d9fe] text-sm"
                             />
+                            <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                         </div>
-                        <div className="flex gap-4">
-                            <div className="flex bg-white dark:bg-zinc-900 p-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-700">
-                                {CATEGORIES.slice(0, 4).map(c => (
-                                    <button
-                                        key={c}
-                                        onClick={() => setActiveCategory(c)}
-                                        className={cn(
-                                            "px-4 py-2 rounded-xl text-xs font-bold transition-all",
-                                            activeCategory === c
-                                                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"
-                                                : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300"
+
+                        <div className="flex flex-wrap gap-4 w-full md:w-auto">
+                            <select
+                                value={filters.duration}
+                                onChange={(e) => setFilters({ ...filters, duration: e.target.value })}
+                                className="py-3 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#30d9fe] bg-white text-sm"
+                            >
+                                <option value="">Duration (All)</option>
+                                <option value="10 Weeks">10 Weeks</option>
+                                <option value="12 Weeks">12 Weeks</option>
+                                <option value="14 Weeks">14 Weeks</option>
+                                <option value="16 Weeks">16 Weeks</option>
+                                <option value="20 Weeks">20 Weeks</option>
+                            </select>
+
+                            <select
+                                value={filters.difficulty}
+                                onChange={(e) => setFilters({ ...filters, difficulty: e.target.value })}
+                                className="py-3 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#30d9fe] bg-white text-sm"
+                            >
+                                <option value="">Difficulty (All)</option>
+                                <option value="Beginner">Beginner</option>
+                                <option value="Intermediate">Intermediate</option>
+                                <option value="Advanced">Advanced</option>
+                            </select>
+
+                            <button
+                                onClick={clearFilters}
+                                className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"
+                            >
+                                Clear Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Programs Grid */}
+            <section className="py-12 min-h-[600px]">
+                <div className="container mx-auto px-4 sm:px-6">
+                    {loading ? (
+                        <div className="flex flex-col justify-center items-center h-64 font-sans">
+                            <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#30d9fe] border-t-transparent mb-4"></div>
+                            <p className="text-gray-600 font-medium font-sans">Loading programs...</p>
+                        </div>
+                    ) : error ? (
+                        <div className="text-center py-16">
+                            <i className="fas fa-exclamation-triangle text-6xl text-red-400 mb-4"></i>
+                            <h3 className="text-2xl font-bold text-[#03325a] mb-2">{error}</h3>
+                            <button onClick={fetchPrograms} className="px-6 py-2 bg-[#30d9fe] text-[#03325a] rounded-lg mt-4">Retry</button>
+                        </div>
+                    ) : filteredPrograms.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {filteredPrograms.map(program => (
+                                <div key={program.id} className="bg-white rounded-xl overflow-hidden shadow-lg transition-all hover:shadow-2xl flex flex-col">
+                                    <div className="h-48 relative bg-gradient-to-br from-blue-500 to-blue-600">
+                                        {program.image ? (
+                                            <img src={program.image} alt={program.title} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-white text-6xl opacity-30">
+                                                <i className="fas fa-graduation-cap"></i>
+                                            </div>
                                         )}
-                                    >
-                                        {c}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Decorative background gradients */}
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-600/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
-            </section>
-
-            {/* Main Grid */}
-            <section className="py-24">
-                <div className="max-w-7xl mx-auto px-6 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                        <AnimatePresence mode="popLayout">
-                            {filteredPrograms.map((program, i) => (
-                                <motion.div
-                                    layout
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 0.95 }}
-                                    transition={{ delay: i * 0.1 }}
-                                    key={program.id}
-                                    className="group relative bg-white dark:bg-zinc-900 rounded-[3rem] overflow-hidden border border-zinc-200 dark:border-zinc-800 hover:border-indigo-500/50 hover:shadow-[0_32px_64px_-16px_rgba(79,70,229,0.15)] transition-all cursor-pointer flex flex-col"
-                                    onClick={() => setSelectedProgram(program)}
-                                >
-                                    <div className="relative h-64 overflow-hidden">
-                                        <img
-                                            src={program.image}
-                                            alt={program.title}
-                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
-                                        <div className="absolute top-6 left-6 flex gap-2">
-                                            <span className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur px-4 py-1.5 rounded-2xl text-[10px] font-black tracking-widest uppercase text-indigo-600 border border-indigo-100 dark:border-indigo-900 shadow-xl">
-                                                {program.duration}
-                                            </span>
+                                        <div className="absolute top-3 left-3">
+                                            <span className="bg-[#03325a] text-[#30d9fe] text-xs font-bold px-3 py-1 rounded-full">{program.duration}</span>
                                         </div>
-                                        <div className="absolute bottom-6 left-6">
-                                            <div className="flex gap-2">
-                                                {program.technologies.slice(0, 3).map(t => (
-                                                    <span key={t} className="px-2 py-1 bg-white/20 backdrop-blur rounded-lg text-[10px] font-bold text-white border border-white/20">
-                                                        {t}
-                                                    </span>
-                                                ))}
-                                            </div>
+                                        <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
+                                            <span className="bg-[#eec262] text-[#03325a] text-xs font-bold px-3 py-1 rounded-full">{program.level}</span>
                                         </div>
                                     </div>
-
-                                    <div className="p-10 flex-1 flex flex-col">
-                                        <div className="flex items-center gap-3 mb-6">
-                                            <span className={cn(
-                                                "px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest",
-                                                program.level === "Advanced" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" :
-                                                    program.level === "Intermediate" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" :
-                                                        "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                                            )}>
-                                                {program.level}
-                                            </span>
-                                            {program.isScholarship && (
-                                                <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg text-[10px] font-black tracking-widest uppercase">
-                                                    <Zap size={12} fill="currentColor" /> Scholarship
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <h3 className="text-2xl font-black text-zinc-900 dark:text-white mb-4 group-hover:text-indigo-600 transition-colors leading-tight">
-                                            {program.title}
-                                        </h3>
-                                        <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed mb-10 line-clamp-3">
-                                            {program.description}
-                                        </p>
-
-                                        <div className="mt-auto flex items-center justify-between pt-8 border-t border-zinc-100 dark:border-zinc-800">
-                                            <div className="text-lg font-black text-zinc-900 dark:text-white">
-                                                {program.price === 0 ? "FREE" : `$${program.price}`}
-                                            </div>
-                                            <div className="text-indigo-600 font-bold text-sm flex items-center gap-1 group-hover:gap-2 transition-all">
-                                                Enroll Now <ChevronRight size={18} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-                    </div>
-                </div>
-            </section>
-
-            {/* Quick View Modal */}
-            <AnimatePresence>
-                {selectedProgram && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-hidden">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-zinc-950/80 backdrop-blur-md"
-                            onClick={() => setSelectedProgram(null)}
-                        />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 40 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 40 }}
-                            className="relative w-full max-w-5xl bg-white dark:bg-zinc-900 rounded-[3rem] overflow-hidden shadow-2xl flex flex-col lg:flex-row max-h-[90vh]"
-                        >
-                            <div className="lg:w-1/2 h-64 lg:h-auto relative">
-                                <img
-                                    src={selectedProgram.image}
-                                    alt={selectedProgram.title}
-                                    className="w-full h-full object-cover"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-r from-zinc-900/60 to-transparent lg:hidden" />
-                                <button
-                                    onClick={() => setSelectedProgram(null)}
-                                    className="absolute top-6 left-6 p-3 bg-white/20 hover:bg-white/40 backdrop-blur-xl rounded-2xl text-white transition-all z-20"
-                                >
-                                    <X size={24} />
-                                </button>
-                            </div>
-
-                            <div className="lg:w-1/2 p-10 sm:p-16 overflow-y-auto custom-scrollbar">
-                                <div className="inline-flex gap-4 mb-8">
-                                    <div className="flex items-center gap-2 text-zinc-500 font-bold text-sm uppercase tracking-widest bg-zinc-50 dark:bg-zinc-800 px-4 py-2 rounded-xl">
-                                        <Clock size={16} className="text-indigo-600" />
-                                        {selectedProgram.duration}
-                                    </div>
-                                    <div className="flex items-center gap-2 text-zinc-500 font-bold text-sm uppercase tracking-widest bg-zinc-50 dark:bg-zinc-800 px-4 py-2 rounded-xl">
-                                        <BarChart size={16} className="text-indigo-600" />
-                                        {selectedProgram.level}
-                                    </div>
-                                </div>
-
-                                <h2 className="text-4xl font-black text-zinc-900 dark:text-white mb-6 leading-[1.1]">{selectedProgram.title}</h2>
-                                <p className="text-zinc-600 dark:text-zinc-400 mb-10 text-lg leading-relaxed">
-                                    {selectedProgram.description}
-                                </p>
-
-                                <div className="space-y-10">
-                                    <div>
-                                        <h4 className="font-black text-zinc-900 dark:text-white mb-6 flex items-center gap-3 uppercase tracking-tighter text-xl">
-                                            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
-                                                <Target size={18} />
-                                            </div>
-                                            Curriculum Highlights
-                                        </h4>
-                                        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            {selectedProgram.modules.map((m: string) => (
-                                                <li key={m} className="flex items-center gap-3 text-sm font-bold text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-2xl">
-                                                    <CheckCircle size={18} className="text-indigo-600 flex-shrink-0" />
-                                                    {m}
-                                                </li>
+                                    <div className="p-6 flex-1 flex flex-col">
+                                        <h3 className="text-xl font-bold mb-2 text-[#03325a]">{program.title}</h3>
+                                        <p className="text-gray-600 mb-4 line-clamp-2 text-sm">{program.description}</p>
+                                        <div className="flex flex-wrap gap-2 mb-6">
+                                            {getTechnologies(program.technologies).slice(0, 4).map((tech, index) => (
+                                                <span key={index} className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">{tech}</span>
                                             ))}
-                                        </ul>
-                                    </div>
-
-                                    <div className="pt-10 border-t border-zinc-100 dark:border-zinc-800 flex flex-col sm:flex-row items-center gap-8">
-                                        <div className="flex-1">
-                                            <div className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-1">Tuition Fee</div>
-                                            <div className="text-4xl font-black text-zinc-900 dark:text-white">
-                                                {selectedProgram.price === 0 ? "FREE" : `$${selectedProgram.price}`}
-                                            </div>
                                         </div>
-                                        <button className="w-full sm:w-auto px-12 py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-[2rem] font-black text-lg shadow-2xl shadow-indigo-600/30 transition-all active:scale-[0.98]">
-                                            {selectedProgram.isScholarship ? "Apply Now" : "Enroll Now"}
+                                        <button
+                                            onClick={() => openModal(program)}
+                                            className="w-full py-3 bg-[#30d9fe] text-[#03325a] font-bold rounded-lg hover:bg-[#eec262] transition-colors mt-auto"
+                                        >
+                                            View Details
                                         </button>
                                     </div>
                                 </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-16">
+                            <i className="fas fa-search text-6xl text-gray-300 mb-4"></i>
+                            <h3 className="text-2xl font-bold text-[#03325a] mb-2">No Programs Found</h3>
+                            <button onClick={clearFilters} className="px-6 py-2 bg-[#30d9fe] text-[#03325a] rounded-lg mt-4">Clear Filters</button>
+                        </div>
+                    )}
+                </div>
+            </section>
+
+            {/* Modal Replicated Exactly */}
+            {showModal && selectedProgram && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4 font-sans" onClick={closeModal}>
+                    <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                        <div className="relative h-64 bg-gradient-to-br from-blue-500 to-blue-600">
+                            {selectedProgram.image ? (
+                                <img src={selectedProgram.image} alt={selectedProgram.title} className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-white text-8xl opacity-30">
+                                    <i className="fas fa-graduation-cap"></i>
+                                </div>
+                            )}
+                            <button onClick={closeModal} className="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                                <i className="fas fa-times text-xl text-gray-700"></i>
+                            </button>
+                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
+                                <h2 className="text-3xl font-bold text-white mb-2">{selectedProgram.title}</h2>
+                                <div className="flex gap-3">
+                                    <span className="bg-[#30d9fe] text-[#03325a] text-sm font-bold px-3 py-1 rounded-full">{selectedProgram.duration}</span>
+                                    <span className="bg-[#eec262] text-[#03325a] text-sm font-bold px-3 py-1 rounded-full">{selectedProgram.level}</span>
+                                </div>
                             </div>
-                        </motion.div>
+                        </div>
+                        <div className="p-8">
+                            <div className="mb-6">
+                                <h3 className="text-xl font-bold text-[#03325a] mb-3 font-sans">About This Program</h3>
+                                <p className="text-gray-700 leading-relaxed font-sans">{selectedProgram.description}</p>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                <div className="bg-blue-50 p-5 rounded-xl border border-blue-100 font-sans">
+                                    <h4 className="font-bold text-[#03325a] mb-3">Duration & Info</h4>
+                                    <p className="text-sm">Total Duration: {selectedProgram.duration}</p>
+                                    <p className="text-sm">Level: {selectedProgram.level}</p>
+                                </div>
+                                <div className="bg-green-50 p-5 rounded-xl border border-green-100 font-sans">
+                                    <h4 className="font-bold text-[#03325a] mb-3">What You'll Gain</h4>
+                                    <ul className="text-sm space-y-1">
+                                        <li><i className="fas fa-check text-green-600 mr-2"></i>Hands-on Projects</li>
+                                        <li><i className="fas fa-check text-green-600 mr-2"></i>Industry Certificate</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <Link href={`/enroll/${selectedProgram.id}`} className="block w-full py-4 bg-gradient-to-r from-[#30d9fe] to-blue-500 text-white font-bold rounded-xl text-lg shadow-lg text-center">
+                                Enroll Now
+                            </Link>
+                        </div>
                     </div>
-                )}
-            </AnimatePresence>
-        </main>
+                </div>
+            )}
+        </OriginalLayout>
     );
 }

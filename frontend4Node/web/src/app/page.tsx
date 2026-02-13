@@ -1,233 +1,218 @@
 "use client";
 
-import { Navbar } from "@/components/Navbar";
-import { Hero } from "@/components/Hero";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { ArrowRight, Code, Shield, Cloud, Star, Users, Globe, Zap, CheckCircle2, Award } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Autoplay, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import OriginalLayout from '@/components/OriginalLayout';
+
+// Import swiper styles
+import 'swiper/css';
+import 'swiper/css/pagination';
 
 export default function Home() {
+  const router = useRouter();
+  const [pageSettings, setPageSettings] = useState<any>(null);
+  const [programs, setPrograms] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPageSettings();
+    fetchPrograms();
+  }, []);
+
+  const fetchPageSettings = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/page-settings/home/`);
+      if (response.ok) {
+        const data = await response.json();
+        setPageSettings(data);
+      }
+    } catch (error) {
+      console.error('Failed to load home page settings');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPrograms = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/programs/`);
+      if (response.ok) {
+        const data = await response.json();
+        setPrograms(data.results || data);
+      }
+    } catch (error) {
+      console.error('Failed to load programs');
+    }
+  };
+
+  const getTechnologies = (techString: string) => {
+    if (!techString) return [];
+    return techString.split(',').map(tech => tech.trim());
+  };
+
   return (
-    <main className="min-h-screen bg-white dark:bg-zinc-950 overflow-x-hidden">
-      <Navbar />
-      <Hero />
-
-      {/* Stats Section */}
-      <section className="py-12 border-y border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-white/1">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { label: "Graduates", value: "5,000+" },
-              { label: "Countries", value: "85+" },
-              { label: "Partner Companies", value: "200+" },
-              { label: "Avg. Salary Inc.", value: "65%" },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-2xl sm:text-3xl font-black text-indigo-600 dark:text-indigo-400">{stat.value}</div>
-                <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] mt-2">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Why Us Section */}
-      <section className="py-24 sm:py-32 relative">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="mx-auto max-w-3xl lg:text-center mb-20">
-            <h2 className="text-sm font-bold uppercase tracking-[0.3em] text-indigo-600 mb-6">Industrial Grade Education</h2>
-            <p className="text-4xl sm:text-6xl font-black tracking-tight text-zinc-900 dark:text-white leading-[1.1]">
-              Engineering Excellence <br /> <span className="text-zinc-400">Beyond the Basics</span>
-            </p>
-            <p className="mt-8 text-xl text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              Most bootcamps teach you how to code. We teach you how to build, scale, and deploy complex systems at a global scale.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {[
-              {
-                title: 'High-Performance Architecture',
-                description: 'Master Next.js 15, Turbopack, and Server Components for blindingly fast interfaces.',
-                icon: <Code className="w-8 h-8" />,
-                color: "indigo"
-              },
-              {
-                title: 'Enterprise Security',
-                description: 'Implement industrial-grade auth with Supabase and secure payment flows with Stripe.',
-                icon: <Shield className="w-8 h-8" />,
-                color: "emerald"
-              },
-              {
-                title: 'Full-Scale Deployment',
-                description: 'Go beyond "hello world". Learn Docker, CI/CD, and scaling on AWS and Vercel.',
-                icon: <Cloud className="w-8 h-8" />,
-                color: "purple"
-              }
-            ].map((feature, i) => (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                viewport={{ once: true }}
-                key={feature.title}
-                className="group relative bg-zinc-50 dark:bg-white/2 p-10 rounded-[2.5rem] border border-zinc-200 dark:border-white/5 hover:border-indigo-500/50 transition-all hover:shadow-2xl hover:shadow-indigo-500/10"
-              >
-                <div className={`w-16 h-16 rounded-2xl bg-${feature.color}-500/10 flex items-center justify-center text-${feature.color}-600 mb-8`}>
-                  {feature.icon}
-                </div>
-                <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-4">{feature.title}</h3>
-                <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  {feature.description}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Programs Peek */}
-      <section className="py-24 bg-zinc-50 dark:bg-zinc-900/50">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
-            <div className="max-w-2xl">
-              <h2 className="text-3xl sm:text-5xl font-black text-zinc-900 dark:text-white leading-tight">Featured Paths</h2>
-              <p className="mt-4 text-lg text-zinc-600 dark:text-zinc-400">Hand-crafted curriculum for the next generation of tech leaders.</p>
-            </div>
-            <Link href="/programs" className="inline-flex items-center gap-2 font-bold text-indigo-600 hover:gap-4 transition-all">
-              View all programs <ArrowRight size={20} />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="group relative bg-white dark:bg-zinc-900 rounded-[3rem] p-10 border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-              <div className="relative z-10">
-                <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 text-[10px] font-bold uppercase rounded-full tracking-widest">Advanced</span>
-                <h3 className="text-3xl font-black text-zinc-900 dark:text-white mt-4 mb-4">SaaS Engineering Masterclass</h3>
-                <p className="text-zinc-600 dark:text-zinc-400 mb-8 max-w-sm">From architecture to deployment. Build a production-ready SaaS using the same stack top startups use.</p>
-                <Link href="/programs/saas-masterclass" className="inline-block py-4 px-8 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-2xl font-bold text-sm">
-                  Learn more
-                </Link>
-              </div>
-            </div>
-            <div className="group relative bg-white dark:bg-zinc-900 rounded-[3rem] p-10 border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-              <div className="relative z-10">
-                <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-600 text-[10px] font-bold uppercase rounded-full tracking-widest">Intermediate</span>
-                <h3 className="text-3xl font-black text-zinc-900 dark:text-white mt-4 mb-4">Full-Stack Cloud Architecture</h3>
-                <p className="text-zinc-600 dark:text-zinc-400 mb-8 max-w-sm">Deep dive into AWS, Docker, and NestJS. Master the infrastructure that powers the modern web.</p>
-                <Link href="/programs/cloud-arch" className="inline-block py-4 px-8 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-2xl font-bold text-sm">
-                  Learn more
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Trust Quote */}
-      <section className="py-32 bg-white dark:bg-zinc-950">
-        <div className="max-w-5xl mx-auto px-6 lg:px-8 text-center">
-          <div className="flex justify-center gap-1 mb-10">
-            {[1, 2, 3, 4, 5].map(star => <Star key={star} size={24} fill="#4f46e5" className="text-indigo-600" />)}
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-black text-zinc-900 dark:text-white leading-[1.2] mb-12 italic">
-            "The level of technical depth at Code2Deploy is unmatched. I went from a junior dev to a Senior Architect in just 6 months."
-          </h2>
-          <div className="flex flex-col items-center">
-            <div className="w-20 h-20 rounded-full border-4 border-indigo-500/20 p-1 mb-4">
-              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alex" alt="Alex" className="w-full h-full rounded-full" />
-            </div>
-            <div className="font-bold text-lg">Alex Richardson</div>
-            <div className="text-zinc-500 text-sm font-medium">Senior Engineer at Vercel</div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 sm:py-32 relative">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="relative bg-zinc-900 dark:bg-white rounded-[4rem] p-12 sm:p-24 overflow-hidden text-center">
-            <div className="relative z-10">
-              <h2 className="text-4xl sm:text-7xl font-black text-white dark:text-zinc-900 mb-8 leading-tight">
-                Stop Learning. <br className="hidden sm:block" /> Start <span className="text-indigo-500">Deploying.</span>
-              </h2>
-              <p className="text-zinc-400 dark:text-zinc-500 text-xl mb-12 max-w-2xl mx-auto font-medium">
-                Enroll in our Spring 2026 cohort. Limited spots available for the personalized mentorship track.
+    <OriginalLayout>
+      <div className="min-h-screen bg-[#0A0F2C]">
+        {/* Hero Section Replicated Exactly */}
+        <section className="relative min-h-[70vh] flex flex-col justify-center items-center overflow-hidden px-4 md:px-6 py-20">
+          <div className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" style={{ backgroundImage: `url('https://readdy.ai/api/search-image?query=futuristic%20digital%20brain%20with%20neural%20networks%20and%20glowing%20connections%20in%20dark%20blue%20space%20with%20cyan%20and%20electric%20blue%20lighting%20effects%20modern%20tech%20background&width=1440&height=1024&seq=hero-bg-001&orientation=landscape')` }} />
+          <div className="relative z-10 w-full max-w-screen-xl mx-auto flex flex-col lg:flex-row gap-12 items-center">
+            <div className="w-full lg:w-1/2 text-left">
+              <h1 className="mb-6 font-extrabold leading-tight text-white" style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)' }}>
+                <span className="block">{pageSettings?.hero_title_line1 || 'From'}</span>
+                <span className="text-[#30d9fe]">{pageSettings?.hero_title_highlight1 || 'Hello World'}</span>
+                <span className="block">{pageSettings?.hero_title_line2 || 'to'}</span>
+                <span className="text-[#eec262]">{pageSettings?.hero_title_highlight2 || 'Hello AI'}</span>
+              </h1>
+              <p className="max-w-xl mb-8 text-gray-200 text-lg md:text-xl">
+                {pageSettings?.hero_description || 'Empowering African youth with cutting-edge tech skills to build solutions that matter. Join our community of innovators today.'}
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/programs" className="px-10 py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-3xl font-black transition-all shadow-xl shadow-indigo-600/30">
-                  Explore Programs
+              <div className="flex flex-wrap gap-4">
+                <Link href="/programs">
+                  <button className="px-8 py-3 bg-[#30d9fe] text-[#03325a] font-bold rounded-lg hover:bg-opacity-90 transition-all">Join a Program</button>
                 </Link>
-                <Link href="/contact" className="px-10 py-5 border-2 border-zinc-800 dark:border-zinc-200 text-white dark:text-zinc-900 rounded-3xl font-black transition-all hover:bg-zinc-800 dark:hover:bg-zinc-100">
-                  Schedule a Consultation
+                <Link href="/events">
+                  <button className="px-8 py-3 bg-[#eec262] text-[#03325a] font-bold rounded-lg hover:bg-opacity-90 transition-all">Upcoming Events</button>
                 </Link>
               </div>
             </div>
-
-            {/* Decorative */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/20 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
+            <div className="w-full lg:w-1/2 flex justify-center">
+              <div className="w-full max-w-lg h-64 md:h-96 relative overflow-hidden rounded-2xl shadow-lg border border-white/10">
+                <img
+                  src={pageSettings?.hero_image_url || "https://readdy.ai/api/search-image?query=abstract%20digital%20brain%20with%20glowing%20neural%20pathways%20and%20AI%20connections%20floating%20in%20space%20with%20bright%20cyan%20and%20electric%20blue%20colors%20modern%20minimalist%20tech%20illustration&width=600&height=400&seq=hero-img-001&orientation=landscape"}
+                  alt="AI Illustration"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Footer */}
-      <footer className="bg-zinc-50 dark:bg-white/1 border-t border-zinc-200 dark:border-zinc-800 py-24">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
-            <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center gap-2 mb-8">
-                <div className="bg-indigo-600 p-2 rounded-xl text-white">
-                  <Zap size={24} />
+        {/* Approach Section */}
+        <section className="py-20 px-4 md:px-8">
+          <div className="max-w-screen-xl mx-auto">
+            <h2 className="text-3xl md:text-5xl font-bold text-center mb-12 text-[#30d9fe]">Our Approach</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                { icon: "fas fa-project-diagram", title: "Built 3 Real AI Projects", description: "Hands-on experience with practical applications" },
+                { icon: "fas fa-rocket", title: "Launched AI-Powered Web Apps", description: "Deploy your creations to the real world" },
+                { icon: "fas fa-briefcase", title: "Portfolio-Ready Project", description: "Showcase your skills to potential employers" }
+              ].map((item, i) => (
+                <div key={i} className="bg-slate-800/50 p-8 rounded-2xl text-center border border-white/5">
+                  <div className="w-16 h-16 bg-[#30d9fe] rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i className={`${item.icon} text-2xl text-[#03325a]`}></i>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
+                  <p className="text-gray-400">{item.description}</p>
                 </div>
-                <span className="font-black text-2xl tracking-tighter">Code2Deploy</span>
-              </div>
-              <p className="text-zinc-500 dark:text-zinc-400 max-w-sm mb-8 leading-relaxed">
-                Empowering the next generation of world-class software engineers through industrial-grade education and personalized mentorship.
-              </p>
-              <div className="flex gap-4">
-                {[Twitter, Github, Linkedin, Globe].map((Icon, i) => (
-                  <a key={i} href="#" className="w-10 h-10 rounded-xl border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-indigo-600 hover:border-indigo-600 transition-all">
-                    <Icon size={18} />
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-zinc-900 dark:text-white mb-6 uppercase tracking-widest text-xs">Platform</h4>
-              <ul className="space-y-4">
-                {["Programs", "Mentors", "Events", "Scholarships"].map(link => (
-                  <li key={link}><Link href={`/${link.toLowerCase()}`} className="text-zinc-500 hover:text-indigo-600 transition-colors">{link}</Link></li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-zinc-900 dark:text-white mb-6 uppercase tracking-widest text-xs">Company</h4>
-              <ul className="space-y-4">
-                {["About", "Contact", "Privacy", "Terms"].map(link => (
-                  <li key={link}><Link href={`/${link.toLowerCase()}`} className="text-zinc-500 hover:text-indigo-600 transition-colors">{link}</Link></li>
-                ))}
-              </ul>
+              ))}
             </div>
           </div>
+        </section>
 
-          <div className="pt-8 border-t border-zinc-200 dark:border-zinc-800 flex flex-col md:flex-row justify-between items-center gap-6">
-            <p className="text-zinc-400 text-xs font-bold uppercase tracking-widest">
-              © 2026 Code2Deploy Academy. Built for the modern engineer.
-            </p>
-            <div className="flex gap-4 items-center">
-              <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-600 rounded-full text-[10px] font-black tracking-widest uppercase">
-                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                All Systems Operational
+        {/* Programs Section */}
+        <section className="py-20 bg-gray-50 px-4">
+          <div className="max-w-screen-xl mx-auto">
+            <h2 className="text-4xl font-bold text-center mb-12 text-[#03325a]">Our Programs</h2>
+            <Swiper
+              modules={[Pagination, Autoplay]}
+              spaceBetween={24}
+              slidesPerView={1}
+              pagination={{ clickable: true }}
+              autoplay={{ delay: 5000 }}
+              breakpoints={{
+                640: { slidesPerView: 2 },
+                1024: { slidesPerView: 3 }
+              }}
+              className="pb-12"
+            >
+              {programs.map((program) => (
+                <SwiperSlide key={program.id}>
+                  <div className="bg-white rounded-xl overflow-hidden shadow-md h-full flex flex-col border border-gray-100">
+                    <div className="h-48 bg-slate-100">
+                      {program.image && <img src={program.image} className="w-full h-full object-cover" />}
+                    </div>
+                    <div className="p-6 flex-1 flex flex-col">
+                      <div className="flex justify-between mb-3">
+                        <span className="text-xs font-bold bg-[#03325a] text-[#30d9fe] px-3 py-1 rounded-full">{program.duration}</span>
+                        <span className="text-xs font-bold bg-[#eec262] text-[#03325a] px-3 py-1 rounded-full">{program.level}</span>
+                      </div>
+                      <h3 className="text-xl font-bold text-[#03325a] mb-2">{program.title}</h3>
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">{program.description}</p>
+                      <button onClick={() => router.push('/programs')} className="mt-auto w-full py-2 bg-[#30d9fe] text-[#03325a] font-bold rounded-lg transition-colors hover:bg-opacity-90">
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+            <div className="text-center mt-8">
+              <Link href="/programs" className="inline-block px-12 py-4 bg-[#03325a] text-white font-bold rounded-lg">View All Programs</Link>
+            </div>
+          </div>
+        </section>
+        {/* Stats Section */}
+        <section className="py-20 bg-[#0A0F2C] border-t border-white/5">
+          <div className="max-w-screen-xl mx-auto px-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {[
+                { label: "Satisfied Students", value: "20,000+" },
+                { label: "Course Enrollments", value: "35,000+" },
+                { label: "Expert Instructors", value: "150+" },
+                { label: "Community Events", value: "500+" }
+              ].map((stat, i) => (
+                <div key={i} className="text-center">
+                  <div className="text-3xl md:text-5xl font-black text-[#30d9fe] mb-2">{stat.value}</div>
+                  <div className="text-sm font-bold text-gray-400 uppercase tracking-widest">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials */}
+        <section className="py-20 bg-white">
+          <div className="max-w-screen-xl mx-auto px-4">
+            <h2 className="text-3xl md:text-5xl font-black text-center mb-16 text-[#03325a]">What Our Learners Say</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                { name: "Faith W.", role: "Full Stack Developer", text: "Code2Deploy transformed my career. The hands-on AI projects were exactly what I needed to land my dream job." },
+                { name: "Samuel O.", role: "Data Scientist", text: "The mentorship program is world-class. I learned more in 12 weeks than I did in 2 years of self-study." },
+                { name: "Mercy A.", role: "UI/UX Designer", text: "High-quality content, amazing community, and real-world results. I highly recommend Code2Deploy to everyone." }
+              ].map((t, i) => (
+                <div key={i} className="p-8 bg-gray-50 rounded-3xl border border-gray-100 hover:shadow-xl transition-all">
+                  <div className="text-[#eec262] mb-4">★★★★★</div>
+                  <p className="text-gray-700 italic mb-6">"{t.text}"</p>
+                  <div className="font-black text-[#03325a]">{t.name}</div>
+                  <div className="text-sm font-bold text-[#30d9fe]">{t.role}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-20">
+          <div className="max-w-5xl mx-auto px-4">
+            <div className="bg-gradient-to-br from-[#03325a] via-[#0A0F2C] to-[#30d9fe]/20 rounded-[3rem] p-12 text-center border border-[#30d9fe]/30 shadow-[0_0_50px_rgba(48,217,254,0.1)]">
+              <h2 className="text-4xl md:text-6xl font-black text-white mb-6">Ready to Deploy Your Future?</h2>
+              <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">Join thousands of African developers building the next generation of technology.</p>
+              <div className="flex flex-wrap justify-center gap-6">
+                <Link href="/register">
+                  <button className="px-12 py-4 bg-[#30d9fe] text-[#03325a] font-black rounded-2xl hover:bg-[#eec262] transition-all transform hover:scale-105 shadow-2xl shadow-[#30d9fe]/20">Get Started Now</button>
+                </Link>
+                <Link href="/contact">
+                  <button className="px-12 py-4 border-2 border-white/20 text-white font-black rounded-2xl hover:bg-white/5 transition-all">Talk to an Advisor</button>
+                </Link>
               </div>
             </div>
           </div>
-        </div>
-      </footer>
-    </main>
+        </section>
+      </div>
+    </OriginalLayout>
   );
 }
